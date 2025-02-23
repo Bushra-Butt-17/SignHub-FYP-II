@@ -365,7 +365,7 @@
        <!-- Profile Section -->
 <!-- Profile Section -->
 <div class="profile-section">
-    <h2>Welcome, <span id="username">Loading...</span> 👋</h2>
+    <h2>Welcome, <span id="username">{{ user.username }}</span> 👋</h2>
     <img id="profilePic" class="profile-pic" src="{{ url_for('profile_pic', user_id=user._id) }}?v={{ range(1, 10000) | random }}" alt="Profile Picture">
     <button class="update-profile-btn" onclick="toggleUploadForm()">Update Profile Picture</button>
     <form class="upload-form" action="/dashboard" method="POST" enctype="multipart/form-data" onsubmit="handleProfileUpload(event)" style="display: none;">
