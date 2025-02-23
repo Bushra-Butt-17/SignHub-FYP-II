@@ -12,7 +12,7 @@ import gridfs
 from werkzeug.utils import secure_filename
 from io import BytesIO
 import traceback
-
+from datetime import datetime
 # Load environment variables
 load_dotenv()
 
@@ -41,6 +41,11 @@ db = client["SignHub"]
 fs = gridfs.GridFS(db)
 users_collection = db["users"]
 videos_collection = db['videos']
+# Define the collections
+pending_gestures_collection = db["pending_gestures"]
+approved_gestures_collection = db["approved_gestures"]
+rejected_gestures_collection = db["rejected_gestures"]
+
 
 # Rest of your code remains the same...
 
@@ -123,6 +128,8 @@ def dashboard():
         if 'profile_pic' in request.files:
             file = request.files['profile_pic']
             if file and file.filename:
+                print(f"File received: {file.filename}")  # Debug log
+
                 # Delete the old profile picture if it exists
                 if "profile_pic_id" in user:
                     try:
@@ -137,11 +144,11 @@ def dashboard():
                 print(f"New profile picture uploaded. File ID: {file_id}")  # Debug log
 
                 # Update the user's profile_pic_id in the database
-                users_collection.update_one(
+                result = users_collection.update_one(
                     {"_id": ObjectId(user_id)},
                     {"$set": {"profile_pic_id": file_id}}
                 )
-                print(f"User profile updated with new profile_pic_id: {file_id}")  # Debug log
+                print(f"User profile update result: {result.modified_count} document(s) modified")  # Debug log
 
                 flash("Profile picture updated successfully!", "success")
             else:
@@ -149,21 +156,63 @@ def dashboard():
         else:
             flash("No file uploaded!", "danger")
 
-    videos = list(videos_collection.find({"user_id": user_id}))
-    total_submissions = len(videos)
-    approved_count = sum(1 for v in videos if v.get("status") == "approved")
-    pending_count = sum(1 for v in videos if v.get("status") == "pending")
-    rejected_count = sum(1 for v in videos if v.get("status") == "rejected")
+    # Fetch gestures from all three collections
+    pending_gestures = list(pending_gestures_collection.find({"user_id": user_id}))
+    approved_gestures = list(approved_gestures_collection.find({"user_id": user_id}))
+    rejected_gestures = list(rejected_gestures_collection.find({"user_id": user_id}))
 
-    avg_rating = sum(v.get("rating", 0) for v in videos) / total_submissions if total_submissions > 0 else 0
+    # Calculate statistics
+    total_submissions = len(pending_gestures) + len(approved_gestures) + len(rejected_gestures)
+    approved_count = len(approved_gestures)
+    pending_count = len(pending_gestures)
+    rejected_count = len(rejected_gestures)
+
+    # Calculate average rating (if applicable)
+    avg_rating = 0  # You can update this logic if ratings are stored in the gestures
+
+    # Fetch progress (if available)
     progress = user.get("progress", 50)
+
+    # Fetch video details (e.g., video URLs from GridFS)
+    def add_video_url(gestures):
+        for gesture in gestures:
+            if "video_file_id" in gesture:
+                try:
+                    video_file = fs.get(ObjectId(gesture["video_file_id"]))
+                    gesture["video_url"] = url_for('stream_video', video_id=gesture["video_file_id"], _external=True)
+                    print(f"Video URL for {gesture['name']}: {gesture['video_url']}")  # Debug log
+                except Exception as e:
+                    print(f"Error fetching video file: {e}")
+                    gesture["video_url"] = None
+        return gestures
+
+    pending_gestures = add_video_url(pending_gestures)
+    approved_gestures = add_video_url(approved_gestures)
+    rejected_gestures = add_video_url(rejected_gestures)
 
     return render_template('dashboard.html', 
         user=user, progress=progress, 
         total_submissions=total_submissions, approved_count=approved_count, 
         pending_count=pending_count, rejected_count=rejected_count, avg_rating=round(avg_rating, 1),
-        videos=videos
+        pending_gestures=pending_gestures,
+        approved_gestures=approved_gestures,
+        rejected_gestures=rejected_gestures
     )
+
+
+@app.route('/stream_video/<video_id>')
+def stream_video(video_id):
+    try:
+        video_file = fs.get(ObjectId(video_id))
+        # Explicitly set the MIME type to 'video/mp4'
+        return send_file(BytesIO(video_file.read()), mimetype='video/mp4')
+    except Exception as e:
+        print(f"Error streaming video: {e}")
+        return "Video not found", 404
+    
+
+
+
 
 @app.route('/profile_pic/<user_id>')
 def profile_pic(user_id):
@@ -185,25 +234,37 @@ def profile_pic(user_id):
     except Exception as e:
         print(f"Error retrieving profile picture: {e}")  # Debug log
         return send_file("static/uploads/default.png", mimetype="image/png")
+    
 
+
+    
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
     flash("Logged out successfully!", "info")
     return redirect(url_for('login'))
 
+from flask import url_for
+import traceback
+
 @app.route('/api/dashboard', methods=['GET'])
 def api_dashboard():
     try:
         if 'user_id' not in session:
+            print("User not logged in")  # Debug log
             return jsonify({"error": "User not logged in"}), 401
 
         user_id = session['user_id']
         user = users_collection.find_one({"_id": ObjectId(user_id)})
 
         if not user:
+            print("User not found in database")  # Debug log
             return jsonify({"error": "User not found"}), 404
 
+        # Generate the profile picture URL dynamically
+        profile_pic_url = url_for('profile_pic', user_id=user_id, _external=True)
+
+        # Fetch user videos
         videos = list(videos_collection.find({"user_id": user_id}))
         total_submissions = len(videos)
         approved_count = sum(1 for v in videos if v.get("status") == "approved")
@@ -211,22 +272,105 @@ def api_dashboard():
         rejected_count = sum(1 for v in videos if v.get("status") == "rejected")
         avg_rating = sum(v.get("rating", 0) for v in videos) / total_submissions if total_submissions > 0 else 0
 
+        # Debug log the data being returned
+        print(f"User: {user}")
+        print(f"Profile Picture URL: {profile_pic_url}")
+        print(f"Total Submissions: {total_submissions}")
+        print(f"Approved Count: {approved_count}")
+        print(f"Pending Count: {pending_count}")
+        print(f"Rejected Count: {rejected_count}")
+        print(f"Average Rating: {avg_rating}")
+
         return jsonify({
             "user": {
                 "name": user.get("username", "Unknown User"),
-                "profile_pic": user.get("profile_pic", "/static/uploads/default.png")
+                "profile_pic": profile_pic_url,  # Use the dynamically generated URL
             },
             "total_submissions": total_submissions,
             "approved_count": approved_count,
             "pending_count": pending_count,
             "rejected_count": rejected_count,
             "avg_rating": avg_rating,
-            "videos": videos
+            "videos": videos,
         })
 
     except Exception as e:
-        print("🔴 API Error:", traceback.format_exc())
+        print(f"🔴 API Error: {traceback.format_exc()}")  # Debug log
         return jsonify({"error": "Internal Server Error"}), 500
+    
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+
+
+@app.route('/add_gesture', methods=['GET', 'POST'])
+def add_gesture():
+    user_id = session.get('user_id')  # Retrieve user ID from the session
+    if not user_id:  # If no user is logged in, redirect to login
+        flash("Please log in to add a gesture.", "danger")
+        return redirect(url_for('login'))
+
+    # Ensure the pending_gestures collection exists
+    if "pending_gestures" not in db.list_collection_names():
+        db.create_collection("pending_gestures")
+
+    # Create indexes for the pending_gestures collection
+    pending_gestures_collection = db["pending_gestures"]
+    pending_gestures_collection.create_index([("user_id", 1)])
+    pending_gestures_collection.create_index([("status", 1)])
+    pending_gestures_collection.create_index([("created_at", -1)])
+
+    if request.method == 'POST':
+        try:
+            # Extract form data
+            gesture_name = request.form.get('name')
+            gesture_dialect = request.form.get('dialect')
+            gesture_video = request.files.get('video')  # File upload
+
+            # Debugging: Print form data
+            print(f"Gesture Name: {gesture_name}")
+            print(f"Gesture Dialect: {gesture_dialect}")
+            print(f"Video File: {gesture_video.filename if gesture_video else 'No file uploaded'}")
+
+            # Validate form data
+            if not gesture_name or not gesture_dialect or not gesture_video:
+                flash("All fields are required!", "danger")
+                return redirect(url_for('add_gesture'))
+
+            # Store the video in GridFS
+            filename = secure_filename(gesture_video.filename)
+            video_file_id = fs.put(
+                gesture_video,
+                filename=filename,
+                content_type=gesture_video.content_type  # Ensure the content type is set
+            )
+            print(f"Video uploaded to GridFS. File ID: {video_file_id}")  # Debug log
+
+            # Create a new gesture document
+            new_gesture = {
+                "name": gesture_name,
+                "dialect": gesture_dialect,
+                "video_file_id": video_file_id,
+                "status": "pending",  # Set status as "pending"
+                "user_id": user_id,  # Associate gesture with the logged-in user
+                "created_at": datetime.now()  # Correct usage of datetime.now()
+            }
+
+            # Insert the gesture into the database
+            pending_gestures_collection.insert_one(new_gesture)
+
+            flash("Gesture added successfully! It is now pending review.", "success")
+            return redirect(url_for('dashboard'))  # Redirect to the contributor dashboard after adding the gesture
+
+        except Exception as e:
+            # Debugging: Print error
+            print(f"Error adding gesture: {e}")
+            flash("An error occurred while adding the gesture. Please try again.", "danger")
+            return redirect(url_for('add_gesture'))
+
+    # Render the form for GET requests
+    return render_template('add_gesture.html')
+from waitress import serve
+
+if __name__ == "__main__":
+    serve(app, host="0.0.0.0", port=5000)
+    
