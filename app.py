@@ -124,6 +124,10 @@ def dashboard():
         flash("User not found!", "danger")
         return redirect(url_for('login'))
 
+    # Debugging: Print user data
+    print(f"User Data: {user}")
+    print(f"Username: {user.get('username')}")
+
     if request.method == "POST":
         if 'profile_pic' in request.files:
             file = request.files['profile_pic']
@@ -198,7 +202,6 @@ def dashboard():
         approved_gestures=approved_gestures,
         rejected_gestures=rejected_gestures
     )
-
 
 @app.route('/stream_video/<video_id>')
 def stream_video(video_id):
@@ -300,8 +303,6 @@ def api_dashboard():
     
 
 
-
-
 @app.route('/add_gesture', methods=['GET', 'POST'])
 def add_gesture():
     user_id = session.get('user_id')  # Retrieve user ID from the session
@@ -358,7 +359,14 @@ def add_gesture():
             # Insert the gesture into the database
             pending_gestures_collection.insert_one(new_gesture)
 
-            flash("Gesture added successfully! It is now pending review.", "success")
+            # Increment the pending_count in the user collection
+            users_collection = db["users"]  # Assuming your user collection is named "users"
+            users_collection.update_one(
+                {"_id": user_id},  # Find the user by their ID
+                {"$inc": {"pending_count": 1}}  # Increment the pending_count by 1
+            )
+
+            print("Gesture added successfully! It is now pending review.", "success")
             return redirect(url_for('dashboard'))  # Redirect to the contributor dashboard after adding the gesture
 
         except Exception as e:
@@ -369,6 +377,7 @@ def add_gesture():
 
     # Render the form for GET requests
     return render_template('add_gesture.html')
+    
 from waitress import serve
 
 if __name__ == "__main__":
