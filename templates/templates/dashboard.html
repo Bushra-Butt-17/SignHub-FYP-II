@@ -344,36 +344,45 @@
         }
     </style>
 </head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        /* Add your CSS styles here */
+    </style>
+</head>
 <body>
     <!-- Navigation Bar -->
-<nav class="navbar">
-    <div class="logo">SignHub</div>
-    <div class="nav-links">
-        <a href="#" class="nav-link">Home</a>
-        <a href="#" class="nav-link">Profile</a>
-        <a href="#" class="nav-link">Settings</a>
-    </div>
-    <div class="nav-actions">
-        <button class="logout-btn" onclick="logout()">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
-    </div>
-</nav>
+    <nav class="navbar">
+        <div class="logo">SignHub</div>
+        <div class="nav-links">
+            <a href="#" class="nav-link">Home</a>
+            <a href="#" class="nav-link">Profile</a>
+            <a href="#" class="nav-link">Settings</a>
+        </div>
+        <div class="nav-actions">
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </nav>
 
     <!-- Dashboard Container -->
     <div class="dashboard-container">
-       <!-- Profile Section -->
-<!-- Profile Section -->
-<div class="profile-section">
-    <h2>Welcome, <span id="username">{{ user.username }}</span> 👋</h2>
-    <img id="profilePic" class="profile-pic" src="{{ url_for('profile_pic', user_id=user._id) }}?v={{ range(1, 10000) | random }}" alt="Profile Picture">
-    <button class="update-profile-btn" onclick="toggleUploadForm()">Update Profile Picture</button>
-    <form class="upload-form" action="/dashboard" method="POST" enctype="multipart/form-data" onsubmit="handleProfileUpload(event)" style="display: none;">
-        <i class="fas fa-camera icon"></i>
-        <input type="file" name="profile_pic" accept="image/*" required>
-        <button type="submit">Upload</button>
-    </form>
-</div>
+        <!-- Profile Section -->
+        <div class="profile-section">
+            <h2>Welcome, <span id="username">{{ user.username }}</span> 👋</h2>
+            <img id="profilePic" class="profile-pic" src="{{ url_for('profile_pic', user_id=user._id) }}?v={{ range(1, 10000) | random }}" alt="Profile Picture">
+            <button class="update-profile-btn" onclick="toggleUploadForm()">Update Profile Picture</button>
+            <form class="upload-form" action="/dashboard" method="POST" enctype="multipart/form-data" onsubmit="handleProfileUpload(event)" style="display: none;">
+                <i class="fas fa-camera icon"></i>
+                <input type="file" name="profile_pic" accept="image/*" required>
+                <button type="submit">Upload</button>
+            </form>
+        </div>
 
         <!-- Stats Section -->
         <div class="stats-container">
@@ -401,108 +410,77 @@
         </div>
 
         <!-- Pending Gestures Section -->
-    <div class="gestures-section">
-        <h3>⏳ Pending Gestures</h3>
-        <div class="gesture-grid">
-            {% for gesture in pending_gestures %}
-                <div class="gesture-card">
-                    <video width="100%" controls>
-                        <source src="{{ gesture.video_url }}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <p>{{ gesture.name }}</p>
-                    <span class="status pending">{{ gesture.status }}</span>
-                </div>
-            {% else %}
-                <p>No pending gestures found.</p>
-            {% endfor %}
+        <div class="gestures-section">
+            <h3>⏳ Pending Gestures</h3>
+            <div class="gesture-grid" id="pendingGesturesGrid">
+                {% for gesture in pending_gestures %}
+                    <div class="gesture-card">
+                        <video width="100%" controls>
+                            <source src="{{ gesture.video_url }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <p>{{ gesture.name }}</p>
+                        <span class="status pending">{{ gesture.status }}</span>
+                    </div>
+                {% else %}
+                    <p>No pending gestures found.</p>
+                {% endfor %}
+            </div>
         </div>
-    </div>
 
-    <!-- Approved Gestures Section -->
-    <div class="gestures-section">
-        <h3>✅ Approved Gestures</h3>
-        <div class="gesture-grid">
-            {% for gesture in approved_gestures %}
-                <div class="gesture-card">
-                    <video width="100%" controls>
-                        <source src="{{ gesture.video_url }}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <p>{{ gesture.name }}</p>
-                    <span class="status approved">{{ gesture.status }}</span>
-                </div>
-            {% else %}
-                <p>No approved gestures found.</p>
-            {% endfor %}
+        <!-- Approved Gestures Section -->
+        <div class="gestures-section">
+            <h3>✅ Approved Gestures</h3>
+            <div class="gesture-grid" id="approvedGesturesGrid">
+                {% for gesture in approved_gestures %}
+                    <div class="gesture-card">
+                        <video width="100%" controls>
+                            <source src="{{ gesture.video_url }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <p>{{ gesture.name }}</p>
+                        <span class="status approved">{{ gesture.status }}</span>
+                    </div>
+                {% else %}
+                    <p>No approved gestures found.</p>
+                {% endfor %}
+            </div>
         </div>
-    </div>
 
-    <!-- Rejected Gestures Section -->
-    <div class="gestures-section">
-        <h3>❌ Rejected Gestures</h3>
-        <div class="gesture-grid">
-            {% for gesture in rejected_gestures %}
-                <div class="gesture-card">
-                    <video width="100%" controls>
-                        <source src="{{ gesture.video_url }}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <p>{{ gesture.name }}</p>
-                    <span class="status rejected">{{ gesture.status }}</span>
-                </div>
-            {% else %}
-                <p>No rejected gestures found.</p>
-            {% endfor %}
+        <!-- Rejected Gestures Section -->
+        <div class="gestures-section">
+            <h3>❌ Rejected Gestures</h3>
+            <div class="gesture-grid" id="rejectedGesturesGrid">
+                {% for gesture in rejected_gestures %}
+                    <div class="gesture-card">
+                        <video width="100%" controls>
+                            <source src="{{ gesture.video_url }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <p>{{ gesture.name }}</p>
+                        <span class="status rejected">{{ gesture.status }}</span>
+                    </div>
+                {% else %}
+                    <p>No rejected gestures found.</p>
+                {% endfor %}
+            </div>
         </div>
-    </div>
-</div>
     </div>
 
     <script>
+        // Function to toggle the visibility of the upload form
+        function toggleUploadForm() {
+            const uploadForm = document.querySelector('.upload-form');
+            const updateProfileBtn = document.querySelector('.update-profile-btn');
 
- // Function to toggle the visibility of the upload form
-function toggleUploadForm() {
-    const uploadForm = document.querySelector('.upload-form');
-    const updateProfileBtn = document.querySelector('.update-profile-btn');
-
-    if (uploadForm.style.display === 'none') {
-        uploadForm.style.display = 'block'; // Show the upload form
-        updateProfileBtn.style.display = 'none'; // Hide the update button
-    } else {
-        uploadForm.style.display = 'none'; // Hide the upload form
-        updateProfileBtn.style.display = 'block'; // Show the update button
-    }
-}
-
-// Function to handle profile picture upload
-async function handleProfileUpload(event) {
-    event.preventDefault(); // Prevent default form submission
-
-    const form = event.target;
-    const formData = new FormData(form);
-
-    try {
-        const response = await fetch('/dashboard', {
-            method: 'POST',
-            body: formData,
-        });
-
-        if (!response.ok) {
-            throw new Error(`Upload failed: ${response.status}`);
+            if (uploadForm.style.display === 'none') {
+                uploadForm.style.display = 'block'; // Show the upload form
+                updateProfileBtn.style.display = 'none'; // Hide the update button
+            } else {
+                uploadForm.style.display = 'none'; // Hide the upload form
+                updateProfileBtn.style.display = 'block'; // Show the update button
+            }
         }
-
-        // Reload the dashboard data after successful upload
-        await loadDashboard();
-        alert("Profile picture updated successfully!");
-
-        // Hide the upload form and show the update profile button again
-        toggleUploadForm(); // This ensures the form is hidden after upload
-    } catch (error) {
-        console.error("Error uploading profile picture:", error.message);
-        alert("Failed to upload profile picture. Please try again.");
-    }
-}
 
         // Function to handle profile picture upload
         async function handleProfileUpload(event) {
@@ -524,98 +502,96 @@ async function handleProfileUpload(event) {
                 // Reload the dashboard data after successful upload
                 await loadDashboard();
                 alert("Profile picture updated successfully!");
+
+                // Hide the upload form and show the update profile button again
+                toggleUploadForm(); // This ensures the form is hidden after upload
             } catch (error) {
                 console.error("Error uploading profile picture:", error.message);
                 alert("Failed to upload profile picture. Please try again.");
             }
         }
 
-        // Function to handle gesture upload
-        function uploadGesture() {
-            // Implement gesture upload logic here
-            alert("Gesture upload functionality to be implemented.");
-        }
-
-        // Function to handle logout
-        function logout() {
-            // Implement logout logic here
-            alert("Logout functionality to be implemented.");
-        }
-
         // Function to load dashboard data
         async function loadDashboard() {
-            console.log("Fetching dashboard data...");  // 🔹 Log API request
+    console.log("Fetching dashboard data...");
 
-            try {
-                const response = await fetch('/api/dashboard');
-                console.log("API Response Status:", response.status);  // 🔹 Log response status
+    try {
+        const response = await fetch('/api/dashboard');
+        console.log("API Response Status:", response.status);
 
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.status}`);
-                }
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
 
-                const data = await response.json();
-                console.log("Received Data:", data);  // 🔹 Log full API response
+        const data = await response.json();
+        console.log("Received Data:", data);
 
-                if (!data || !data.user) {
-                    throw new Error("Invalid API response: User data missing.");
-                }
+        if (!data) {
+            throw new Error("Invalid API response.");
+        }
 
-                // Update UI
-                document.getElementById("username").textContent = data.user.name;
+        // ✅ Get elements safely
+        const usernameElement = document.getElementById("username");
+        const profilePic = document.getElementById("profilePic");
+        const totalSubmissionsElement = document.getElementById("totalSubmissions");
+        const approvedCountElement = document.getElementById("approvedCount");
+        const pendingCountElement = document.getElementById("pendingCount");
+        const rejectedCountElement = document.getElementById("rejectedCount");
+        const avgRatingElement = document.getElementById("avgRating");
+        const starContainer = document.getElementById("starContainer");
 
-                // Update profile picture with cache-busting query parameter
-                const profilePic = document.getElementById("profilePic");
-                profilePic.src = `${data.user.profile_pic || "/static/uploads/default.png"}?v=${Math.random()}`;
+        // ✅ Update only if elements exist
+        if (usernameElement && data.user?.name) {
+            usernameElement.textContent = data.user.name;
+        }
 
-                document.getElementById("totalSubmissions").textContent = data.total_submissions || 0;
-                document.getElementById("approvedCount").textContent = data.approved_count || 0;
-                document.getElementById("pendingCount").textContent = data.pending_count || 0;
-                document.getElementById("rejectedCount").textContent = data.rejected_count || 0;
+        if (profilePic && data.user?.profile_pic) {
+            profilePic.src = `${data.user.profile_pic}?v=${Math.random()}`;
+        }
 
-                document.getElementById("avgRating").textContent = `${data.avg_rating || 0}/5`;
+        if (totalSubmissionsElement) {
+            totalSubmissionsElement.textContent = data.total_submissions || 0;
+        }
 
-                // Star ratings
-                const starContainer = document.getElementById("starContainer");
-                starContainer.innerHTML = "";
-                for (let i = 0; i < 5; i++) {
-                    const star = document.createElement("i");
-                    star.classList.add("fa-star");
-                    if (i < (data.avg_rating || 0)) star.classList.add("filled");
-                    starContainer.appendChild(star);
-                }
+        if (approvedCountElement) {
+            approvedCountElement.textContent = data.approved_count || 0;
+        }
 
-                // Videos
-                const videoGrid = document.getElementById("videoGrid");
-                videoGrid.innerHTML = "";
+        if (pendingCountElement) {
+            pendingCountElement.textContent = data.pending_count || 0;
+        }
 
-                if (data.videos && data.videos.length > 0) {
-                    data.videos.forEach(video => {
-                        const videoCard = document.createElement("div");
-                        videoCard.classList.add("video-card");
+        if (rejectedCountElement) {
+            rejectedCountElement.textContent = data.rejected_count || 0;
+        }
 
-                        videoCard.innerHTML = `
-                            <video width="100%" controls>
-                                <source src="${video.url}" type="video/mp4">
-                            </video>
-                            <p>${video.title}</p>
-                            <span class="status ${video.status}">${video.status.charAt(0).toUpperCase() + video.status.slice(1)}</span>
-                        `;
+        if (avgRatingElement) {
+            avgRatingElement.textContent = `${data.avg_rating || 0}/5`;
+        }
 
-                        videoGrid.appendChild(videoCard);
-                    });
-                } else {
-                    videoGrid.innerHTML = "<p>No videos found.</p>";
-                }
-
-            } catch (error) {
-                console.error("Error loading dashboard:", error.message);
-                document.getElementById("username").textContent = "Error loading data";
+        // ✅ Ensure star container exists before updating
+        if (starContainer) {
+            starContainer.innerHTML = "";
+            for (let i = 0; i < 5; i++) {
+                const star = document.createElement("i");
+                star.classList.add("fa-star");
+                if (i < (data.avg_rating || 0)) star.classList.add("filled");
+                starContainer.appendChild(star);
             }
         }
 
+    } catch (error) {
+        console.error("Error loading dashboard:", error.message);
+    }
+}
+
+// ✅ Ensure script runs after the DOM is loaded
+document.addEventListener("DOMContentLoaded", loadDashboard);
+
+
+
         // Load on page startup
-        window.onload = loadDashboard;
+        //window.onload = loadDashboard;
     </script>
 </body>
 </html>
