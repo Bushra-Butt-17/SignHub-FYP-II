@@ -19,73 +19,73 @@
         }
 
         /* Navigation Bar */
-.navbar {
-    background: rgba(0, 0, 0, 0.9);
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
+        .navbar {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
 
-.navbar .logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: #fff;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-.navbar .nav-container {
-    display: flex;
-    align-items: center;
-    gap: 40px; /* Adjust this gap to control spacing between links and logout button */
-}
+        .navbar .nav-container {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
 
-.navbar .nav-links {
-    display: flex;
-    gap: 25px;
-    align-items: center;
-}
+        .navbar .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
 
-.navbar .nav-links .nav-link {
-    color: #fff;
-    text-decoration: none;
-    font-size: 16px;
-    transition: color 0.3s ease;
-}
+        .navbar .nav-links .nav-link {
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
 
-.navbar .nav-links .nav-link:hover {
-    color: #ff4d4d;
-}
+        .navbar .nav-links .nav-link:hover {
+            color: #ff4d4d;
+        }
 
-.navbar .logout-btn {
-    background: #ff4d4d;
-    color: #fff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    margin-right: 40px;
-}
+        .navbar .logout-btn {
+            background: #ff4d4d;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            margin-right: 40px;
+        }
 
-.navbar .logout-btn:hover {
-    background: #e60000;
-    transform: translateY(-2px);
-}
+        .navbar .logout-btn:hover {
+            background: #e60000;
+            transform: translateY(-2px);
+        }
 
-.navbar .logout-btn i {
-    font-size: 16px;
-}
+        .navbar .logout-btn i {
+            font-size: 16px;
+        }
 
         /* Dashboard Container */
         .dashboard-container {
@@ -140,100 +140,67 @@
         }
 
         /* Update Profile Picture Button */
-.update-profile-btn {
-    background: #ff4d4d;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    margin-top: 10px;
-}
+        .update-profile-btn {
+            background: #ff4d4d;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            margin-top: 10px;
+        }
 
-.update-profile-btn:hover {
-    background: #e60000;
-    transform: translateY(-2px);
-}
+        .update-profile-btn:hover {
+            background: #e60000;
+            transform: translateY(-2px);
+        }
 
-/* Update Profile Picture Button */
-.update-profile-btn {
-    background: #ff4d4d;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    margin-top: 10px;
-}
+        /* Upload Form */
+        .upload-form {
+            margin-top: 10px;
+            position: relative;
+            display: none;
+        }
 
-.update-profile-btn:hover {
-    background: #e60000;
-    transform: translateY(-2px);
-}
+        .upload-form input {
+            padding: 10px 10px 10px 40px;
+            border-radius: 5px;
+            border: none;
+            width: 80%;
+            max-width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
 
-/* Update Profile Picture Button */
-.update-profile-btn {
-    background: #ff4d4d;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    margin-top: 10px;
-}
+        .upload-form input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
 
-.update-profile-btn:hover {
-    background: #e60000;
-    transform: translateY(-2px);
-}
+        .upload-form .icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+        }
 
-/* Upload Form */
-.upload-form {
-    margin-top: 10px;
-    position: relative;
-    display: none; /* Initially hidden */
-}
+        .upload-form button {
+            background: white;
+            color: red;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
 
-.upload-form input {
-    padding: 10px 10px 10px 40px;
-    border-radius: 5px;
-    border: none;
-    width: 80%;
-    max-width: 300px;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-}
+        .upload-form button:hover {
+            background: #ccc;
+            transform: translateY(-2px);
+        }
 
-.upload-form input::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.upload-form .icon {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.upload-form button {
-    background: white;
-    color: red;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: 0.3s;
-    margin-top: 10px;
-}
-
-.upload-form button:hover {
-    background: #ccc;
-    transform: translateY(-2px);
-}
         /* Stats Section */
         .stats-container {
             display: grid;
@@ -328,6 +295,111 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* General Gesture Section Styling */
+        .gestures-section {
+            margin: 40px 0;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+        }
+
+        .gestures-section h3 {
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #ff0000, #990000);
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        /* Gesture Grid Layout */
+        .gesture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            justify-items: center;
+        }
+
+        /* Gesture Card Design */
+        .gesture-card {
+            background: #1c1c1e;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s ease-in-out;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .gesture-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(255, 0, 0, 0.5);
+        }
+
+        /* Video Styling */
+        .gesture-card video {
+            width: 100%;
+            border-radius: 8px;
+            height: 180px;
+            object-fit: cover;
+            background: rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
+        }
+
+        .gesture-card video:hover {
+            filter: brightness(1.2);
+        }
+
+        /* Gesture Name */
+        .gesture-card p {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* Status Badges */
+        .status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+        }
+
+        /* Status Colors */
+        .status.pending {
+            background: orange;
+        }
+
+        .status.approved {
+            background: green;
+        }
+
+        .status.rejected {
+            background: red;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .gesture-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            .gesture-card {
+                max-width: 100%;
+            }
+        }
+
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .stats-container {
@@ -342,16 +414,6 @@
                 padding: 15px;
             }
         }
-    </style>
-</head>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <style>
-        /* Add your CSS styles here */
     </style>
 </head>
 <body>
@@ -408,10 +470,11 @@
                 <p id="rejectedCount">0</p>
             </div>
         </div>
+
         <!-- Add Gesture Button -->
-<div class="add-gesture-container">
-    <a href="{{ url_for('add_gesture') }}" class="update-profile-btn">➕ Add Gesture</a>
-</div>
+        <div class="add-gesture-container">
+            <a href="{{ url_for('add_gesture') }}" class="update-profile-btn">➕ Add Gesture</a>
+        </div>
 
         <!-- Pending Gestures Section -->
         <div class="gestures-section">
@@ -478,17 +541,17 @@
             const updateProfileBtn = document.querySelector('.update-profile-btn');
 
             if (uploadForm.style.display === 'none') {
-                uploadForm.style.display = 'block'; // Show the upload form
-                updateProfileBtn.style.display = 'none'; // Hide the update button
+                uploadForm.style.display = 'block';
+                updateProfileBtn.style.display = 'none';
             } else {
-                uploadForm.style.display = 'none'; // Hide the upload form
-                updateProfileBtn.style.display = 'block'; // Show the update button
+                uploadForm.style.display = 'none';
+                updateProfileBtn.style.display = 'block';
             }
         }
 
         // Function to handle profile picture upload
         async function handleProfileUpload(event) {
-            event.preventDefault(); // Prevent default form submission
+            event.preventDefault();
 
             const form = event.target;
             const formData = new FormData(form);
@@ -503,12 +566,9 @@
                     throw new Error(`Upload failed: ${response.status}`);
                 }
 
-                // Reload the dashboard data after successful upload
                 await loadDashboard();
                 alert("Profile picture updated successfully!");
-
-                // Hide the upload form and show the update profile button again
-                toggleUploadForm(); // This ensures the form is hidden after upload
+                toggleUploadForm();
             } catch (error) {
                 console.error("Error uploading profile picture:", error.message);
                 alert("Failed to upload profile picture. Please try again.");
@@ -517,85 +577,77 @@
 
         // Function to load dashboard data
         async function loadDashboard() {
-    console.log("Fetching dashboard data...");
+            console.log("Fetching dashboard data...");
 
-    try {
-        const response = await fetch('/api/dashboard');
-        console.log("API Response Status:", response.status);
+            try {
+                const response = await fetch('/api/dashboard');
+                console.log("API Response Status:", response.status);
 
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
-        }
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
 
-        const data = await response.json();
-        console.log("Received Data:", data);
+                const data = await response.json();
+                console.log("Received Data:", data);
 
-        if (!data) {
-            throw new Error("Invalid API response.");
-        }
+                if (!data) {
+                    throw new Error("Invalid API response.");
+                }
 
-        // ✅ Get elements safely
-        const usernameElement = document.getElementById("username");
-        const profilePic = document.getElementById("profilePic");
-        const totalSubmissionsElement = document.getElementById("totalSubmissions");
-        const approvedCountElement = document.getElementById("approvedCount");
-        const pendingCountElement = document.getElementById("pendingCount");
-        const rejectedCountElement = document.getElementById("rejectedCount");
-        const avgRatingElement = document.getElementById("avgRating");
-        const starContainer = document.getElementById("starContainer");
+                const usernameElement = document.getElementById("username");
+                const profilePic = document.getElementById("profilePic");
+                const totalSubmissionsElement = document.getElementById("totalSubmissions");
+                const approvedCountElement = document.getElementById("approvedCount");
+                const pendingCountElement = document.getElementById("pendingCount");
+                const rejectedCountElement = document.getElementById("rejectedCount");
+                const avgRatingElement = document.getElementById("avgRating");
+                const starContainer = document.getElementById("starContainer");
 
-        // ✅ Update only if elements exist
-        if (usernameElement && data.user?.name) {
-            usernameElement.textContent = data.user.name;
-        }
+                if (usernameElement && data.user?.name) {
+                    usernameElement.textContent = data.user.name;
+                }
 
-        if (profilePic && data.user?.profile_pic) {
-            profilePic.src = `${data.user.profile_pic}?v=${Math.random()}`;
-        }
+                if (profilePic && data.user?.profile_pic) {
+                    profilePic.src = `${data.user.profile_pic}?v=${Math.random()}`;
+                }
 
-        if (totalSubmissionsElement) {
-            totalSubmissionsElement.textContent = data.total_submissions || 0;
-        }
+                if (totalSubmissionsElement) {
+                    totalSubmissionsElement.textContent = data.total_submissions || 0;
+                }
 
-        if (approvedCountElement) {
-            approvedCountElement.textContent = data.approved_count || 0;
-        }
+                if (approvedCountElement) {
+                    approvedCountElement.textContent = data.approved_count || 0;
+                }
 
-        if (pendingCountElement) {
-            pendingCountElement.textContent = data.pending_count || 0;
-        }
+                if (pendingCountElement) {
+                    pendingCountElement.textContent = data.pending_count || 0;
+                }
 
-        if (rejectedCountElement) {
-            rejectedCountElement.textContent = data.rejected_count || 0;
-        }
+                if (rejectedCountElement) {
+                    rejectedCountElement.textContent = data.rejected_count || 0;
+                }
 
-        if (avgRatingElement) {
-            avgRatingElement.textContent = `${data.avg_rating || 0}/5`;
-        }
+                if (avgRatingElement) {
+                    avgRatingElement.textContent = `${data.avg_rating || 0}/5`;
+                }
 
-        // ✅ Ensure star container exists before updating
-        if (starContainer) {
-            starContainer.innerHTML = "";
-            for (let i = 0; i < 5; i++) {
-                const star = document.createElement("i");
-                star.classList.add("fa-star");
-                if (i < (data.avg_rating || 0)) star.classList.add("filled");
-                starContainer.appendChild(star);
+                if (starContainer) {
+                    starContainer.innerHTML = "";
+                    for (let i = 0; i < 5; i++) {
+                        const star = document.createElement("i");
+                        star.classList.add("fa-star");
+                        if (i < (data.avg_rating || 0)) star.classList.add("filled");
+                        starContainer.appendChild(star);
+                    }
+                }
+
+            } catch (error) {
+                console.error("Error loading dashboard:", error.message);
             }
         }
 
-    } catch (error) {
-        console.error("Error loading dashboard:", error.message);
-    }
-}
-
-// ✅ Ensure script runs after the DOM is loaded
-document.addEventListener("DOMContentLoaded", loadDashboard);
-
-
-
-        // Load on page startup
-        //window.onload = loadDashboard;
+        // Ensure script runs after the DOM is loaded
+        document.addEventListener("DOMContentLoaded", loadDashboard);
     </script>
 </body>
 </html>

@@ -114,6 +114,57 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
+
+@app.route('/stream_video/<video_id>')
+def stream_video(video_id):
+    try:
+        video_file = fs.get(ObjectId(video_id))
+        # Explicitly set the MIME type to 'video/mp4'
+        return send_file(BytesIO(video_file.read()), mimetype='video/mp4')
+    except Exception as e:
+        print(f"Error streaming video: {e}")
+        return "Video not found", 404
+    
+
+
+
+
+@app.route('/profile_pic/<user_id>')
+def profile_pic(user_id):
+    user = users_collection.find_one({"_id": ObjectId(user_id)})
+    
+    if not user:
+        print("User not found. Serving default image.")  # Debug log
+        return send_file("static/uploads/default.png", mimetype="image/png")
+
+    if "profile_pic_id" not in user:
+        print("Profile picture ID not found in user. Serving default image.")  # Debug log
+        return send_file("static/uploads/default.png", mimetype="image/png")
+
+    file_id = user["profile_pic_id"]
+    try:
+        file_data = fs.get(ObjectId(file_id))
+        print(f"Profile picture found! File ID: {file_id}")  # Debug log
+        return send_file(BytesIO(file_data.read()), mimetype=file_data.content_type)
+    except Exception as e:
+        print(f"Error retrieving profile picture: {e}")  # Debug log
+        return send_file("static/uploads/default.png", mimetype="image/png")
+    
+
+
+    
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    flash("Logged out successfully!", "info")
+    return redirect(url_for('login'))
+
+from flask import url_for
+import traceback
+
+
+
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
@@ -123,6 +174,10 @@ def dashboard():
     if not user:
         flash("User not found!", "danger")
         return redirect(url_for('login'))
+
+    # Debugging: Print user data
+    print(f"User Data: {user}")
+    print(f"Username: {user.get('username')}")
 
     if request.method == "POST":
         if 'profile_pic' in request.files:
@@ -200,51 +255,12 @@ def dashboard():
     )
 
 
-@app.route('/stream_video/<video_id>')
-def stream_video(video_id):
-    try:
-        video_file = fs.get(ObjectId(video_id))
-        # Explicitly set the MIME type to 'video/mp4'
-        return send_file(BytesIO(video_file.read()), mimetype='video/mp4')
-    except Exception as e:
-        print(f"Error streaming video: {e}")
-        return "Video not found", 404
-    
 
 
 
 
-@app.route('/profile_pic/<user_id>')
-def profile_pic(user_id):
-    user = users_collection.find_one({"_id": ObjectId(user_id)})
-    
-    if not user:
-        print("User not found. Serving default image.")  # Debug log
-        return send_file("static/uploads/default.png", mimetype="image/png")
 
-    if "profile_pic_id" not in user:
-        print("Profile picture ID not found in user. Serving default image.")  # Debug log
-        return send_file("static/uploads/default.png", mimetype="image/png")
-
-    file_id = user["profile_pic_id"]
-    try:
-        file_data = fs.get(ObjectId(file_id))
-        print(f"Profile picture found! File ID: {file_id}")  # Debug log
-        return send_file(BytesIO(file_data.read()), mimetype=file_data.content_type)
-    except Exception as e:
-        print(f"Error retrieving profile picture: {e}")  # Debug log
-        return send_file("static/uploads/default.png", mimetype="image/png")
-    
-
-
-    
-@app.route('/logout')
-def logout():
-    session.pop('user_id', None)
-    flash("Logged out successfully!", "info")
-    return redirect(url_for('login'))
-
-from flask import url_for
+from bson import ObjectId
 import traceback
 
 @app.route('/api/dashboard', methods=['GET'])
@@ -255,7 +271,12 @@ def api_dashboard():
             return jsonify({"error": "User not logged in"}), 401
 
         user_id = session['user_id']
+        print(f"Session user_id: {user_id}")  # Debug log
+        print(f"Session user_id type: {type(user_id)}")  # Debug log
+
+        # Fetch user from the database
         user = users_collection.find_one({"_id": ObjectId(user_id)})
+        print(f"User from DB: {user}")  # Debug log
 
         if not user:
             print("User not found in database")  # Debug log
@@ -265,12 +286,26 @@ def api_dashboard():
         profile_pic_url = url_for('profile_pic', user_id=user_id, _external=True)
 
         # Fetch user videos
-        videos = list(videos_collection.find({"user_id": user_id}))
-        total_submissions = len(videos)
-        approved_count = sum(1 for v in videos if v.get("status") == "approved")
-        pending_count = sum(1 for v in videos if v.get("status") == "pending")
-        rejected_count = sum(1 for v in videos if v.get("status") == "rejected")
-        avg_rating = sum(v.get("rating", 0) for v in videos) / total_submissions if total_submissions > 0 else 0
+        # Query user_id as a string (since it's stored as a string in pending_gestures)
+        pending_videos = list(pending_gestures_collection.find({"user_id": user_id}))
+        approved_videos = list(approved_gestures_collection.find({"user_id": user_id}))
+        rejected_videos = list(rejected_gestures_collection.find({"user_id": user_id}))
+
+        # Debug logs for video queries
+        print(f"Pending Videos: {pending_videos}")  # Debug log
+        print(f"Approved Videos: {approved_videos}")  # Debug log
+        print(f"Rejected Videos: {rejected_videos}")  # Debug log
+
+        approved_count = len(approved_videos)
+        pending_count = len(pending_videos)
+        rejected_count = len(rejected_videos)
+        total_submissions = approved_count + pending_count + rejected_count
+        avg_rating = 0  # Add logic if ratings are available
+
+        # Convert ObjectId fields to strings for JSON serialization
+        for video in pending_videos + approved_videos + rejected_videos:
+            video['_id'] = str(video['_id'])
+            video['video_file_id'] = str(video['video_file_id'])
 
         # Debug log the data being returned
         print(f"User: {user}")
@@ -284,22 +319,21 @@ def api_dashboard():
         return jsonify({
             "user": {
                 "name": user.get("username", "Unknown User"),
-                "profile_pic": profile_pic_url,  # Use the dynamically generated URL
+                "profile_pic": profile_pic_url,
             },
             "total_submissions": total_submissions,
             "approved_count": approved_count,
             "pending_count": pending_count,
             "rejected_count": rejected_count,
             "avg_rating": avg_rating,
-            "videos": videos,
+            "pending_videos": pending_videos,
+            "approved_videos": approved_videos,
+            "rejected_videos": rejected_videos,
         })
 
     except Exception as e:
         print(f"🔴 API Error: {traceback.format_exc()}")  # Debug log
         return jsonify({"error": "Internal Server Error"}), 500
-    
-
-
 
 
 @app.route('/add_gesture', methods=['GET', 'POST'])
@@ -358,7 +392,14 @@ def add_gesture():
             # Insert the gesture into the database
             pending_gestures_collection.insert_one(new_gesture)
 
-            flash("Gesture added successfully! It is now pending review.", "success")
+            # Increment the pending_count in the user collection
+            users_collection = db["users"]  # Assuming your user collection is named "users"
+            users_collection.update_one(
+                {"_id": user_id},  # Find the user by their ID
+                {"$inc": {"pending_count": 1}}  # Increment the pending_count by 1
+            )
+
+            print("Gesture added successfully! It is now pending review.", "success")
             return redirect(url_for('dashboard'))  # Redirect to the contributor dashboard after adding the gesture
 
         except Exception as e:
@@ -369,6 +410,7 @@ def add_gesture():
 
     # Render the form for GET requests
     return render_template('add_gesture.html')
+    
 from waitress import serve
 
 if __name__ == "__main__":
