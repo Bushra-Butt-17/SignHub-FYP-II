@@ -13,6 +13,7 @@ from werkzeug.utils import secure_filename
 from io import BytesIO
 import traceback
 from datetime import datetime
+from waitress import serve
 # Load environment variables
 load_dotenv()
 
@@ -104,12 +105,14 @@ def login():
 
     return render_template('login.html')
 
+from functools import wraps
+from flask import session, redirect, url_for, flash
+
 def login_required(f):
-    from functools import wraps
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
-            flash("You need to log in first!", "danger")
+            flash("You need to log in first!", "warning")
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
@@ -156,7 +159,7 @@ def profile_pic(user_id):
     
 @app.route('/logout')
 def logout():
-    session.pop('user_id', None)
+    session.clear()  # Clears entire session
     flash("Logged out successfully!", "info")
     return redirect(url_for('login'))
 
@@ -410,8 +413,11 @@ def add_gesture():
 
     # Render the form for GET requests
     return render_template('add_gesture.html')
+
+
     
-from waitress import serve
+
+
 
 if __name__ == "__main__":
     serve(app, host="0.0.0.0", port=5000)

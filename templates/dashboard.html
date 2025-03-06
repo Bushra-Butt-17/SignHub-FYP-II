@@ -509,10 +509,11 @@
             <a href="#" class="nav-link">Settings</a>
         </div>
         <div class="nav-actions">
-            <button class="logout-btn" onclick="logout()">
+            <a href="{{ url_for('logout') }}" class="logout-btn">
                 <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
+            </a>
         </div>
+        
     </nav>
 
     <!-- Dashboard Container -->
@@ -746,6 +747,12 @@
 
         // Ensure script runs after the DOM is loaded
         document.addEventListener("DOMContentLoaded", loadDashboard);
+
+
+
+
+
+        
     </script>
 </body>
 </html>
