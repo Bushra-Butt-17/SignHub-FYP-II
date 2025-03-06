@@ -13,6 +13,7 @@ from werkzeug.utils import secure_filename
 from io import BytesIO
 import traceback
 from datetime import datetime
+from waitress import serve
 # Load environment variables
 load_dotenv()
 
@@ -410,8 +411,16 @@ def add_gesture():
 
     # Render the form for GET requests
     return render_template('add_gesture.html')
+
+
     
-from waitress import serve
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    flash("Logged out successfully!", "info")
+    return redirect(url_for('login'))
+    
+
 
 if __name__ == "__main__":
     serve(app, host="0.0.0.0", port=5000)
