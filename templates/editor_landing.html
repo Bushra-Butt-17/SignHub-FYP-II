@@ -3,32 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor Dashboard | SignHub</title>
+    <title>Editor Landing | SignHub</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1a1a1a, #000); /* Dark gradient */
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            opacity: 0;
-            animation: fadeIn 1s forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
                 /* Navbar Styles */
 .navbar {
@@ -121,20 +104,29 @@
     transform: translateY(-3px);
     box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
 }
-        .dashboard-container {
-            margin-top: 80px;
-            max-width: 1200px;
-            width: 100%;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.1); /* Glassmorphism effect */
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
-            backdrop-filter: blur(10px);
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #000); /* Dark gradient */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+        .landing-container {
             text-align: center;
+            background: rgba(255, 255, 255, 0.1); /* Glassmorphism effect */
+            padding: 50px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease-in-out;
             position: relative;
             overflow: hidden;
         }
-        .dashboard-container::before {
+        .landing-container::before {
             content: '';
             position: absolute;
             top: -50%;
@@ -151,80 +143,35 @@
             100% { transform: rotate(360deg); }
         }
         h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 3rem;
+            font-weight: 600;
             margin-bottom: 20px;
             background: linear-gradient(90deg, #ffd700, #fff); /* Gradient text */
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             animation: slideIn 1s ease-in-out;
         }
-        @keyframes slideIn {
-            from { transform: translateX(-100%); }
-            to { transform: translateX(0); }
-        }
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            gap: 20px;
+        p {
+            font-size: 1.2rem;
             margin-bottom: 30px;
+            color: rgba(255, 255, 255, 0.8);
+            animation: fadeIn 1.5s ease-in-out;
         }
-        .stat-card {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 12px;
-            width: 22%;
-            min-width: 200px;
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
-            transition: transform 0.3s, box-shadow 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, #ffd700, #000, #ffd700, #000);
-            opacity: 0.2;
-            z-index: -1;
-            animation: rotate 10s linear infinite;
-        }
-        .stat-card:hover {
-            transform: translateY(-8px) scale(1.05);
-            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.7);
-        }
-        .stat-card h2 {
-            font-size: 1.4rem;
-            margin-bottom: 10px;
-            color: #ffd700;
-        }
-        .stat-card p {
-            font-size: 2rem;
-            font-weight: 700;
-            color: white;
-        }
-        .review-button {
-            margin-top: 30px;
-        }
-        .review-button a {
-            display: inline-block;
+        .btn-login {
             background: linear-gradient(90deg, #ffd700, #ff8c00); /* Gradient button */
             color: black;
-            padding: 15px 30px;
-            border-radius: 12px;
-            font-size: 1.3rem;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
             font-weight: 600;
-            text-decoration: none;
             transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+            text-decoration: none;
+            display: inline-block;
             position: relative;
             overflow: hidden;
         }
-        .review-button a::before {
+        .btn-login::before {
             content: '';
             position: absolute;
             top: 50%;
@@ -236,50 +183,38 @@
             transition: transform 0.5s ease;
             border-radius: 50%;
         }
-        .review-button a:hover::before {
+        .btn-login:hover::before {
             transform: translate(-50%, -50%) scale(1);
         }
-        .review-button a:hover {
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); /* Glow effect */
+        .btn-login:hover {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); /* Glow effect */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            p {
+                font-size: 1rem;
+            }
+            .landing-container {
+                padding: 30px;
+            }
         }
     </style>
-    <script>
-        $(document).ready(function() {
-            $(window).scroll(function() {
-                if ($(this).scrollTop() > 50) {
-                    $('.navbar').addClass('scrolled');
-                } else {
-                    $('.navbar').removeClass('scrolled');
-                }
-            });
-        });
-    </script>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">SignHub</div>
-        <div class="nav-links">
-            <a href="{{ url_for('editor_dashboard') }}" class="nav-link">Home</a>
-            <a href="{{ url_for('editor_profile') }}" class="nav-link">Profile</a>
-            <a href="{{ url_for('editor_profile') }}" class="nav-link">Settings</a>
-        </div>
-        <div class="nav-actions">
-            <a href="{{ url_for('editor_logout') }}" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </nav>
-    <div class="dashboard-container">
-        <h1>Welcome, {{ editor_name }}!</h1>
-        <div class="stats">
-            <div class="stat-card"><h2>Pending Gestures</h2><p>{{ pending_count }}</p></div>
-            <div class="stat-card"><h2>Approved Gestures</h2><p>{{ approved_count }}</p></div>
-            <div class="stat-card"><h2>Rejected Gestures</h2><p>{{ rejected_count }}</p></div>
-            <div class="stat-card"><h2>Total Reviewed</h2><p>{{ approved_count + rejected_count }}</p></div>
-        </div>
-        <div class="review-button">
-            <a href="{{ url_for('review_gestures') }}">Start Reviewing Pending Gestures</a>
-        </div>
+    <div class="landing-container">
+        <h1>Welcome to SignHub Editor</h1>
+        <p>Your gateway to managing and reviewing gestures with precision and ease.</p>
+        <a href="{{ url_for('editor_login') }}" class="btn-login">Login</a>
     </div>
 </body>
 </html>

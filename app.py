@@ -476,6 +476,14 @@ print("Editors added successfully!")
 '''
 
 
+
+
+@app.route('/editor')
+def editor_landing():
+    return render_template('editor_landing.html')
+
+
+
 @app.route('/editor/login', methods=['GET', 'POST'])
 def editor_login():
     if request.method == 'POST':
@@ -626,6 +634,104 @@ def submit_review(gesture_id):
         flash("Gesture not found!", "danger")
 
     return redirect(url_for('review_gestures'))
+
+
+
+
+
+
+
+
+
+# Allowed file extensions for profile pictures
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    """Check if the file has an allowed extension."""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+
+
+
+@app.route('/editor/profile', methods=['GET', 'POST'])
+@editor_login_required
+def editor_profile():
+    # Get the editor's ID from the session
+    editor_id = session.get('editor_id')
+
+    if not editor_id:
+        flash("You must be logged in to access the profile.", "danger")
+        return redirect(url_for('editor_login'))
+
+    # Fetch editor details from MongoDB
+    editor = editors_collection.find_one({"_id": ObjectId(editor_id)})
+
+    if not editor:
+        flash("Profile not found.", "danger")
+        return redirect(url_for('editor_dashboard'))
+
+    if request.method == 'POST':
+        # Get updated profile data from form
+        full_name = request.form.get("full_name")
+        username = request.form.get("username")
+        email = request.form.get("email")
+        phone = request.form.get("phone")
+        location = request.form.get("location")
+        linkedin = request.form.get("linkedin")
+        twitter = request.form.get("twitter")
+        instagram = request.form.get("instagram")
+
+        # Handle profile picture upload
+        profile_picture = request.files.get("profile_picture")
+        profile_picture_id = editor.get("profile_picture_id")  # Default to existing picture ID
+
+        if profile_picture and allowed_file(profile_picture.filename):
+            # Delete old profile picture from GridFS if it exists
+            if profile_picture_id:
+                fs.delete(ObjectId(profile_picture_id))
+
+            # Save the new profile picture to GridFS
+            profile_picture_id = fs.put(profile_picture, filename=secure_filename(profile_picture.filename))
+
+        # Update editor profile in MongoDB
+        editors_collection.update_one(
+            {"_id": ObjectId(editor_id)},
+            {"$set": {
+                "full_name": full_name,
+                "username": username,
+                "email": email,
+                "phone": phone,
+                "location": location,
+                "linkedin": linkedin,
+                "twitter": twitter,
+                "instagram": instagram,
+                "profile_picture_id": profile_picture_id
+            }}
+        )
+        flash("Profile updated successfully!", "success")
+        return redirect(url_for('editor_profile'))
+
+    # Fetch the profile picture URL for rendering
+    profile_picture_url = None
+    if editor.get("profile_picture_id"):
+        profile_picture_file = fs.get(ObjectId(editor["profile_picture_id"]))
+        profile_picture_url = f"/editor/profile/picture/{editor['profile_picture_id']}"
+
+    return render_template('editor_profile.html', editor=editor, profile_picture_url=profile_picture_url)
+
+@app.route('/editor/profile/picture/<file_id>')
+def editor_profile_picture(file_id):
+    # Serve the profile picture from GridFS
+    file = fs.get(ObjectId(file_id))
+    return file.read(), 200, {'Content-Type': file.content_type}
+
+
+
+
+
+
+
 
 
 
