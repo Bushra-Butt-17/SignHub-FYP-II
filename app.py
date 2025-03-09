@@ -47,7 +47,8 @@ pending_gestures_collection = db["pending_gestures"]
 approved_gestures_collection = db["approved_gestures"]
 rejected_gestures_collection = db["rejected_gestures"]
 
-
+# Define the editors collection
+editors_collection = db["editors"]
 # Rest of your code remains the same...
 
 @app.route('/')
@@ -149,7 +150,12 @@ def profile_pic(user_id):
     try:
         file_data = fs.get(ObjectId(file_id))
         print(f"Profile picture found! File ID: {file_id}")  # Debug log
-        return send_file(BytesIO(file_data.read()), mimetype=file_data.content_type)
+        if file_data:
+            content_type = file_data.metadata["contentType"] if file_data.metadata else "application/octet-stream"
+            return send_file(BytesIO(file_data.read()), mimetype=content_type)
+        else:
+            return "Profile picture not found", 404
+
     except Exception as e:
         print(f"Error retrieving profile picture: {e}")  # Debug log
         return send_file("static/uploads/default.png", mimetype="image/png")
@@ -419,6 +425,235 @@ def add_gesture():
 
 
 
-if __name__ == "__main__":
-    serve(app, host="0.0.0.0", port=5000)
+
+
+
+
+##########################################################################################################
+
+
+##########################################################################################################
+
+
+##########################################################################################################
+
+
+##########################################################################################################
+
+
+##########################################################################################################
+
+
+##########################################################################################################
+
+'''
+# Editor data
+editors = [
+    {
+        "username": "Bushra Shahbaz",
+        "email": "bsdsf21m020@pucit.edu.pk",
+        "password": "bushra"  # Plain text password
+    },
+    {
+        "username": "Aliha Hamid",
+        "email": "bsdsf21m001@pucit.edu.pk",
+        "password": "aliha"  # Plain text password
+    }
+]
+
+# Hash passwords and insert editors
+for editor in editors:
+    # Hash the password
+    hashed_password = generate_password_hash(editor["password"], method='pbkdf2:sha256')
     
+    # Replace the plain text password with the hashed password
+    editor["password"] = hashed_password
+
+    # Insert the editor into the collection
+    editors_collection.insert_one(editor)
+
+print("Editors added successfully!")
+'''
+
+
+@app.route('/editor/login', methods=['GET', 'POST'])
+def editor_login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        if not email or not password:
+            flash("All fields are required!", "danger")
+            return redirect(url_for('editor_login'))
+
+        # Find the editor in the editors collection
+        editor = editors_collection.find_one({"email": email})
+
+        # Check if the editor exists and the password is correct
+        if editor and check_password_hash(editor["password"], password):
+            session.permanent = True
+            session['editor_id'] = str(editor["_id"])  # Store editor ID in session
+            flash("Editor login successful!", "success")
+            return redirect(url_for('editor_dashboard'))
+        else:
+            flash("Invalid email or password!", "danger")
+            return redirect(url_for('editor_login'))
+
+    return render_template('editor_login.html')  # Create a new template for editor login
+
+
+
+
+
+
+from functools import wraps
+
+def editor_login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'editor_id' not in session:
+            flash("You need to log in as an editor to access this page!", "warning")
+            return redirect(url_for('editor_login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+
+
+
+@app.route('/editor/dashboard')
+@editor_login_required
+def editor_dashboard():
+    # Get the editor's ID from the session
+    editor_id = session.get('editor_id')
+
+    # Fetch the editor's name
+    editor = editors_collection.find_one({"_id": ObjectId(editor_id)})
+    editor_name = editor.get("username", "Editor")
+
+    # Fetch gesture statistics
+    pending_count = pending_gestures_collection.count_documents({})
+    approved_count = approved_gestures_collection.count_documents({"approved_by": editor_id})
+    rejected_count = rejected_gestures_collection.count_documents({"rejected_by": editor_id})
+
+    return render_template('editor_dashboard.html',
+                          editor_name=editor_name,
+                          pending_count=pending_count,
+                          approved_count=approved_count,
+                          rejected_count=rejected_count)
+
+
+
+@app.route('/review_gestures')
+@editor_login_required
+def review_gestures():
+    # Fetch the first pending gesture
+    gesture = pending_gestures_collection.find_one()
+
+    if gesture:
+        # Add video URL to the gesture
+        if "video_file_id" in gesture:
+            gesture["video_url"] = url_for('stream_video', video_id=gesture["video_file_id"], _external=True)
+
+        # Fetch the contributor's name from the users collection
+        user = users_collection.find_one({"_id": ObjectId(gesture["user_id"])})
+        gesture["contributor_name"] = user.get("username", "Unknown User") if user else "Unknown User"
+
+    return render_template('review_gestures.html', gesture=gesture)
+
+@app.route('/submit_review/<gesture_id>', methods=['POST'])
+@editor_login_required
+def submit_review(gesture_id):
+    # Get the editor's ID from the session
+    editor_id = session.get('editor_id')
+
+    # Get form data
+    shape = request.form.get('shape')
+    location = request.form.get('location')
+    orientation = request.form.get('orientation')
+    movement = request.form.get('movement')
+    decision = request.form.get('decision')
+    scale = request.form.get('scale')
+    comments = request.form.get('comments')
+
+    # Fetch the gesture from the pending collection
+    gesture = pending_gestures_collection.find_one({"_id": ObjectId(gesture_id)})
+
+    if gesture:
+        # Move the gesture to the appropriate collection based on the decision
+        if decision == "accept":
+            gesture["approved_by"] = editor_id
+            gesture["review_data"] = {
+                "shape": shape,
+                "location": location,
+                "orientation": orientation,
+                "movement": movement,
+                "scale": scale,
+                "comments": comments
+            }
+            approved_gestures_collection.insert_one(gesture)
+        elif decision == "reject":
+            gesture["rejected_by"] = editor_id
+            gesture["review_data"] = {
+                "shape": shape,
+                "location": location,
+                "orientation": orientation,
+                "movement": movement,
+                "scale": scale,
+                "comments": comments
+            }
+            rejected_gestures_collection.insert_one(gesture)
+        elif decision == "pending":
+            gesture["review_data"] = {
+                "shape": shape,
+                "location": location,
+                "orientation": orientation,
+                "movement": movement,
+                "scale": scale,
+                "comments": comments
+            }
+            pending_gestures_collection.update_one({"_id": ObjectId(gesture_id)}, {"$set": gesture})
+
+        # Remove the gesture from the pending collection
+        pending_gestures_collection.delete_one({"_id": ObjectId(gesture_id)})
+
+        flash("Review submitted successfully!", "success")
+    else:
+        flash("Gesture not found!", "danger")
+
+    return redirect(url_for('review_gestures'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@app.route('/editor/logout')
+def editor_logout():
+    session.pop('editor_id', None)  # Remove editor_id from session
+    flash("Logged out successfully!", "info")
+    return redirect(url_for('editor_login'))
+
+
+
+
+
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
