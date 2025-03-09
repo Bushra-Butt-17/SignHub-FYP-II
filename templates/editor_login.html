@@ -126,12 +126,12 @@
                 <button type="submit" class="btn">Login</button>
             </form>
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+    {% if messages %}
+        {% set recent_message = messages[-1] %} 
+        <div class="alert alert-{{ recent_message[0] }}">{{ recent_message[1] }}</div>
+    {% endif %}
+{% endwith %}
+
         </div>
     </div>
 </body>

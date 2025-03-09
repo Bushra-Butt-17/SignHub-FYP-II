@@ -561,64 +561,68 @@ def review_gestures():
 
     return render_template('review_gestures.html', gesture=gesture)
 
+
+
+
 @app.route('/submit_review/<gesture_id>', methods=['POST'])
 @editor_login_required
 def submit_review(gesture_id):
     # Get the editor's ID from the session
     editor_id = session.get('editor_id')
+    print(f"Editor ID: {editor_id}")  # Debugging
 
     # Get form data
     shape = request.form.get('shape')
     location = request.form.get('location')
     orientation = request.form.get('orientation')
     movement = request.form.get('movement')
-    decision = request.form.get('decision')
     scale = request.form.get('scale')
     comments = request.form.get('comments')
+    category = request.form.get('category')  # <-- Check if category is received
+    decision = request.form.get('decision')
+
+    print(f"Form Data Received: Shape={shape}, Location={location}, Orientation={orientation}, "
+          f"Movement={movement}, Scale={scale}, Category={category}, Comments={comments}, Decision={decision}")
 
     # Fetch the gesture from the pending collection
     gesture = pending_gestures_collection.find_one({"_id": ObjectId(gesture_id)})
 
     if gesture:
-        # Move the gesture to the appropriate collection based on the decision
+        print(f"Gesture Found: {gesture}")  # Debugging
+        
+        # Add review data including category
+        gesture["review_data"] = {
+            "shape": shape,
+            "location": location,
+            "orientation": orientation,
+            "movement": movement,
+            "scale": scale,
+            "category": category,  # <-- Store category in review_data
+            "comments": comments
+        }
+
+        print(f"Updated Gesture Data: {gesture}")  # Debugging
+
+        # Move to appropriate collection based on decision
         if decision == "accept":
             gesture["approved_by"] = editor_id
-            gesture["review_data"] = {
-                "shape": shape,
-                "location": location,
-                "orientation": orientation,
-                "movement": movement,
-                "scale": scale,
-                "comments": comments
-            }
             approved_gestures_collection.insert_one(gesture)
+            print("Gesture moved to Approved Collection")  # Debugging
         elif decision == "reject":
             gesture["rejected_by"] = editor_id
-            gesture["review_data"] = {
-                "shape": shape,
-                "location": location,
-                "orientation": orientation,
-                "movement": movement,
-                "scale": scale,
-                "comments": comments
-            }
             rejected_gestures_collection.insert_one(gesture)
+            print("Gesture moved to Rejected Collection")  # Debugging
         elif decision == "pending":
-            gesture["review_data"] = {
-                "shape": shape,
-                "location": location,
-                "orientation": orientation,
-                "movement": movement,
-                "scale": scale,
-                "comments": comments
-            }
             pending_gestures_collection.update_one({"_id": ObjectId(gesture_id)}, {"$set": gesture})
+            print("Gesture updated in Pending Collection")  # Debugging
 
         # Remove the gesture from the pending collection
         pending_gestures_collection.delete_one({"_id": ObjectId(gesture_id)})
+        print("Gesture removed from Pending Collection")  # Debugging
 
         flash("Review submitted successfully!", "success")
     else:
+        print("Gesture not found!")  # Debugging
         flash("Gesture not found!", "danger")
 
     return redirect(url_for('review_gestures'))

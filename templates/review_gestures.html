@@ -198,13 +198,19 @@
                 <p><strong>Dialect:</strong> {{ gesture.dialect }}</p>
                 <p><strong>Contributor:</strong> {{ gesture.contributor_name }}</p>
             </div>
+    
+            <!-- Category Selection -->
+            
+    
             <div class="video-container">
                 <video controls>
                     <source src="{{ gesture.video_url }}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             </div>
+    
             <form action="{{ url_for('submit_review', gesture_id=gesture._id) }}" method="POST">
+        
                 <div class="evaluation-container">
                     <table>
                         <tr>
@@ -249,19 +255,51 @@
                         </tr>
                     </table>
                 </div>
+    
                 <div class="decision-container">
                     <h3>Overall Decision</h3>
                     <label><input type="radio" name="decision" value="accept" required> Accept</label>
                     <label><input type="radio" name="decision" value="reject"> Reject</label>
                     <label><input type="radio" name="decision" value="pending"> Pending</label>
                 </div>
+    
                 <div class="scale-container">
                     <label for="scale">Scale: <span id="scaleValue">5</span></label>
                     <input type="range" id="scale" name="scale" min="0" max="10" value="5">
                 </div>
+    
                 <div class="comments-container">
                     <textarea name="comments" placeholder="Enter your comments..."></textarea>
                 </div>
+                <div class="category-container">
+                    <h3>Select Category</h3>
+                    <select name="category" class="form-control" required>
+                        <option value="" disabled>Select a category</option>
+                        <option value="Alphabet">Alphabet</option>
+                        <option value="Numbers">Numbers</option>
+                        <option value="Words">Words</option>
+                        <option value="Phrases">Phrases</option>
+                        <option value="Expressions">Expressions</option>
+                    </select>
+                </div>
+                
+                <script>
+                    // Update scale value display
+                    document.getElementById('scale').addEventListener('input', function() {
+                        document.getElementById('scaleValue').textContent = this.value;
+                    });
+                
+                    // Debugging: Ensure category is selected
+                    document.querySelector("form").addEventListener("submit", function(event) {
+                        let categoryValue = document.querySelector("select[name='category']").value;
+                        console.log("Selected Category:", categoryValue);
+                        if (!categoryValue) {
+                            alert("Please select a category before submitting!");
+                            event.preventDefault();
+                        }
+                    });
+                </script>
+                
                 <div class="navigation-buttons">
                     <button type="submit">Submit Review</button>
                     <button type="button" onclick="window.location.href='{{ url_for('review_gestures') }}'">Skip</button>
@@ -273,7 +311,7 @@
             </div>
         {% endif %}
     </div>
-
+    
     <script>
         // Update scale value display
         const scaleInput = document.getElementById('scale');
