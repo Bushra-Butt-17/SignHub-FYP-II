@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor Login | SignHub</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #ffd700, #000); /* Yellow to Black gradient */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            width: 90%;
+            max-width: 800px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); /* Yellow shadow */
+            overflow: hidden;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .left {
+            background: rgba(0, 0, 0, 0.6); /* Black background */
+            flex: 1;
+            padding: 50px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .right {
+            flex: 1;
+            background: rgba(255, 215, 0, 0.8); /* Yellow background */
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: white; /* White text */
+        }
+        .form-control {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease-in-out;
+        }
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: #fff;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .btn {
+            background: white;
+            color: #000; /* Black text */
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn:hover {
+            background: black; /* Black background */
+            color: #ffd700; /* Yellow text */
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); /* Yellow shadow */
+        }
+        .link {
+            margin-top: 15px;
+            display: block;
+            color: white; /* White text */
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .link:hover {
+            color: #ffd700; /* Yellow text on hover */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .left, .right {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left">
+            <h2>Welcome Back, Editor!</h2>
+            <p>Please log in to access the editor dashboard.</p>
+        </div>
+        <div class="right">
+            <h2>Editor Login</h2>
+            <form method="POST" action="{{ url_for('editor_login') }}">
+                <input type="email" name="email" class="form-control" placeholder="Email" required>
+                <input type="password" name="password" class="form-control" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% set recent_message = messages[-1] %} 
+        <div class="alert alert-{{ recent_message[0] }}">{{ recent_message[1] }}</div>
+    {% endif %}
+{% endwith %}
+
+        </div>
+    </div>
+</body>
+</html>
