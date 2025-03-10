@@ -422,11 +422,81 @@ def add_gesture():
 
 
     
+@app.route('/contributor/profile', methods=['GET', 'POST'])
+@login_required  # Use the appropriate login decorator for contributors
+def contributor_profile():
+    # Get the contributor's ID from the session
+    contributor_id = session.get('user_id')
 
+    if not contributor_id:
+        flash("You must be logged in to access the profile.", "danger")
+        return redirect(url_for('ogin'))
 
+    # Fetch contributor details from MongoDB
+    contributor = users_collection.find_one({"_id": ObjectId(contributor_id)})
 
+    if not contributor:
+        flash("Profile not found.", "danger")
+        return redirect(url_for('contributor_dashboard'))
 
+    if request.method == 'POST':
+        # Get updated profile data from form
+        full_name = request.form.get("full_name")
+        username = request.form.get("username")
+        email = request.form.get("email")
+        phone = request.form.get("phone")
+        location = request.form.get("location")
+        linkedin = request.form.get("linkedin")
+        twitter = request.form.get("twitter")
+        instagram = request.form.get("instagram")
 
+        # Handle profile picture upload
+        profile_picture = request.files.get("profile_picture")
+        profile_picture_id = contributor.get("profile_picture_id")  # Default to existing picture ID
+
+        if profile_picture and allowed_file(profile_picture.filename):
+            # Delete old profile picture from GridFS if it exists
+            if profile_picture_id:
+                fs.delete(ObjectId(profile_picture_id))
+
+            # Save the new profile picture to GridFS
+            profile_picture_id = fs.put(
+                profile_picture,
+                filename=secure_filename(profile_picture.filename),
+                content_type=profile_picture.content_type  # Set content_type
+            )
+
+        # Update contributor profile in MongoDB
+        users_collection.update_one(
+            {"_id": ObjectId(contributor_id)},
+            {"$set": {
+                "full_name": full_name,
+                "username": username,
+                "email": email,
+                "phone": phone,
+                "location": location,
+                "linkedin": linkedin,
+                "twitter": twitter,
+                "instagram": instagram,
+                "profile_picture_id": profile_picture_id
+            }}
+        )
+        flash("Profile updated successfully!", "success")
+        return redirect(url_for('contributor_profile'))
+
+    # Fetch the profile picture URL for rendering
+    profile_picture_url = None
+    if contributor.get("profile_picture_id"):
+        profile_picture_file = fs.get(ObjectId(contributor["profile_picture_id"]))
+        profile_picture_url = f"/contributor/profile/picture/{contributor['profile_picture_id']}"
+
+    return render_template('contributor_profile.html', contributor=contributor, profile_picture_url=profile_picture_url)
+
+@app.route('/contributor/profile/picture/<file_id>')
+def contributor_profile_picture(file_id):
+    # Serve the profile picture from GridFS
+    file = fs.get(ObjectId(file_id))
+    return file.read(), 200, {'Content-Type': file.content_type}
 
 
 ##########################################################################################################

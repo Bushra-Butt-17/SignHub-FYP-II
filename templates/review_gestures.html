@@ -49,30 +49,13 @@
             max-width: 1200px;
             margin: 50px auto;
             padding: 30px;
-            background: rgba(255, 255, 255, 0.1); /* Glassmorphism effect */
+            background: rgba(99, 15, 15, 0);
             border-radius: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             animation: fadeIn 1s ease-in-out;
             position: relative;
-            overflow: hidden;
-        }
-        .review-container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, #ffd700, #000, #ffd700, #000);
-            opacity: 0.2;
-            z-index: -1;
-            animation: rotate 10s linear infinite;
-        }
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -93,10 +76,10 @@
             font-size: 2rem;
             font-weight: 400;
             margin-bottom: 20px;
-            color: #ffd700;
+            color: #ff0000;
             text-align: center;
             animation: slideIn 1s ease-in-out;
-            background: linear-gradient(90deg, #ffd700, #ff8c00);
+            background: linear-gradient(90deg, #ffd700, #ff0000);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
