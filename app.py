@@ -499,6 +499,145 @@ def contributor_profile_picture(file_id):
     return file.read(), 200, {'Content-Type': file.content_type}
 
 
+
+
+
+@app.route('/contributor/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    contributor_id = session.get('user_id')
+    if not contributor_id:
+        flash("You must be logged in to change your password.", "danger")
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        # Fetch contributor from the database
+        contributor = users_collection.find_one({"_id": ObjectId(contributor_id)})
+
+        if not contributor or not check_password_hash(contributor['password'], current_password):
+            flash("Incorrect current password.", "danger")
+            return redirect(url_for('change_password'))
+
+        if new_password != confirm_password:
+            flash("New passwords do not match.", "danger")
+            return redirect(url_for('change_password'))
+
+        # Update password securely
+        hashed_password = generate_password_hash(new_password)
+        users_collection.update_one(
+            {"_id": ObjectId(contributor_id)},
+            {"$set": {"password": hashed_password}}
+        )
+
+        flash("Password changed successfully!", "success")
+        return redirect(url_for('contributor_profile'))
+
+    return render_template('change_password.html')
+
+
+
+
+
+from flask import render_template, request, session, redirect, url_for
+from datetime import datetime
+from bson.objectid import ObjectId
+
+@app.template_filter('datetimeformat')
+def datetimeformat(value):
+    try:
+        if isinstance(value, datetime):
+            return value.strftime('%Y-%m-%d %H:%M:%S')
+        return str(value)  # Fallback to string representation if not datetime
+    except Exception as e:
+        return str(value)
+
+
+from flask import render_template, request, session, redirect, url_for, jsonify
+from datetime import datetime
+from bson.objectid import ObjectId
+
+@app.template_filter('datetimeformat')
+def datetimeformat(value):
+    try:
+        if isinstance(value, datetime):
+            return value.strftime('%Y-%m-%d %H:%M:%S')
+        return str(value)  # Fallback to string representation if not datetime
+    except Exception as e:
+        print(f"Error formatting date: {e}")
+        return str(value)
+
+@app.route('/contributor_reviews')
+@login_required
+def contributor_reviews():
+    user_id = session.get('user_id')
+
+    # Fetch accepted and rejected reviews
+    accepted_reviews = list(approved_gestures_collection.find({"user_id": user_id}))
+    rejected_reviews = list(rejected_gestures_collection.find({"user_id": user_id}))
+
+    # Add video URL processing function
+    def add_video_url(reviews):
+        for review in reviews:
+            if "video_file_id" in review:
+                try:
+                    # Get video file from GridFS
+                    video_file = fs.get(ObjectId(review["video_file_id"]))
+                    # Generate streaming URL
+                    review["video_url"] = url_for(
+                        'stream_video', 
+                        video_id=review["video_file_id"],
+                        _external=True
+                    )
+                except Exception as e:
+                    print(f"Error fetching video for review {review['_id']}: {e}")
+                    review["video_url"] = None
+        return reviews
+
+    # Process both review lists
+    accepted_reviews = add_video_url(accepted_reviews)
+    rejected_reviews = add_video_url(rejected_reviews)
+
+    # Combine reviews and sort by creation date
+    try:
+        all_reviews = sorted(
+            accepted_reviews + rejected_reviews, 
+            key=lambda x: x['created_at'], 
+            reverse=True
+        )
+    except Exception as e:
+        print(f"Error sorting reviews: {e}")
+        return jsonify({"error": str(e)}), 500
+
+    # Pagination setup
+    page = int(request.args.get('page', 1))
+    per_page = 4
+    total_reviews = len(all_reviews)
+    paginated_reviews = all_reviews[(page - 1) * per_page:page * per_page]
+    total_pages = (total_reviews + per_page - 1) // per_page
+
+    return render_template(
+        'contributor_reviews.html',
+        reviews=paginated_reviews,
+        page=page,
+        total_pages=total_pages
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
 ##########################################################################################################
 
 
@@ -645,10 +784,8 @@ def review_gestures():
 @app.route('/submit_review/<gesture_id>', methods=['POST'])
 @editor_login_required
 def submit_review(gesture_id):
-    # Get the editor's ID from the session
     editor_id = session.get('editor_id')
-    print(f"Editor ID: {editor_id}")  # Debugging
-
+    
     # Get form data
     shape = request.form.get('shape')
     location = request.form.get('location')
@@ -656,55 +793,52 @@ def submit_review(gesture_id):
     movement = request.form.get('movement')
     scale = request.form.get('scale')
     comments = request.form.get('comments')
-    category = request.form.get('category')  # <-- Check if category is received
+    category = request.form.get('category')
     decision = request.form.get('decision')
 
-    print(f"Form Data Received: Shape={shape}, Location={location}, Orientation={orientation}, "
-          f"Movement={movement}, Scale={scale}, Category={category}, Comments={comments}, Decision={decision}")
-
-    # Fetch the gesture from the pending collection
+    # Fetch the gesture
     gesture = pending_gestures_collection.find_one({"_id": ObjectId(gesture_id)})
 
     if gesture:
-        print(f"Gesture Found: {gesture}")  # Debugging
-        
-        # Add review data including category
+        # Update status based on decision
+        if decision == "accept":
+            new_status = "approved"
+        elif decision == "reject":
+            new_status = "rejected"
+        else:  # pending
+            new_status = "pending"
+
+        # Add review data with updated status
         gesture["review_data"] = {
             "shape": shape,
             "location": location,
             "orientation": orientation,
             "movement": movement,
             "scale": scale,
-            "category": category,  # <-- Store category in review_data
+            "category": category,
             "comments": comments
         }
+        gesture["status"] = new_status  # Add this line to update the status
 
-        print(f"Updated Gesture Data: {gesture}")  # Debugging
-
-        # Move to appropriate collection based on decision
+        # Move to appropriate collection
         if decision == "accept":
             gesture["approved_by"] = editor_id
             approved_gestures_collection.insert_one(gesture)
-            print("Gesture moved to Approved Collection")  # Debugging
         elif decision == "reject":
             gesture["rejected_by"] = editor_id
             rejected_gestures_collection.insert_one(gesture)
-            print("Gesture moved to Rejected Collection")  # Debugging
         elif decision == "pending":
             pending_gestures_collection.update_one({"_id": ObjectId(gesture_id)}, {"$set": gesture})
-            print("Gesture updated in Pending Collection")  # Debugging
 
-        # Remove the gesture from the pending collection
-        pending_gestures_collection.delete_one({"_id": ObjectId(gesture_id)})
-        print("Gesture removed from Pending Collection")  # Debugging
+        # Remove from pending collection unless keeping as pending
+        if decision != "pending":
+            pending_gestures_collection.delete_one({"_id": ObjectId(gesture_id)})
 
         flash("Review submitted successfully!", "success")
     else:
-        print("Gesture not found!")  # Debugging
         flash("Gesture not found!", "danger")
 
     return redirect(url_for('review_gestures'))
-
 
 
 
