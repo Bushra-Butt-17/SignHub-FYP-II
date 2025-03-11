@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Gestures | SignHub</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #000); /* Dark gradient */
+            color: white;
+        }
+        .navbar {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #ffd700 !important;
+        }
+        .navbar-toggler {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 215, 0, 0.8)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        }
+        .navbar-nav .nav-link {
+            color: white !important;
+            font-size: 1rem;
+            margin-left: 20px;
+            transition: color 0.3s ease;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #ffd700 !important;
+        }
+        .review-container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 30px;
+            background: rgba(99, 15, 15, 0);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 1s ease-in-out;
+            position: relative;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            font-size: 3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-align: center;
+            animation: slideIn 1s ease-in-out;
+            background: linear-gradient(90deg, #ffd700, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        h2 {
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 20px;
+            color: #ff0000;
+            text-align: center;
+            animation: slideIn 1s ease-in-out;
+            background: linear-gradient(90deg, #ffd700, #ff0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        .layout {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .left-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .right-column {
+            flex: 1;
+            position: sticky;
+            top: 20px; /* Adjust this value to control the sticky position */
+            align-self: flex-start; /* Ensures the column sticks to the top */
+            height: fit-content; /* Ensures the column doesn't stretch */
+        }
+        .gesture-details {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            animation: fadeIn 1.5s ease-in-out;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .gesture-details p {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #ddd;
+        }
+        .video-container {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 2s ease-in-out;
+            max-width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        video {
+            width: 100%;
+            display: block;
+        }
+        .evaluation-container {
+            animation: fadeIn 2.5s ease-in-out;
+        }
+        .evaluation-container table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .evaluation-container th, .evaluation-container td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .evaluation-container th {
+            background: rgba(0, 0, 0, 0.5);
+            color: #ffd700;
+            font-weight: 600;
+        }
+        .evaluation-container td {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .form-section {
+            padding: 20px;
+            margin-top: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            animation: fadeIn 3s ease-in-out;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .form-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #ffd700;
+            background: linear-gradient(90deg, #ffd700, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .form-section label {
+            font-size: 1rem;
+            color: #ddd;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            display: block;
+        }
+        .form-section input[type="radio"],
+        .form-section input[type="range"],
+        .form-section textarea,
+        .form-section select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        .form-section input[type="radio"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        .form-section input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .form-section input[type="range"]:hover {
+            opacity: 1;
+        }
+        .form-section input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ffd700;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .form-section textarea {
+            resize: none;
+        }
+        .form-section textarea:focus,
+        .form-section select:focus,
+        .form-section input[type="range"]:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            animation: fadeIn 5s ease-in-out;
+        }
+        .navigation-buttons button {
+            width: 48%;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .navigation-buttons button[type="submit"] {
+            background: linear-gradient(90deg, #ffd700, #ff8c00);
+            color: black;
+        }
+        .navigation-buttons button[type="submit"]:hover {
+            background: linear-gradient(90deg, #ff8c00, #ffd700);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        .navigation-buttons button[type="button"] {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .navigation-buttons button[type="button"]:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffd700;
+        }
+        .no-gestures {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #ddd;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @media (max-width: 768px) {
+            .layout {
+                flex-direction: column;
+            }
+            h1 {
+                font-size: 2.5rem;
+            }
+            .gesture-details p {
+                font-size: 1rem;
+            }
+            .navigation-buttons button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .navigation-buttons {
+                flex-direction: column;
+            }
+            .right-column {
+                position: static; /* Disable sticky behavior on mobile */
+            }
+            .navbar-nav {
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(10px);
+                padding: 10px;
+                border-radius: 10px;
+                margin-top: 10px;
+            }
+            .navbar-nav .nav-link {
+                margin-left: 0;
+                padding: 10px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .navbar-nav .nav-link:last-child {
+                border-bottom: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">SignHub</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Gestures</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Review</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Profile</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Review Container -->
+    <div class="review-container">
+        <h1>Review Gesture</h1>
+        <h2><strong>{{ gesture.name }}</strong></h2>
+        {% if gesture %}
+            <div class="layout">
+                <!-- Left Column -->
+                <div class="left-column">
+                    <div class="gesture-details">
+                        <p><strong>Dialect:</strong> {{ gesture.dialect }}</p>
+                        <p><strong>Contributor:</strong> {{ gesture.contributor_name }}</p>
+                    </div>
+        
+                    <form action="{{ url_for('submit_review', gesture_id=gesture._id) }}" method="POST">
+                        <div class="evaluation-container">
+                            <table>
+                                <tr>
+                                    <th>Evaluation</th>
+                                    <th>5</th>
+                                    <th>4</th>
+                                    <th>3</th>
+                                    <th>2</th>
+                                    <th>1</th>
+                                </tr>
+                                <tr>
+                                    <td>Shape</td>
+                                    <td><input type="radio" name="shape" value="5" required></td>
+                                    <td><input type="radio" name="shape" value="4"></td>
+                                    <td><input type="radio" name="shape" value="3"></td>
+                                    <td><input type="radio" name="shape" value="2"></td>
+                                    <td><input type="radio" name="shape" value="1"></td>
+                                </tr>
+                                <tr>
+                                    <td>Location</td>
+                                    <td><input type="radio" name="location" value="5" required></td>
+                                    <td><input type="radio" name="location" value="4"></td>
+                                    <td><input type="radio" name="location" value="3"></td>
+                                    <td><input type="radio" name="location" value="2"></td>
+                                    <td><input type="radio" name="location" value="1"></td>
+                                </tr>
+                                <tr>
+                                    <td>Orientation</td>
+                                    <td><input type="radio" name="orientation" value="5" required></td>
+                                    <td><input type="radio" name="orientation" value="4"></td>
+                                    <td><input type="radio" name="orientation" value="3"></td>
+                                    <td><input type="radio" name="orientation" value="2"></td>
+                                    <td><input type="radio" name="orientation" value="1"></td>
+                                </tr>
+                                <tr>
+                                    <td>Movement</td>
+                                    <td><input type="radio" name="movement" value="5" required></td>
+                                    <td><input type="radio" name="movement" value="4"></td>
+                                    <td><input type="radio" name="movement" value="3"></td>
+                                    <td><input type="radio" name="movement" value="2"></td>
+                                    <td><input type="radio" name="movement" value="1"></td>
+                                </tr>
+                            </table>
+                        </div>
+            
+                        <div class="form-section">
+                            <h3>Overall Decision</h3>
+                            <label><input type="radio" name="decision" value="accept" required> Accept</label>
+                            <label><input type="radio" name="decision" value="reject"> Reject</label>
+                            <label><input type="radio" name="decision" value="pending"> Pending</label>
+                        </div>
+            
+                        <div class="form-section">
+                            <label for="scale">Scale: <span id="scaleValue">5</span></label>
+                            <input type="range" id="scale" name="scale" min="0" max="10" value="5">
+                        </div>
+            
+                        <div class="form-section">
+                            <label for="comments">Comments</label>
+                            <textarea name="comments" placeholder="Enter your comments..."></textarea>
+                        </div>
+            
+                        <div class="form-section">
+                            <h3>Select Category</h3>
+                            <select name="category" required>
+                                <option value="" disabled>Select a category</option>
+                                <option value="Alphabet">Alphabet</option>
+                                <option value="Numbers">Numbers</option>
+                                <option value="Words">Words</option>
+                                <option value="Phrases">Phrases</option>
+                                <option value="Expressions">Expressions</option>
+                            </select>
+                        </div>
+                        
+                        <script>
+                            // Update scale value display
+                            document.getElementById('scale').addEventListener('input', function() {
+                                document.getElementById('scaleValue').textContent = this.value;
+                            });
+                        
+                            // Debugging: Ensure category is selected
+                            document.querySelector("form").addEventListener("submit", function(event) {
+                                let categoryValue = document.querySelector("select[name='category']").value;
+                                console.log("Selected Category:", categoryValue);
+                                if (!categoryValue) {
+                                    alert("Please select a category before submitting!");
+                                    event.preventDefault();
+                                }
+                            });
+                        </script>
+                        
+                        <div class="navigation-buttons">
+                            <button type="submit">Submit Review</button>
+                            <button type="button" onclick="window.location.href='{{ url_for('review_gestures') }}'">Skip</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Right Column -->
+                <div class="right-column">
+                    <div class="video-container">
+                        <video controls>
+                            <source src="{{ gesture.video_url }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="no-gestures">
+                <p>No pending gestures to review.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        // Update scale value display
+        const scaleInput = document.getElementById('scale');
+        const scaleValue = document.getElementById('scaleValue');
+        scaleInput.addEventListener('input', () => {
+            scaleValue.textContent = scaleInput.value;
+        });
+    </script>
+</body>
+</html>
