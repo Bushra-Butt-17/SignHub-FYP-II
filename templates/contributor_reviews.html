@@ -19,30 +19,104 @@
             min-height: 100vh;
         }
 
-        .navbar {
-            background: rgba(10, 10, 10, 0.8) !important;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 77, 77, 0.2);
+         /* General Styles */
+         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .navbar-brand {
-            color: var(--red) !important;
+        /* Navbar Styles */
+        .navbar {
+            width: 100%;
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: background 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar.scrolled {
+            background: linear-gradient(90deg, rgba(255, 0, 0, 0.9), rgba(139, 0, 0, 0.9));
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-size: 1.8rem;
             font-weight: 700;
-            letter-spacing: 1px;
+            color: #ff0000;
+            background: linear-gradient(90deg, #ff0000, #8b0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s;
+        }
+
+        .navbar.scrolled .logo {
+            color: white;
+            background: linear-gradient(90deg, white, #ccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
         }
 
         .nav-link {
-            color: rgba(255, 255, 255, 0.8) !important;
-            margin: 0 15px;
-            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 1.2rem;
+            color: white;
+            transition: color 0.3s, transform 0.3s;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff0000, #8b0000);
+            transition: width 0.3s;
         }
 
         .nav-link:hover {
-            color: var(--red) !important;
-            transform: translateY(-2px);
+            color: #ff0000;
+            transform: translateY(-3px);
         }
 
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-actions .logout-btn {
+            text-decoration: none;
+            color: white;
+            font-size: 1.2rem;
+            background: linear-gradient(90deg, #ff0000, #8b0000);
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-actions .logout-btn:hover {
+            background: linear-gradient(90deg, #8b0000, #ff0000);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+        }
         .review-card {
             background: linear-gradient(145deg, rgba(255, 77, 77, 0.1) 0%, rgba(10, 10, 10, 0.3) 100%);
             backdrop-filter: blur(10px);
@@ -187,25 +261,18 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="#">SignHub</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">Reviews</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Profile</a>
-                    </li>
-                </ul>
-            </div>
+    <nav class="navbar">
+        <div class="logo">SignHub</div>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}" class="nav-link">Home</a>
+            <a href="{{ url_for('contributor_profile') }}" class="nav-link">Profile</a>
+            <a href="{{ url_for('contributor_reviews') }}" class="nav-link">Reviews</a>
+            <a href="{{ url_for('contributor_profile') }}" class="nav-link">Settings</a>
+        </div>
+        <div class="nav-actions">
+            <a href="{{ url_for('logout') }}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
         </div>
     </nav>
 
