@@ -14,6 +14,7 @@ from io import BytesIO
 import traceback
 from datetime import datetime
 from waitress import serve
+from flask import Flask, request, session, redirect, url_for, render_template, flash, Response, abort
 # Load environment variables
 load_dotenv()
 
@@ -423,14 +424,14 @@ def add_gesture():
 
     
 @app.route('/contributor/profile', methods=['GET', 'POST'])
-@login_required  # Use the appropriate login decorator for contributors
+@login_required
 def contributor_profile():
     # Get the contributor's ID from the session
     contributor_id = session.get('user_id')
 
     if not contributor_id:
         flash("You must be logged in to access the profile.", "danger")
-        return redirect(url_for('ogin'))
+        return redirect(url_for('login'))
 
     # Fetch contributor details from MongoDB
     contributor = users_collection.find_one({"_id": ObjectId(contributor_id)})
@@ -454,34 +455,58 @@ def contributor_profile():
         profile_picture = request.files.get("profile_picture")
         profile_picture_id = contributor.get("profile_picture_id")  # Default to existing picture ID
 
+        print(f"[DEBUG] Received profile picture: {profile_picture}")
         if profile_picture and allowed_file(profile_picture.filename):
-            # Delete old profile picture from GridFS if it exists
-            if profile_picture_id:
-                fs.delete(ObjectId(profile_picture_id))
+            print(f"[DEBUG] Valid profile picture received: {profile_picture.filename}")
 
-            # Save the new profile picture to GridFS
-            profile_picture_id = fs.put(
-                profile_picture,
-                filename=secure_filename(profile_picture.filename),
-                content_type=profile_picture.content_type  # Set content_type
-            )
+            try:
+                # Delete old profile picture from GridFS if it exists
+                if profile_picture_id:
+                    print(f"[DEBUG] Deleting old profile picture ID: {profile_picture_id}")
+                    fs.delete(ObjectId(profile_picture_id))
 
+                # Save the new profile picture to GridFS
+                profile_picture_id = fs.put(
+                    profile_picture,
+                    filename=secure_filename(profile_picture.filename),
+                    content_type=profile_picture.content_type
+                )
+                print(f"[DEBUG] New profile picture saved with ID: {profile_picture_id}")
+
+            except Exception as e:
+                print(f"[ERROR] Failed to update profile picture: {e}")
+                flash("Error updating profile picture.", "danger")
+        print(f"[DEBUG] Full Name: {full_name}")
+        print(f"[DEBUG] Username: {username}")
+        print(f"[DEBUG] Email: {email}")
+        print(f"[DEBUG] Phone: {phone}")
+        print(f"[DEBUG] Location: {location}")
+        print(f"[DEBUG] LinkedIn: {linkedin}")
+        print(f"[DEBUG] Twitter: {twitter}")
+        print(f"[DEBUG] Instagram: {instagram}")
+        print(f"[DEBUG] Profile Picture ID: {profile_picture_id}")
         # Update contributor profile in MongoDB
-        users_collection.update_one(
-            {"_id": ObjectId(contributor_id)},
-            {"$set": {
-                "full_name": full_name,
-                "username": username,
-                "email": email,
-                "phone": phone,
-                "location": location,
-                "linkedin": linkedin,
-                "twitter": twitter,
-                "instagram": instagram,
-                "profile_picture_id": profile_picture_id
-            }}
-        )
-        flash("Profile updated successfully!", "success")
+        try:
+            users_collection.update_one(
+                {"_id": ObjectId(contributor_id)},
+                {"$set": {
+                    "full_name": full_name,
+                    "username": username,
+                    "email": email,
+                    "phone": phone,
+                    "location": location,
+                    "linkedin": linkedin,
+                    "twitter": twitter,
+                    "instagram": instagram,
+                    "profile_picture_id": profile_picture_id
+                }}
+            )
+            print(f"[DEBUG] Profile updated successfully with picture ID: {profile_picture_id}")
+            flash("Profile updated successfully!", "success")
+        except Exception as e:
+            print(f"[ERROR] Failed to update profile in MongoDB: {e}")
+            flash("Error updating profile.", "danger")
+
         return redirect(url_for('contributor_profile'))
 
     # Fetch the profile picture URL for rendering
@@ -489,15 +514,22 @@ def contributor_profile():
     if contributor.get("profile_picture_id"):
         profile_picture_file = fs.get(ObjectId(contributor["profile_picture_id"]))
         profile_picture_url = f"/contributor/profile/picture/{contributor['profile_picture_id']}"
+        print(f"[DEBUG] Profile picture URL generated: {profile_picture_url}")
 
     return render_template('contributor_profile.html', contributor=contributor, profile_picture_url=profile_picture_url)
 
-@app.route('/contributor/profile/picture/<file_id>')
-def contributor_profile_picture(file_id):
-    # Serve the profile picture from GridFS
-    file = fs.get(ObjectId(file_id))
-    return file.read(), 200, {'Content-Type': file.content_type}
 
+@app.route('/contributor/profile/picture/<picture_id>')
+def serve_profile_picture(picture_id):
+    try:
+        # Fetch the image file from GridFS
+        image_file = fs.get(ObjectId(picture_id))
+        # Return the image with the correct content type
+        return Response(image_file.read(), content_type=image_file.content_type)
+    except Exception as e:
+        print(f"[ERROR] Failed to serve profile picture: {e}")
+        # Return a 404 error if the image is not found
+        abort(404)
 
 
 
@@ -626,11 +658,9 @@ def contributor_reviews():
         total_pages=total_pages
     )
 
-
-
-
-
-
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 

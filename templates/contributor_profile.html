@@ -353,7 +353,6 @@
                     <label for="profilePictureUpload">
                         <i class="fas fa-camera"></i>
                     </label>
-                    <input type="file" id="profilePictureUpload" name="profile_picture" accept="image/*" onchange="previewImage(event)">
                 </div>
                 <div class="profile-info">
                     <h1>{{ contributor.full_name }}</h1>
@@ -364,8 +363,8 @@
                 </div>
             </div>
             <form method="POST" class="profile-form" id="profileForm" enctype="multipart/form-data">
-                    <!-- Other form fields -->
-                    
+                
+                <!-- Other form fields -->
                 <div class="form-group">
                     <label>Full Name</label>
                     <div class="input-wrapper">
@@ -422,6 +421,15 @@
                         <input type="text" name="instagram" value="{{ contributor.instagram }}" disabled>
                     </div>
                 </div>
+                <!-- File input field -->
+                <div class="form-group">
+                    <label>Profile Picture</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-camera"></i>
+                        <input type="file" id="profilePictureUpload" name="profile_picture" accept="image/*" onchange="previewImage(event)">
+                    </div>
+                </div>
+
                 <button type="submit" class="save-btn">Save Changes</button>
             </form>
         </div>
@@ -443,4 +451,3 @@
         }
     </script>
 </body>
-</html>

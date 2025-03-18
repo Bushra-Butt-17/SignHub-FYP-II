@@ -369,13 +369,12 @@
     <div class="profile-container">
         <div class="profile-card">
             <div class="profile-header">
-                <div class="profile-image">
-                    <img src="{{ profile_picture_url or url_for('static', filename='uploads/default.png') }}" alt="Profile Picture" id="profilePicture">
-                    <label for="profilePictureUpload">
-                        <i class="fas fa-camera"></i>
-                    </label>
-                    <input type="file" id="profilePictureUpload" name="profile_picture" accept="image/*" onchange="previewImage(event)">
-                </div>
+            <div class="profile-image">
+                <img src="{{ profile_picture_url or url_for('static', filename='uploads/default.png') }}" alt="Profile Picture" id="profilePicture">
+                <label for="profilePictureUpload">
+                    <i class="fas fa-camera"></i>
+                </label></div>
+            
                 <div class="profile-info">
                     <h1>{{ editor.full_name }}</h1>
                     <p>@{{ editor.username }}</p>
@@ -385,6 +384,7 @@
                 </div>
             </div>
             <form method="POST" class="profile-form" id="profileForm" enctype="multipart/form-data">
+                
                 <div class="form-group">
                     <label>Full Name</label>
                     <div class="input-wrapper">
@@ -441,6 +441,13 @@
                         <input type="text" name="instagram" value="{{ editor.instagram }}" disabled>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>Profile Picture</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-camera"></i>
+                        <input type="file" id="profilePictureUpload" name="profile_picture" accept="image/*" onchange="previewImage(event)">
+                    </div>
+                </div>
                 <button type="submit" class="save-btn">Save Changes</button>
             </form>
         </div>
@@ -463,3 +470,5 @@
     </script>
 </body>
 </html>
+
+
