@@ -46,7 +46,7 @@ videos_collection = db['videos']
 pending_gestures_collection = db["pending_gestures"]
 approved_gestures_collection = db["approved_gestures"]
 rejected_gestures_collection = db["rejected_gestures"]
-
+revision_gestures_collection = db["revision_gestures"]
 # Define the editors collection
 editors_collection = db["editors"]
 # Rest of your code remains the same...
@@ -806,7 +806,7 @@ def submit_review(gesture_id):
         elif decision == "reject":
             new_status = "rejected"
         else:  # pending
-            new_status = "pending"
+            new_status = "revision"
 
         # Add review data with updated status
         gesture["review_data"] = {
@@ -827,8 +827,16 @@ def submit_review(gesture_id):
         elif decision == "reject":
             gesture["rejected_by"] = editor_id
             rejected_gestures_collection.insert_one(gesture)
-        elif decision == "pending":
-            pending_gestures_collection.update_one({"_id": ObjectId(gesture_id)}, {"$set": gesture})
+        elif decision == "revision":
+            gesture["edited_by"] = editor_id
+            print("Collection name:", revision_gestures_collection)
+            print("Collection type:", type(revision_gestures_collection))
+            try:
+                revision_gestures_collection.insert_one(gesture)
+                print("Gesture inserted into revision collection")
+            except Exception as e:
+                print(f"Error during insertion: {e}")
+        
 
         # Remove from pending collection unless keeping as pending
         if decision != "pending":

@@ -13,7 +13,14 @@
             padding: 0;
             box-sizing: border-box;
         }
-        /* Navbar Styles */
+        /* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Navbar Styles */
 .navbar {
     width: 100%;
     background: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
@@ -86,11 +93,17 @@
     width: 100%;
 }
 
-.nav-actions .logout-btn {
+/* Nav Actions */
+.nav-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-actions .review-btn, .nav-actions .logout-btn {
     text-decoration: none;
     color: white;
     font-size: 1.2rem;
-    background: linear-gradient(90deg, #ff0000, #8b0000);
+    background: linear-gradient(90deg, #006400, #228B22);
     padding: 8px 15px;
     border-radius: 8px;
     transition: transform 0.3s, box-shadow 0.3s;
@@ -99,11 +112,19 @@
     gap: 8px;
 }
 
-.nav-actions .logout-btn:hover {
-    background: linear-gradient(90deg, #8b0000, #ff0000);
+.nav-actions .logout-btn {
+    background: linear-gradient(90deg, #ff0000, #8b0000);
+}
+
+.nav-actions .review-btn:hover, .nav-actions .logout-btn:hover {
     transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0, 128, 0, 0.3);
+}
+
+.nav-actions .logout-btn:hover {
     box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
 }
+
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #1a1a1a, #000);
@@ -337,6 +358,9 @@
             <a href="{{ url_for('editor_profile') }}" class="nav-link">Settings</a>
         </div>
         <div class="nav-actions">
+            <a href="{{ url_for('review_gestures') }}" class="review-btn">
+                <i class="fas fa-check-circle"></i> Review
+            </a>
             <a href="{{ url_for('editor_logout') }}" class="logout-btn">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
