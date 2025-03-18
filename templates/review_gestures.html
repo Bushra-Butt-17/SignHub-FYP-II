@@ -13,38 +13,124 @@
             padding: 0;
             box-sizing: border-box;
         }
+        /* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Navbar Styles */
+.navbar {
+    width: 100%;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transition: background 0.3s, box-shadow 0.3s;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.navbar.scrolled {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.9), rgba(255, 140, 0, 0.9));
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffd700;
+    background: linear-gradient(90deg, #ffd700, #ff8c00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: transform 0.3s;
+}
+
+.navbar.scrolled .logo {
+    color: black;
+    background: linear-gradient(90deg, black, #333);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-links {
+    display: flex;
+    gap: 25px;
+}
+
+.nav-link {
+    text-decoration: none;
+    font-size: 1.2rem;
+    color: white;
+    transition: color 0.3s, transform 0.3s;
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #ffd700, #ff8c00);
+    transition: width 0.3s;
+}
+
+.nav-link:hover {
+    color: #ffd700;
+    transform: translateY(-3px);
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Nav Actions */
+.nav-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-actions .review-btn, .nav-actions .logout-btn {
+    text-decoration: none;
+    color: white;
+    font-size: 1.2rem;
+    background: linear-gradient(90deg, #006400, #228B22);
+    padding: 8px 15px;
+    border-radius: 8px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-actions .logout-btn {
+    background: linear-gradient(90deg, #ff0000, #8b0000);
+}
+
+.nav-actions .review-btn:hover, .nav-actions .logout-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0, 128, 0, 0.3);
+}
+
+.nav-actions .logout-btn:hover {
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+}
+
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #1a1a1a, #000); /* Dark gradient */
             color: white;
         }
-        .navbar {
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            padding: 15px 30px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .navbar-brand {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #ffd700 !important;
-        }
-        .navbar-toggler {
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 215, 0, 0.8)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
-        }
-        .navbar-nav .nav-link {
-            color: white !important;
-            font-size: 1rem;
-            margin-left: 20px;
-            transition: color 0.3s ease;
-        }
-        .navbar-nav .nav-link:hover {
-            color: #ffd700 !important;
-        }
+        
         .review-container {
             max-width: 1200px;
             margin: 50px auto;
@@ -306,29 +392,23 @@
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <a class="navbar-brand" href="#">SignHub</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Gestures</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Review</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Profile</a>
-                </li>
-            </ul>
+    <nav class="navbar">
+        <div class="logo">SignHub</div>
+        <div class="nav-links">
+            <a href="{{ url_for('editor_dashboard') }}" class="nav-link">Home</a>
+            <a href="{{ url_for('editor_profile') }}" class="nav-link">Profile</a>
+            <a href="{{ url_for('editor_profile') }}" class="nav-link">Settings</a>
+        </div>
+        <div class="nav-actions">
+            <a href="{{ url_for('review_gestures') }}" class="review-btn">
+                <i class="fas fa-check-circle"></i> Review
+            </a>
+            <a href="{{ url_for('editor_logout') }}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
         </div>
     </nav>
+    
 
     <!-- Review Container -->
     <div class="review-container">
@@ -393,7 +473,7 @@
                             <h3>Overall Decision</h3>
                             <label><input type="radio" name="decision" value="accept" required> Accept</label>
                             <label><input type="radio" name="decision" value="reject"> Reject</label>
-                            <label><input type="radio" name="decision" value="pending"> Pending</label>
+                            <label><input type="radio" name="decision" value="revision"> Revision</label>
                         </div>
             
                         <div class="form-section">
