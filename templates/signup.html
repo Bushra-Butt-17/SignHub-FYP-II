@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | SignHub</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #ff0000, #000);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            width: 90%;
+            max-width: 800px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+            overflow: hidden;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .left {
+            background: rgba(0, 0, 0, 0.6);
+            flex: 1;
+            padding: 50px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .right {
+            flex: 1;
+            background: rgba(255, 0, 0, 0.8);
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .form-control {
+    background: rgba(255, 255, 255, 0.2); /* Light transparent white for visibility */
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease-in-out;
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.7); /* Slightly dimmed white for contrast */
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.3); /* More visible on focus */
+    border-color: #fff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+        .btn {
+            background: white;
+            color: #ff4444;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn:hover {
+            background: black;
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+        }
+        .link {
+            margin-top: 15px;
+            display: block;
+            color: white;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .link:hover {
+            color: black;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .left, .right {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left">
+            <h2>Welcome!</h2>
+            <p>Create an account</p>
+        </div>
+        <div class="right">
+            <h2>Sign Up</h2>
+            <form action="{{ url_for('signup') }}" method="POST">
+                <input type="text" name="username" class="form-control" placeholder="Username" required>
+                <input type="email" name="email" class="form-control" placeholder="Email" required>
+                <input type="password" name="password" class="form-control" placeholder="Password" required>
+                <input type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" required>
+                <button type="submit" class="btn">Sign Up</button>
+            </form>
+            <a href="{{ url_for('login') }}" class="link">Already have an account? Log in</a>
+        </div>
+    </div>
+</body>
+</html>
