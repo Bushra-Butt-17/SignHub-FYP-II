@@ -16,7 +16,7 @@
         }
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1a1a1a, #000); /* Dark gradient */
+            background: linear-gradient(135deg, #1a1a1a, #000); /* Black gradient */
             color: white;
             display: flex;
             flex-direction: column;
@@ -176,7 +176,104 @@
             to { transform: translateX(0); }
         }
 
-        /* Approved Gestures Table */
+        /* Stats Section */
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 12px;
+            width: 22%;
+            min-width: 200px;
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4); /* Pink shadow */
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, #ff1493, #000, #ff1493, #000); /* Pink gradient */
+            opacity: 0.2;
+            z-index: -1;
+            animation: rotate 10s linear infinite;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 20, 147, 0.7); /* Pink glow */
+        }
+
+        .stat-card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: #ff1493; /* Pink */
+        }
+
+        .stat-card p {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* Gestures Menu Button */
+        .gestures-menu-btn {
+            margin-top: 30px;
+        }
+
+        .gestures-menu-btn a {
+            display: inline-block;
+            background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
+            color: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.5); /* Pink shadow */
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gestures-menu-btn a::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.5s ease;
+            border-radius: 50%;
+        }
+
+        .gestures-menu-btn a:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .gestures-menu-btn a:hover {
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.8); /* Pink glow */
+        }
+
+        /* Gestures Menu */
+        .gestures-menu {
+            margin-top: 20px;
+            display: none; /* Hidden by default */
+        }
+
         .gestures-table {
             width: 100%;
             border-collapse: collapse;
@@ -210,6 +307,24 @@
         .process-btn:hover {
             box-shadow: 0 0 15px rgba(255, 20, 147, 0.7); /* Pink glow */
         }
+        .start-generating-btn {
+    display: inline-block;
+    background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
+    color: white;
+    padding: 15px 30px;
+    border-radius: 12px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(255, 20, 147, 0.5); /* Pink shadow */
+    margin-left: 20px; /* Add some spacing */
+}
+
+.start-generating-btn:hover {
+    box-shadow: 0 0 20px rgba(255, 20, 147, 0.8); /* Pink glow */
+    transform: translateY(-3px);
+}
     </style>
     <script>
         $(document).ready(function() {
@@ -220,6 +335,11 @@
                     $('.navbar').removeClass('scrolled');
                 }
             });
+
+            // Toggle gestures menu
+            $('#show-gestures-btn').click(function() {
+                $('#gestures-menu').toggle();
+            });
         });
     </script>
 </head>
@@ -229,6 +349,7 @@
         <div class="nav-links">
             <a href="{{ url_for('sigml_generator_dashboard') }}" class="nav-link">Home</a>
             <a href="{{ url_for('sigml_generator_profile') }}" class="nav-link">Profile</a>
+            <a href="{{ url_for('processed_gestures') }}" class="nav-link">Processed Gestures</a>
         </div>
         <div class="nav-actions">
             <a href="{{ url_for('sigml_generator_logout') }}" class="logout-btn">
@@ -238,31 +359,59 @@
     </nav>
     <div class="dashboard-container">
         <h1>Welcome, {{ generator_name }}!</h1>
-        <h2>Approved Gestures</h2>
-        <table class="gestures-table">
-            <thead>
-                <tr>
-                    <th>Gesture Name</th>
-                    <th>Dialect</th>
-                    <th>Submitted By</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for gesture in approved_gestures %}
+
+        <!-- Stats Section -->
+        <div class="stats">
+            <div class="stat-card">
+                <h2>Pending for Processing</h2>
+                <p>{{ total_pending_processing }}</p>
+            </div>
+            <div class="stat-card">
+                <h2>Processed Gestures</h2>
+                <p>{{ total_processed }}</p>
+            </div>
+        </div>
+
+        <!-- Gestures Menu Button -->
+        
+        <!-- Gestures Menu Button -->
+<div class="gestures-menu-btn">
+    <a id="show-gestures-btn">Show Gestures to Process</a>
+    <a href="{{ url_for('start_generating') }}" class="start-generating-btn">
+        <i class="fas fa-play"></i> Start Generating
+    </a>
+</div>
+        <!-- Gestures Menu -->
+        <div id="gestures-menu" class="gestures-menu">
+            <h2>Gestures Pending for Processing</h2>
+            <table class="gestures-table">
+                <thead>
                     <tr>
-                        <td>{{ gesture.name }}</td>
-                        <td>{{ gesture.dialect }}</td>
-                        <td>{{ gesture.user_id }}</td>
-                        <td>
-                            <a href="{{ url_for('process_gesture', gesture_id=gesture._id) }}" class="process-btn">
-                                Process to SiGML
-                            </a>
-                        </td>
+                        <th>Gesture Name</th>
+                        <th>Dialect</th>
+                        <th>Contributor</th>
+                        <th>Approved By</th>
+                        <th>Action</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+               
+                <tbody>
+                    {% for gesture in sigml_required_gestures %}
+                        <tr>
+                            <td>{{ gesture.name }}</td>
+                            <td>{{ gesture.dialect }}</td>
+                            <td>{{ gesture.contributor_name }}</td>
+                            <td>{{ gesture.editor_name }}</td>
+                            <td>
+                                <a href="{{ url_for('process_gesture', gesture_id=gesture._id) }}" class="process-btn">
+                                    <i class="fas fa-door-open"></i> Process
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 </html>
