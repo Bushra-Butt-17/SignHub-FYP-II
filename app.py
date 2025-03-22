@@ -56,7 +56,11 @@ revision_gestures_collection = db["revision_gestures"]
 editors_collection = db["editors"]
 # MongoDB collection for SiGML Generators
 sigml_generators_collection = db["sigml_generators"]
+# MongoDB collection for SiGML files
+sigml_files_collection = db["sigml_files"]
 # Rest of your code remains the same...
+sigml_required_gestures_collection = db['sigml_required_gestures'] 
+sigml_updated_gestures_collection =db['sigml_updated_gestures'] # Add this line
 
 @app.route('/')
 def home():
@@ -813,10 +817,6 @@ def review_gestures():
         gesture["contributor_name"] = user.get("username", "Unknown User") if user else "Unknown User"
 
     return render_template('review_gestures.html', gesture=gesture)
-
-
-
-
 @app.route('/submit_review/<gesture_id>', methods=['POST'])
 @editor_login_required
 def submit_review(gesture_id):
@@ -854,25 +854,21 @@ def submit_review(gesture_id):
             "category": category,
             "comments": comments
         }
-        gesture["status"] = new_status  # Add this line to update the status
+        gesture["status"] = new_status  # Update the status
 
-        # Move to appropriate collection
+        # Move to appropriate collection based on decision
         if decision == "accept":
+            # Move to the "sigml_required_gestures" collection for SiGML processing
             gesture["approved_by"] = editor_id
-            approved_gestures_collection.insert_one(gesture)
+            sigml_required_gestures_collection.insert_one(gesture)
         elif decision == "reject":
+            # Move to the "rejected_gestures" collection
             gesture["rejected_by"] = editor_id
             rejected_gestures_collection.insert_one(gesture)
         elif decision == "revision":
+            # Move to the "revision_gestures" collection
             gesture["edited_by"] = editor_id
-            print("Collection name:", revision_gestures_collection)
-            print("Collection type:", type(revision_gestures_collection))
-            try:
-                revision_gestures_collection.insert_one(gesture)
-                print("Gesture inserted into revision collection")
-            except Exception as e:
-                print(f"Error during insertion: {e}")
-        
+            revision_gestures_collection.insert_one(gesture)
 
         # Remove from pending collection unless keeping as pending
         if decision != "pending":
@@ -883,10 +879,6 @@ def submit_review(gesture_id):
         flash("Gesture not found!", "danger")
 
     return redirect(url_for('review_gestures'))
-
-
-
-
 
 
 
@@ -1100,6 +1092,90 @@ def sigml_generator_login_required(f):
 
 
 
+
+
+@app.route('/sigml_generator/profile', methods=['GET', 'POST'])
+@sigml_generator_login_required
+def sigml_generator_profile():
+    # Get the SiGML Generator's ID from the session
+    generator_id = session.get('sigml_generator_id')
+
+    if not generator_id:
+        flash("You must be logged in to access the profile.", "danger")
+        return redirect(url_for('sigml_generator_login'))
+
+    # Fetch SiGML Generator details from MongoDB
+    generator = sigml_generators_collection.find_one({"_id": ObjectId(generator_id)})
+
+    if not generator:
+        flash("Profile not found.", "danger")
+        return redirect(url_for('sigml_generator_dashboard'))
+
+    if request.method == 'POST':
+        # Get updated profile data from form
+        full_name = request.form.get("full_name")
+        username = request.form.get("username")
+        email = request.form.get("email")
+        phone = request.form.get("phone")
+        location = request.form.get("location")
+        linkedin = request.form.get("linkedin")
+        twitter = request.form.get("twitter")
+        instagram = request.form.get("instagram")
+
+        # Handle profile picture upload
+        profile_picture = request.files.get("profile_picture")
+        profile_picture_id = generator.get("profile_picture_id")  # Default to existing picture ID
+
+        if profile_picture and allowed_file(profile_picture.filename):
+            # Delete old profile picture from GridFS if it exists
+            if profile_picture_id:
+                fs.delete(ObjectId(profile_picture_id))
+
+            # Save the new profile picture to GridFS
+            profile_picture_id = fs.put(
+                profile_picture,
+                filename=secure_filename(profile_picture.filename),
+                content_type=profile_picture.content_type
+            )
+
+        # Update SiGML Generator profile in MongoDB
+        sigml_generators_collection.update_one(
+            {"_id": ObjectId(generator_id)},
+            {"$set": {
+                "full_name": full_name,
+                "username": username,
+                "email": email,
+                "phone": phone,
+                "location": location,
+                "linkedin": linkedin,
+                "twitter": twitter,
+                "instagram": instagram,
+                "profile_picture_id": profile_picture_id
+            }}
+        )
+        flash("Profile updated successfully!", "success")
+        return redirect(url_for('sigml_generator_profile'))
+
+    # Fetch the profile picture URL for rendering
+    profile_picture_url = None
+    if generator.get("profile_picture_id"):
+        profile_picture_file = fs.get(ObjectId(generator["profile_picture_id"]))
+        profile_picture_url = f"/sigml_generator/profile/picture/{generator['profile_picture_id']}"
+
+    return render_template('sigml_generator_profile.html', generator=generator, profile_picture_url=profile_picture_url)
+
+
+
+@app.route('/sigml_generator/profile/picture/<file_id>')
+def sigml_generator_profile_picture(file_id):
+    # Serve the profile picture from GridFS
+    file = fs.get(ObjectId(file_id))
+    return file.read(), 200, {'Content-Type': file.content_type}
+
+
+
+
+
 @app.route('/sigml_generator/dashboard')
 @sigml_generator_login_required
 def sigml_generator_dashboard():
@@ -1110,12 +1186,38 @@ def sigml_generator_dashboard():
     generator = sigml_generators_collection.find_one({"_id": ObjectId(generator_id)})
     generator_name = generator.get("username", "SiGML Generator")
 
-    # Fetch approved gestures
-    approved_gestures = list(approved_gestures_collection.find())
+    # Fetch gestures requiring SiGML processing
+    sigml_required_gestures = list(sigml_required_gestures_collection.find())
+    print(f"Fetched {len(sigml_required_gestures)} gestures requiring SiGML processing")  # Debug print
+
+    # Fetch processed SiGML files for the specific SiGML Generator
+    processed_gestures_count = sigml_updated_gestures_collection.count_documents({
+        "sigml_generated_by": generator_id  # Filter by the current SiGML Generator's ID
+    })
+    print(f"Fetched {processed_gestures_count} processed gestures for SiGML Generator: {generator_id}")  # Debug print
+
+    # Calculate counts
+    total_pending_processing = len(sigml_required_gestures)
+    total_processed = processed_gestures_count  # Use the count from sigml_updated_gestures
+
+    # Fetch contributor and editor names for gestures requiring SiGML processing
+    for gesture in sigml_required_gestures:
+        # Fetch contributor name
+        contributor = users_collection.find_one({"_id": ObjectId(gesture["user_id"])})
+        gesture["contributor_name"] = contributor.get("username", "Unknown Contributor") if contributor else "Unknown Contributor"
+
+        # Fetch editor name (if applicable)
+        if "approved_by" in gesture:
+            editor = editors_collection.find_one({"_id": ObjectId(gesture["approved_by"])})
+            gesture["editor_name"] = editor.get("username", "Unknown Editor") if editor else "Unknown Editor"
+        else:
+            gesture["editor_name"] = "Not Yet Approved"
 
     return render_template('sigml_generator_dashboard.html',
                           generator_name=generator_name,
-                          approved_gestures=approved_gestures)
+                          total_pending_processing=total_pending_processing,
+                          total_processed=total_processed,
+                          sigml_required_gestures=sigml_required_gestures)
 
 
 
@@ -1123,17 +1225,231 @@ def sigml_generator_dashboard():
 
 
 
+@app.route('/process_gesture/<gesture_id>', methods=['GET', 'POST'])
+@sigml_generator_login_required
+def process_gesture(gesture_id):
+    print(f"Fetching gesture with ID: {gesture_id}")  # Debug: Print gesture ID
+    gesture = sigml_required_gestures_collection.find_one({"_id": ObjectId(gesture_id)})
+    print(f"Gesture found: {gesture}")  # Debug: Print the fetched gesture
+
+    if not gesture:
+        flash("Gesture not found!", "danger")
+        return redirect(url_for('sigml_generator_dashboard'))
+
+    if request.method == 'POST':
+        print("POST request received")  # Debug: Confirm POST request
+        sigml_file = request.files.get('sigml_file')
+        print(f"SiGML file received: {sigml_file}")  # Debug: Print the uploaded file
+
+        if sigml_file:
+            print(f"File name: {sigml_file.filename}")  # Debug: Print the file name
+            if is_valid_sigml_file(sigml_file.filename):  # Updated function name
+                print("SiGML file is valid")  # Debug: Confirm file validity
+                try:
+                    # Save the SiGML file to GridFS
+                    sigml_file_id = fs.put(
+                        sigml_file,
+                        filename=secure_filename(sigml_file.filename),
+                        content_type=sigml_file.content_type
+                    )
+                    print(f"SiGML file saved to GridFS with ID: {sigml_file_id}")  # Debug: Print GridFS file ID
+
+                    # Get the SiGML Generator's ID from the session
+                    sigml_generator_id = session.get('sigml_generator_id')
+                    print(f"SiGML Generator ID: {sigml_generator_id}")  # Debug: Print SiGML Generator ID
+
+                    # Create a new document for the updated gesture
+                    updated_gesture = {
+                        "gesture_id": gesture_id,
+                        "name": gesture.get("name"),
+                        "dialect": gesture.get("dialect"),
+                        "video_file_id": gesture.get("video_file_id"),
+                        "category": gesture.get("review_data", {}).get("category"),
+                        "contributor_id": gesture.get("user_id"),
+                        "editor_id": gesture.get("approved_by"),
+                        "sigml_file_id": sigml_file_id,
+                        "sigml_generated_by": sigml_generator_id,  # Add SiGML Generator ID
+                        "created_at": datetime.now(),
+                        "status": "updated"
+                    }
+                    print(f"Updated gesture document: {updated_gesture}")  # Debug: Print the document
+
+                    # Insert the updated gesture into the sigml_updated_gestures_collection
+                    sigml_updated_gestures_collection.insert_one(updated_gesture)
+                    print("Gesture inserted into sigml_updated_gestures_collection")  # Debug: Confirm insertion
+
+                    # Delete the gesture from the sigml_required_gestures collection
+                    sigml_required_gestures_collection.delete_one({"_id": ObjectId(gesture_id)})
+                    print("Gesture deleted from sigml_required_gestures collection")  # Debug: Confirm deletion
+
+                    flash("SiGML file uploaded and gesture updated successfully!", "success")
+                    return redirect(url_for('sigml_generator_dashboard'))
+                except Exception as e:
+                    print(f"Error during processing: {e}")  # Debug: Print any exceptions
+                    flash("An error occurred while processing the gesture. Please try again.", "danger")
+            else:
+                print("Invalid SiGML file")  # Debug: Confirm invalid file
+                flash("Invalid file. Please upload a valid SiGML file.", "danger")
+        else:
+            print("No file uploaded")  # Debug: Confirm no file uploaded
+            flash("No file uploaded. Please upload a valid SiGML file.", "danger")
+
+    # Add video URL to the gesture for rendering
+    if "video_file_id" in gesture:
+        gesture["video_url"] = url_for('stream_video', video_id=gesture["video_file_id"], _external=True)
+        print(f"Video URL: {gesture['video_url']}")  # Debug: Print the video URL
+
+    return render_template('process_gesture.html', gesture=gesture)
+
+
+@app.route('/start_generating')
+@sigml_generator_login_required
+def start_generating():
+    # Fetch the next gesture requiring SiGML processing
+    next_gesture = sigml_required_gestures_collection.find_one({})
+
+    if next_gesture:
+        print(f"Next gesture found: {next_gesture['_id']}")  # Debug: Print the next gesture ID
+        return redirect(url_for('process_gesture', gesture_id=next_gesture['_id']))
+    else:
+        flash("No gestures available for processing!", "info")
+        return redirect(url_for('sigml_generator_dashboard'))
+    
 
 
 
 
 
+@app.route('/processed_gestures')
+@sigml_generator_login_required
+def processed_gestures():
+    # Get the SiGML Generator's ID from the session
+    generator_id = session.get('sigml_generator_id')
+
+    # Fetch processed gestures for the specific SiGML Generator
+    processed_gestures = list(sigml_updated_gestures_collection.find({
+        "sigml_generated_by": generator_id  # Filter by the current SiGML Generator's ID
+    }))
+    print(f"Fetched {len(processed_gestures)} processed gestures for SiGML Generator: {generator_id}")  # Debug print
+
+    # Fetch additional details for each processed gesture
+    for gesture in processed_gestures:
+        # Fetch contributor name
+        contributor = users_collection.find_one({"_id": ObjectId(gesture["contributor_id"])})
+        gesture["contributor_name"] = contributor.get("username", "Unknown Contributor") if contributor else "Unknown Contributor"
+
+        # Fetch editor name (if applicable)
+        if "editor_id" in gesture:
+            editor = editors_collection.find_one({"_id": ObjectId(gesture["editor_id"])})
+            gesture["editor_name"] = editor.get("username", "Unknown Editor") if editor else "Unknown Editor"
+        else:
+            gesture["editor_name"] = "Not Available"
+
+    return render_template('processed_gestures.html', processed_gestures=processed_gestures)
 
 
 
 
 
+@app.route('/view_gesture/<gesture_id>')
+@sigml_generator_login_required
+def view_gesture(gesture_id):
+    # Fetch the processed gesture
+    gesture = sigml_updated_gestures_collection.find_one({"gesture_id": gesture_id})
 
+    if not gesture:
+        flash("Gesture not found!", "danger")
+        return redirect(url_for('processed_gestures'))
+
+    # Fetch additional details (contributor, editor, etc.)
+    contributor = users_collection.find_one({"_id": ObjectId(gesture["contributor_id"])})
+    gesture["contributor_name"] = contributor.get("username", "Unknown Contributor") if contributor else "Unknown Contributor"
+
+    if "editor_id" in gesture:
+        editor = editors_collection.find_one({"_id": ObjectId(gesture["editor_id"])})
+        gesture["editor_name"] = editor.get("username", "Unknown Editor") if editor else "Unknown Editor"
+    else:
+        gesture["editor_name"] = "Not Available"
+
+    # Add video URL to the gesture for rendering
+    if "video_file_id" in gesture:
+        gesture["video_url"] = url_for('stream_video', video_id=gesture["video_file_id"], _external=True)
+
+    # Fetch and decode the SiGML file
+    sigml_text = ""
+    if "sigml_file_id" in gesture:
+        try:
+            sigml_file = fs.get(ObjectId(gesture["sigml_file_id"]))
+            sigml_text = sigml_file.read().decode('utf-8')  # Decode the binary content to text
+        except Exception as e:
+            print(f"Error fetching SiGML file: {e}")
+            flash("Failed to load SiGML file.", "danger")
+
+    return render_template('view_gesture.html', gesture=gesture, sigml_text=sigml_text)
+
+
+
+def is_valid_sigml_file(filename):
+    # Check if the file has a valid .sigml extension
+    allowed_extensions = {'sigml'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+
+
+
+@app.route('/stream_sigml/<file_id>')
+def stream_sigml(file_id):
+    try:
+        # Fetch the SiGML file from GridFS
+        sigml_file = fs.get(ObjectId(file_id))
+        return sigml_file.read(), 200, {'Content-Type': sigml_file.content_type}
+    except Exception as e:
+        return "SiGML file not found", 404
+
+
+
+@app.route('/sigml_generator/logout')
+def sigml_generator_logout():
+    session.pop('sigml_generator_id', None)  # Remove sigml_generator_id from session
+    flash("Logged out successfully!", "info")
+    return redirect(url_for('sigml_generator_login'))
+
+
+######################################################################33333
+
+
+
+
+
+###########################################################################3
+
+
+
+
+# Home route to display the form
+@app.route('/index')
+def index():
+    return render_template('index.html')
+
+# API to generate SiGML
+@app.route('/generate', methods=['POST'])
+def generate():
+    try:
+        word = request.form.get("word")
+        hamnosys = request.form.get("hamnosys")
+
+        if not word or not hamnosys:
+            return jsonify({"error": "Both word and HamNoSys are required"}), 400
+
+        sigml_path, sigml_content = generate_sigml(word, hamnosys)
+        if not sigml_path:
+            return jsonify({"error": "Failed to generate SiGML"}), 500
+
+        print("Generated SiGML Content:", sigml_content)
+        return render_template("result.html", word=word, sigml_content=sigml_content)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 
