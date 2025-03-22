@@ -16,6 +16,9 @@ from datetime import datetime
 from waitress import serve
 from flask import Flask, request, session, redirect, url_for, render_template, flash, Response, abort
 # Load environment variables
+
+from flask import Flask
+from flask_mail import Mail  # Add this import
 load_dotenv()
 
 app = Flask(__name__)
@@ -25,6 +28,7 @@ app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
 # JWT Configuration
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "jwtsecret")
 jwt = JWTManager(app)
+
 
 # MongoDB Configuration
 uri = os.getenv("MONGODB_URI")
@@ -50,6 +54,8 @@ rejected_gestures_collection = db["rejected_gestures"]
 revision_gestures_collection = db["revision_gestures"]
 # Define the editors collection
 editors_collection = db["editors"]
+# MongoDB collection for SiGML Generators
+sigml_generators_collection = db["sigml_generators"]
 # Rest of your code remains the same...
 
 @app.route('/')
@@ -1006,6 +1012,148 @@ def editor_logout():
 
 
 
+############################################################################################################
 
-if __name__ == "__main__":
-    app.run(debug=True)
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+
+
+
+
+from datetime import datetime
+from werkzeug.security import generate_password_hash
+'''
+# Insert one initial SiGML Generator record
+initial_generator = {
+    "username": "Bushra Shahbaz",
+    "password": generate_password_hash("bushra"),
+    "email": "bsdsf21m020@pucit.edu.pk",
+    "created_at": datetime.now()
+}
+
+# Insert the record into the collection
+sigml_generators_collection.insert_one(initial_generator)  # Use insert_one for a single record
+print("1 initial SiGML Generator record inserted.")'
+
+'''
+
+
+@app.route('/sigml_generator/login', methods=['GET', 'POST'])
+def sigml_generator_login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        if not email or not password:
+            flash("All fields are required!", "danger")
+            return redirect(url_for('sigml_generator_login'))
+
+        # Find the SiGML Generator in the sigml_generators collection
+        generator = sigml_generators_collection.find_one({"email": email})
+
+        # Check if the generator exists and the password is correct
+        if generator and check_password_hash(generator["password"], password):
+            session.permanent = True
+            session['sigml_generator_id'] = str(generator["_id"])  # Store generator ID in session
+            flash("Login successful!", "success")
+            return redirect(url_for('sigml_generator_dashboard'))
+        else:
+            flash("Invalid email or password!", "danger")
+            return redirect(url_for('sigml_generator_login'))
+
+    return render_template('sigml_generator_login.html')
+
+
+
+from functools import wraps
+
+def sigml_generator_login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'sigml_generator_id' not in session:
+            flash("You need to log in as a SiGML Generator to access this page!", "warning")
+            return redirect(url_for('sigml_generator_login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+
+@app.route('/sigml_generator/dashboard')
+@sigml_generator_login_required
+def sigml_generator_dashboard():
+    # Get the SiGML Generator's ID from the session
+    generator_id = session.get('sigml_generator_id')
+
+    # Fetch the SiGML Generator's details
+    generator = sigml_generators_collection.find_one({"_id": ObjectId(generator_id)})
+    generator_name = generator.get("username", "SiGML Generator")
+
+    # Fetch approved gestures
+    approved_gestures = list(approved_gestures_collection.find())
+
+    return render_template('sigml_generator_dashboard.html',
+                          generator_name=generator_name,
+                          approved_gestures=approved_gestures)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)  # Ensure the app is running in debug mode
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
