@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contributor Reviews | SignHub</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red: #ff4d4d;
+            --dark: #0a0a0a;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+         /* General Styles */
+         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            width: 100%;
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: background 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar.scrolled {
+            background: linear-gradient(90deg, rgba(255, 0, 0, 0.9), rgba(139, 0, 0, 0.9));
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ff0000;
+            background: linear-gradient(90deg, #ff0000, #8b0000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s;
+        }
+
+        .navbar.scrolled .logo {
+            color: white;
+            background: linear-gradient(90deg, white, #ccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            font-size: 1.2rem;
+            color: white;
+            transition: color 0.3s, transform 0.3s;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff0000, #8b0000);
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover {
+            color: #ff0000;
+            transform: translateY(-3px);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-actions .logout-btn {
+            text-decoration: none;
+            color: white;
+            font-size: 1.2rem;
+            background: linear-gradient(90deg, #ff0000, #8b0000);
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-actions .logout-btn:hover {
+            background: linear-gradient(90deg, #8b0000, #ff0000);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+        }
+        .review-card {
+            background: linear-gradient(145deg, rgba(255, 77, 77, 0.1) 0%, rgba(10, 10, 10, 0.3) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 77, 77, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            transition: transform 0.3s ease;
+        }
+
+        .review-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .review-card h5 {
+            color: var(--red);
+            font-weight: 600;
+            border-left: 3px solid var(--red);
+            padding-left: 15px;
+        }
+
+        .status-badge {
+            background: rgba(255, 77, 77, 0.2);
+            color: var(--red);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .pagination {
+            margin: 30px 0;
+        }
+
+        .page-link {
+            background: rgba(255, 77, 77, 0.1);
+            border: 1px solid rgba(255, 77, 77, 0.3);
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0 5px;
+            transition: all 0.3s ease;
+        }
+
+        .page-link:hover {
+            background: var(--red);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .active-page {
+            background: var(--red) !important;
+            color: white !important;
+            border-color: var(--red);
+        }
+
+        .section-header {
+            text-align: center;
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .section-header h2 {
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--red);
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+            border: 1px solid rgba(255, 77, 77, 0.2);
+        }
+
+        .video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .metric-table {
+            background: rgba(10, 10, 10, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .metric-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 77, 77, 0.1);
+        }
+
+        .metric-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .progress {
+            background-color: rgba(255, 77, 77, 0.2);
+            height: 24px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background-color: var(--red);
+            transition: width 0.3s ease;
+        }
+
+        @media (max-height: 600px) {
+            .review-card {
+                padding: 15px;
+                margin: 10px 0;
+            }
+            
+            .video-wrapper {
+                padding-bottom: 75%;
+            }
+            
+            .metric-table td {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include the navbar -->
+    {% include 'contributor_navbar.html' %}
+
+
+    <div class="container" style="padding-top: 100px;">
+        <div class="section-header">
+            <h2>Your Contributions</h2>
+        </div>
+
+        {% for review in reviews %}
+        <div class="review-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5>{{ review['name'] }}</h5>
+                <span class="status-badge">{{ review['status'].capitalize() }}</span>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="video-wrapper">
+                        <video controls playsinline>
+                            <source src="{{ review['video_url'] }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <table class="metric-table mb-4">
+                        <tbody>
+                            <tr>
+                                <td><strong>Shape</strong></td>
+                                <td>{{ review['review_data']['shape'] }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Location</strong></td>
+                                <td>{{ review['review_data']['location'] }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Orientation</strong></td>
+                                <td>{{ review['review_data']['orientation'] }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Movement</strong></td>
+                                <td>{{ review['review_data']['movement'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="scale-display">
+                        <strong class="d-block mb-2">Overall Score</strong>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ review['review_data']['scale'] * 10 }}%;"
+                                 aria-valuenow="{{ review['review_data']['scale'] }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="10">
+                                {{ review['review_data']['scale'] }}/10
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <p class="mb-1"><strong>Comments:</strong></p>
+                <p class="mb-0 text-muted">{{ review['review_data']['comments'] }}</p>
+            </div>
+
+            <div class="mt-3 text-right text-muted">
+                <small>{{ review['created_at'].strftime('%Y-%m-%d %H:%M:%S') }}</small>
+            </div>
+        </div>
+        {% endfor %}
+
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('contributor_reviews', page=page-1) }}">Previous</a>
+                </li>
+                {% endif %}
+                {% for p in range(1, total_pages + 1) %}
+                <li class="page-item {% if p == page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('contributor_reviews', page=p) }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+                {% if page < total_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('contributor_reviews', page=page+1) }}">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
