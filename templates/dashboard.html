@@ -8,116 +8,133 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* General Styling */
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 50%, #660000 50%);
-            color: #fff;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #1a1a1a 50%, #660000 50%);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
 
-        /* General Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        /* Navbar Styles */
-        .navbar {
-            width: 100%;
-            background: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-            transition: background 0.3s, box-shadow 0.3s;
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
+/* Navbar Styles */
+.navbar {
+    width: 100%;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transition: background 0.3s, box-shadow 0.3s;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
 
-        .navbar.scrolled {
-            background: linear-gradient(90deg, rgba(255, 0, 0, 0.9), rgba(139, 0, 0, 0.9));
-            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-        }
+.navbar.scrolled {
+    background: linear-gradient(90deg, rgba(255, 0, 0, 0.9), rgba(139, 0, 0, 0.9));
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+}
 
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #ff0000;
-            background: linear-gradient(90deg, #ff0000, #8b0000);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            transition: transform 0.3s;
-        }
+.logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ff0000;
+    background: linear-gradient(90deg, #ff0000, #8b0000);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: transform 0.3s;
+}
 
-        .navbar.scrolled .logo {
-            color: white;
-            background: linear-gradient(90deg, white, #ccc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+.navbar.scrolled .logo {
+    color: white;
+    background: linear-gradient(90deg, white, #ccc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
 
-        .nav-links {
-            display: flex;
-            gap: 25px;
-        }
+.nav-links {
+    display: flex;
+    gap: 25px;
+}
 
-        .nav-link {
-            text-decoration: none;
-            font-size: 1.2rem;
-            color: white;
-            transition: color 0.3s, transform 0.3s;
-            position: relative;
-        }
+.nav-link {
+    text-decoration: none;
+    font-size: 1.2rem;
+    color: white;
+    transition: color 0.3s, transform 0.3s;
+    position: relative;
+}
 
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #ff0000, #8b0000);
-            transition: width 0.3s;
-        }
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #ff0000, #8b0000);
+    transition: width 0.3s;
+}
 
-        .nav-link:hover {
-            color: #ff0000;
-            transform: translateY(-3px);
-        }
+.nav-link:hover {
+    color: #ff0000;
+    transform: translateY(-3px);
+}
 
-        .nav-link:hover::after {
-            width: 100%;
-        }
+.nav-link:hover::after {
+    width: 100%;
+}
 
-        .nav-actions .logout-btn {
-            text-decoration: none;
-            color: white;
-            font-size: 1.2rem;
-            background: linear-gradient(90deg, #ff0000, #8b0000);
-            padding: 8px 15px;
-            border-radius: 8px;
-            transition: transform 0.3s, box-shadow 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+/* Nav Actions (Logout and Add Gesture Buttons) */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Space between buttons */
+}
 
-        .nav-actions .logout-btn:hover {
-            background: linear-gradient(90deg, #8b0000, #ff0000);
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-        }
+.nav-btn {
+    text-decoration: none;
+    color: white;
+    font-size: 1.2rem;
+    background: linear-gradient(90deg, #ff0000, #8b0000);
+    padding: 8px 15px;
+    border-radius: 8px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-btn:hover {
+    background: linear-gradient(90deg, #8b0000, #ff0000);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+}
+
+/* Logout Button Specific Styles */
+.logout-btn {
+    background: linear-gradient(90deg, #ff0000, #8b0000);
+}
+
+.logout-btn:hover {
+    background: linear-gradient(90deg, #8b0000, #ff0000);
+}
 
         /* Dashboard Container */
         .dashboard-container {
@@ -527,23 +544,49 @@
                 padding: 15px;
             }
         }
+
+
+
+        /* Star Icon Styling */
+.icon .fa-star {
+    font-size: 32px; /* Adjust size as needed */
+    color: rgb(247, 247, 247); /* Star color */
+    transition: color 0.3s ease-in-out;
+}
+
+/* Stars Container */
+.stars {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.stars i {
+    font-size: 24px; /* Adjust size as needed */
+    color: #ccc; /* Default star color (unfilled) */
+    transition: color 0.3s ease-in-out;
+}
+
+.stars .filled {
+    color: rgb(255, 0, 0); /* Filled star color */
+}
+
+/* Add a subtle animation to the stars */
+@keyframes starPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+.stars i:hover {
+    animation: starPulse 0.5s ease-in-out;
+}
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">SignHub</div>
-        <div class="nav-links">
-            <a href="{{ url_for('dashboard') }}" class="nav-link">Home</a>
-            <a href="{{ url_for('contributor_profile') }}" class="nav-link">Profile</a>
-            <a href="{{ url_for('contributor_reviews') }}" class="nav-link">Reviews</a>
-            <a href="{{ url_for('contributor_profile') }}" class="nav-link">Settings</a>
-        </div>
-        <div class="nav-actions">
-            <a href="{{ url_for('logout') }}" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </nav>
+    <!-- Include the navbar -->
+    {% include 'contributor_navbar.html' %}
+
 
     <!-- Dashboard Container -->
     <div class="dashboard-container">
@@ -600,9 +643,7 @@
         </div>
 
         <!-- Add Gesture Button -->
-        <div class="add-gesture-container">
-            <a href="{{ url_for('add_gesture') }}" class="update-profile-btn">➕ Add Gesture</a>
-        </div>
+        
 
         <!-- Pending Gestures Section -->
         <div class="gestures-section">
@@ -703,82 +744,100 @@
             }
         }
 
-        // Function to load dashboard data
-        async function loadDashboard() {
-            console.log("Fetching dashboard data...");
+       // Function to load dashboard data
+async function loadDashboard() {
+    console.log("Fetching dashboard data...");
 
-            try {
-                const response = await fetch('/api/dashboard');
-                console.log("API Response Status:", response.status);
+    try {
+        const response = await fetch('/api/dashboard');
+        console.log("API Response Status:", response.status);
 
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.status}`);
-                }
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
 
-                const data = await response.json();
-                console.log("Received Data:", data);
+        const data = await response.json();
+        console.log("Received Data:", data);
 
-                if (!data) {
-                    throw new Error("Invalid API response.");
-                }
+        if (!data) {
+            throw new Error("Invalid API response.");
+        }
 
-                const usernameElement = document.getElementById("username");
-                const profilePic = document.getElementById("profilePic");
-                const totalSubmissionsElement = document.getElementById("totalSubmissions");
-                const approvedCountElement = document.getElementById("approvedCount");
-                const pendingCountElement = document.getElementById("pendingCount");
-                const rejectedCountElement = document.getElementById("rejectedCount");
-                const avgRatingElement = document.getElementById("avgRating");
-                const starContainer = document.getElementById("starContainer");
+        const usernameElement = document.getElementById("username");
+        const profilePic = document.getElementById("profilePic");
+        const totalSubmissionsElement = document.getElementById("totalSubmissions");
+        const approvedCountElement = document.getElementById("approvedCount");
+        const pendingCountElement = document.getElementById("pendingCount");
+        const rejectedCountElement = document.getElementById("rejectedCount");
+        const avgRatingElement = document.getElementById("avgRating");
+        const starContainer = document.getElementById("starContainer");
 
-                if (usernameElement && data.user?.name) {
-                    usernameElement.textContent = data.user.name;
-                }
+        if (usernameElement && data.user?.name) {
+            usernameElement.textContent = data.user.name;
+        }
 
-                if (profilePic && data.user?.profile_pic) {
-                    profilePic.src = `${data.user.profile_pic}?v=${Math.random()}`;
-                }
+        if (profilePic && data.user?.profile_pic) {
+            profilePic.src = `${data.user.profile_pic}?v=${Math.random()}`;
+        }
 
-                if (totalSubmissionsElement) {
-                    totalSubmissionsElement.textContent = data.total_submissions || 0;
-                }
+        if (totalSubmissionsElement) {
+            totalSubmissionsElement.textContent = data.total_submissions || 0;
+        }
 
-                if (approvedCountElement) {
-                    approvedCountElement.textContent = data.approved_count || 0;
-                }
+        if (approvedCountElement) {
+            approvedCountElement.textContent = data.approved_count || 0;
+        }
 
-                if (pendingCountElement) {
-                    pendingCountElement.textContent = data.pending_count || 0;
-                }
+        if (pendingCountElement) {
+            pendingCountElement.textContent = data.pending_count || 0;
+        }
 
-                if (rejectedCountElement) {
-                    rejectedCountElement.textContent = data.rejected_count || 0;
-                }
+        if (rejectedCountElement) {
+            rejectedCountElement.textContent = data.rejected_count || 0;
+        }
 
-                if (avgRatingElement) {
-                    avgRatingElement.textContent = `${data.avg_rating || 0}/5`;
-                }
+        if (avgRatingElement) {
+            avgRatingElement.textContent = `${data.avg_rating || 0}/5`;
+        }
 
-                if (starContainer) {
-                    starContainer.innerHTML = "";
-                    for (let i = 0; i < 5; i++) {
-                        const star = document.createElement("i");
-                        star.classList.add("fa-star");
-                        if (i < (data.avg_rating || 0)) star.classList.add("filled");
-                        starContainer.appendChild(star);
-                    }
-                }
+        if (starContainer) {
+            starContainer.innerHTML = ""; // Clear existing stars
 
-            } catch (error) {
-                console.error("Error loading dashboard:", error.message);
+            const avgRating = data.avg_rating || 0; // Get the average rating
+            const filledStars = Math.floor(avgRating); // Number of filled stars
+            const hasHalfStar = avgRating - filledStars >= 0.5; // Check for half star
+
+            // Create filled stars
+            for (let i = 0; i < filledStars; i++) {
+                const star = document.createElement("i");
+                star.classList.add("fas", "fa-star", "filled");
+                starContainer.appendChild(star);
+            }
+
+            // Create half star (if applicable)
+            if (hasHalfStar) {
+                const halfStar = document.createElement("i");
+                halfStar.classList.add("fas", "fa-star-half-alt", "filled");
+                starContainer.appendChild(halfStar);
+            }
+
+            // Create unfilled stars
+            const totalStars = 5;
+            const remainingStars = totalStars - filledStars - (hasHalfStar ? 1 : 0);
+            for (let i = 0; i < remainingStars; i++) {
+                const star = document.createElement("i");
+                star.classList.add("fas", "fa-star");
+                starContainer.appendChild(star);
             }
         }
 
-        // Ensure script runs after the DOM is loaded
-        document.addEventListener("DOMContentLoaded", loadDashboard);
+    } catch (error) {
+        console.error("Error loading dashboard:", error.message);
+    }
+}
 
-
-
+// Ensure script runs after the DOM is loaded
+document.addEventListener("DOMContentLoaded", loadDashboard);
 
 
         
