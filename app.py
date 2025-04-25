@@ -62,7 +62,7 @@ sigml_files_collection = db["sigml_files"]
 # Rest of your code remains the same...
 sigml_required_gestures_collection = db['sigml_required_gestures'] 
 sigml_updated_gestures_collection =db['sigml_updated_gestures'] # Add this line
-
+final_collection = db['final_gesture_collection']
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -745,6 +745,7 @@ def allowed_file(filename):
 ##########################################################################################################
 
 '''
+
 # Editor data
 editors = [
     {
@@ -768,12 +769,11 @@ for editor in editors:
     editor["password"] = hashed_password
 
     # Insert the editor into the collection
-    video_generators_collection.insert_one(editor)
+    editors_collection.insert_one(editor)
 
 print("Editors added successfully!")
 
-
-'''
+'''# Editor routes
 
 
 @app.route('/editor')
@@ -909,6 +909,7 @@ def submit_review(gesture_id):
         if decision == "accept":
             # Move to the "sigml_required_gestures" collection for SiGML processing
             gesture["approved_by"] = editor_id
+            approved_gestures_collection.insert_one(gesture)
             sigml_required_gestures_collection.insert_one(gesture)
         elif decision == "reject":
             # Move to the "rejected_gestures" collection
@@ -928,7 +929,6 @@ def submit_review(gesture_id):
         flash("Gesture not found!", "danger")
 
     return redirect(url_for('review_gestures'))
-
 
 
 
@@ -1021,27 +1021,174 @@ def editor_profile_picture(file_id):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @app.route('/editor/logout')
 def editor_logout():
     session.pop('editor_id', None)  # Remove editor_id from session
     flash("Logged out successfully!", "info")
     return redirect(url_for('editor_login'))
+
+
+
+
+
+
+
+
+
+from flask import render_template, request, redirect, url_for, flash
+from bson import ObjectId
+from datetime import datetime
+
+@app.route('/review-updated-gestures', methods=['GET', 'POST'])
+def review_updated_gestures():
+    if request.method == 'POST':
+        gesture_id = request.form.get('gesture_id')
+        decision = request.form.get('decision')
+        category = request.form.get('category')
+        comment = request.form.get('comment', '')
+
+        gesture = sigml_updated_gestures_collection.find_one({"_id": ObjectId(gesture_id)})
+        if not gesture:
+            flash("Gesture not found.")
+            return redirect(url_for('review_updated_gestures'))
+
+        # Handle acceptance of the gesture
+        if decision == 'accept':
+            # Update the status of the gesture in the updated collection
+            sigml_updated_gestures_collection.update_one(
+                {"_id": ObjectId(gesture_id)},
+                {"$set": {"status": "finalized", "category": category}}
+            )
+
+            # Fetch contributor details
+            contributor = users_collection.find_one({"_id": ObjectId(gesture.get("contributor_id"))})
+            contributor_name = contributor.get("username", "Unknown") if contributor else "Unknown"
+
+            # Insert finalized gesture into the final collection
+            final_collection.insert_one({
+                "source_id": gesture["_id"],
+                "name": gesture["name"],
+                "category": category,
+                "contributor_name": contributor_name,
+                "gesture_video_id": gesture.get("video_file_id"),
+                "avatar_video_id": gesture.get("avatar_video_id"),
+                "created_at": datetime.utcnow()
+            })
+
+        # Handle revision of the gesture
+        elif decision == 'revise':
+            sigml_required_gestures_collection.insert_one({
+                "original_id": gesture["_id"],
+                "name": gesture["name"],
+                "category": category,
+                "comment": comment,
+                "requested_by": "admin",  # Use current_user if applicable
+                "created_at": datetime.utcnow()
+            })
+            # Delete the gesture from the updated collection
+            sigml_updated_gestures_collection.delete_one({"_id": ObjectId(gesture_id)})
+
+        return redirect(url_for('review_updated_gestures'))
+
+    # GET one updated gesture
+    gesture = sigml_updated_gestures_collection.find_one({"status": "updated"})
+    if not gesture:
+        return render_template('no_gestures.html')  # Save the above as no_gestures.html
+
+    # Prepare video URLs for the gesture
+    gesture_video_url = None
+    avatar_video_url = None
+
+    if "video_file_id" in gesture and gesture["video_file_id"]:
+        gesture_video_url = url_for('stream_video', video_id=gesture["video_file_id"], _external=True)
+
+    # Only add avatar video URL if avatar_video_id exists
+    if "avatar_video_id" in gesture and gesture["avatar_video_id"]:
+        avatar_video_url = url_for('stream_video', video_id=gesture["avatar_video_id"], _external=True)
+
+    # Add URLs to the gesture object
+    gesture["gesture_video_url"] = gesture_video_url
+    gesture["avatar_video_url"] = avatar_video_url if avatar_video_url else None
+
+    # Fetch the contributor's full name
+    contributor = users_collection.find_one({"_id": ObjectId(gesture.get("contributor_id"))})
+    gesture['contributor_name'] = contributor.get("full_name", "Unknown") if contributor else "Unknown"
+    print(gesture)
+    # Render the template
+    return render_template("review_updated.html", gesture=gesture)
+
+
+
+
+
+from flask import request, render_template
+from bson.objectid import ObjectId
+
+@app.route('/final-review-dashboard')
+def final_review_dashboard():
+    gestures = list(final_collection.find())
+    
+    for gesture in gestures:
+        contributor = users_collection.find_one({"full_name": gesture.get("contributor_name")})
+        gesture["contributor_email"] = contributor.get("email") if contributor else "N/A"
+        gesture["created_at_str"] = gesture["created_at"].strftime("%Y-%m-%d %H:%M:%S") if "created_at" in gesture else "N/A"
+
+    return render_template("final_review_dashboard.html", gestures=gestures)
+
+
+
+@app.route('/review-final-gesture/<gesture_id>')
+def review_single_gesture(gesture_id):
+    gesture = final_collection.find_one({"_id": ObjectId(gesture_id)})
+    if not gesture:
+        flash("Gesture not found.")
+        return redirect(url_for('final_review_dashboard'))
+
+    # Prepare video URLs if available
+    gesture_video_url = None
+    avatar_video_url = None
+
+    if gesture.get("gesture_video_id"):
+        gesture_video_url = url_for('stream_video', video_id=str(gesture["gesture_video_id"]), _external=True)
+
+    if gesture.get("avatar_video_id"):
+        avatar_video_url = url_for('stream_video', video_id=str(gesture["avatar_video_id"]), _external=True)
+
+    return render_template("review_single_gesture.html", gesture=gesture,
+                           gesture_video_url=gesture_video_url,
+                           avatar_video_url=avatar_video_url)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1085,20 +1232,20 @@ def editor_logout():
 
 from datetime import datetime
 from werkzeug.security import generate_password_hash
-'''
+
 # Insert one initial SiGML Generator record
 initial_generator = {
-    "username": "Bushra Shahbaz",
-    "password": generate_password_hash("bushra"),
-    "email": "bsdsf21m020@pucit.edu.pk",
+    "username": "Ahsan Salman Yousaf",
+    "password": generate_password_hash("ahsan"),
+    "email": "bsdsf21m021@pucit.edu.pk",
     "created_at": datetime.now()
 }
 
 # Insert the record into the collection
 sigml_generators_collection.insert_one(initial_generator)  # Use insert_one for a single record
-print("1 initial SiGML Generator record inserted.")'
+print("1 initial SiGML Generator record inserted.")
 
-'''
+
 
 
 @app.route('/sigml_generator/login', methods=['GET', 'POST'])
@@ -1652,62 +1799,6 @@ def download_sigml(filename):
 ############################################################################################################
 
 
-from functools import wraps
-
-def video_generator_login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'video_generator_id' not in session:
-            flash("You need to log in as a Video Generator to access this page!", "warning")
-            return redirect(url_for('video_generator_login'))
-        return f(*args, **kwargs)
-    return decorated_function
-
-
-
-
-
-@app.route('/video_generator/login', methods=['GET', 'POST'])
-def video_generator_login():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-
-        if not email or not password:
-            flash("All fields are required!", "danger")
-            return redirect(url_for('video_generator_login'))
-
-        # Find the Video Generator in the video_generators collection
-        video_generator = video_generators_collection.find_one({"email": email})
-
-        # Check if the video generator exists and the password is correct
-        if video_generator and check_password_hash(video_generator["password"], password):
-            session.permanent = True
-            session['video_generator_id'] = str(video_generator["_id"])  # Store generator ID in session
-            flash("Login successful!", "success")
-            return redirect(url_for('video_generator_dashboard'))
-        else:
-            flash("Invalid email or password!", "danger")
-            return redirect(url_for('video_generator_login'))
-
-    return render_template('video_generator_login.html')
-
-
-
-
-
-
-
-@app.route('/video_generator/dashboard')
-@video_generator_login_required
-def video_generator_dashboard():
-    # Your logic for the dashboard page
-    return render_template('video_generator_dashboard.html')
-
-
-@app.route('/about')
-def about():
-    return render_template('public_home.html')
 
 
 

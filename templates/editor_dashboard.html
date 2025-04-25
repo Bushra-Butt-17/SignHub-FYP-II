@@ -6,6 +6,9 @@
     <title>Editor Dashboard | SignHub</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
@@ -135,6 +138,26 @@
 .nav-actions .logout-btn:hover {
     box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
 }
+
+
+.final-btn {
+    text-decoration: none;
+    color: white;
+    font-size: 1.2rem;
+    background: linear-gradient(90deg, #ffd700, #ff8c00);
+    padding: 8px 15px;
+    border-radius: 8px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.final-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+
 
         .dashboard-container {
             margin-top: 80px;
@@ -276,15 +299,19 @@
         <div class="nav-links">
             <a href="{{ url_for('editor_dashboard') }}" class="nav-link">Home</a>
             <a href="{{ url_for('editor_profile') }}" class="nav-link">Profile</a>
-            <a href="{{ url_for('editor_profile') }}" class="nav-link">Settings</a>
+            <a href="{{ url_for('final_review_dashboard') }}" class="nav-link">Verified</a>
         </div>
         <div class="nav-actions">
+            <a href="{{ url_for('final_review_dashboard') }}" class="final-btn">
+                <i class="fa fa-bolt" aria-hidden="true"></i> Finalize
+            </a>
             <a href="{{ url_for('review_gestures') }}" class="review-btn">
                 <i class="fas fa-check-circle"></i> Review
             </a>
             <a href="{{ url_for('editor_logout') }}" class="logout-btn">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
+            
         </div>
     </nav>
     <div class="dashboard-container">
@@ -297,6 +324,9 @@
         </div>
         <div class="review-button">
             <a href="{{ url_for('review_gestures') }}">Start Reviewing Pending Gestures</a>
+        </div>
+        <div class="review-button">
+            <a href="{{ url_for('final_review_dashboard') }}">Start Finalizing Accepted Gestures</a>
         </div>
     </div>
 </body>
