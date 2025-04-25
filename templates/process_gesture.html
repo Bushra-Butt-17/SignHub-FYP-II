@@ -100,6 +100,9 @@
     </style>
 </head>
 <body>
+    <!-- Navbar -->
+    {% include 'sigml_generator_navbar.html' %}
+
     <div class="process-container">
         <h2>Process Gesture: {{ gesture.name }}</h2>
 
@@ -124,6 +127,11 @@
                 <label for="sigml_file">Upload SiGML File:</label>
                 <input type="file" name="sigml_file" class="form-control" accept=".sigml" required>
             </div>
+            <div class="form-group">
+            <!-- New: Avatar Video Upload Field -->
+    <label for="avatar_video_file">Upload Avatar Video:</label>
+    <input type="file" name="avatar_video_file" accept="video/*"></div>
+            
             <button type="submit" class="btn">
                 <i class="fas fa-upload"></i> Upload SiGML File
             </button>

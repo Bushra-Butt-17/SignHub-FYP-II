@@ -56,6 +56,7 @@ revision_gestures_collection = db["revision_gestures"]
 editors_collection = db["editors"]
 # MongoDB collection for SiGML Generators
 sigml_generators_collection = db["sigml_generators"]
+video_generators_collection = db["video_generators"]
 # MongoDB collection for SiGML files
 sigml_files_collection = db["sigml_files"]
 # Rest of your code remains the same...
@@ -185,6 +186,10 @@ import traceback
 
 
 
+
+
+
+
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
@@ -242,10 +247,34 @@ def dashboard():
     pending_count = len(pending_gestures)
     rejected_count = len(rejected_gestures)
 
-    # Calculate average rating (if applicable)
-    avg_rating = 0  # You can update this logic if ratings are stored in the gestures
+    # Calculate average rating from approved gestures
+    # Calculate average rating from approved gestures
+    # Calculate average rating from approved gestures
+    avg_rating = 0
+    if approved_gestures:  # Check if there are any approved gestures
+        total_rating = 0
+        valid_gestures = 0  # Counter for gestures with valid review_data and scale
 
-    # Fetch progress (if available)
+        for gesture in approved_gestures:
+            if "review_data" in gesture and "scale" in gesture["review_data"]:
+                # Cap scale at 10 to ensure it doesn't exceed the maximum
+                scale = min(int(gesture["review_data"]["scale"]), 10)
+                print(scale)
+                # Convert scale (out of 10) to 5-star rating
+                rating = (scale / 10) * 5
+                total_rating += rating
+                valid_gestures += 1  # Increment valid gestures counter
+            else:
+                print(f"Missing review_data or scale for gesture: {gesture.get('name', 'Unknown')}")
+
+        # Calculate average rating if there are valid gestures
+        if valid_gestures > 0:
+            avg_rating = total_rating / valid_gestures
+            # Cap the average rating at 5.0 (in case of rounding errors)
+            avg_rating = min(avg_rating, 5.0)
+        else:
+            print("No valid gestures with review_data and scale found.")
+        # Fetch progress (if available)
     progress = user.get("progress", 50)
 
     # Fetch video details (e.g., video URLs from GridFS)
@@ -278,11 +307,6 @@ def dashboard():
 
 
 
-
-
-from bson import ObjectId
-import traceback
-
 @app.route('/api/dashboard', methods=['GET'])
 def api_dashboard():
     try:
@@ -306,7 +330,6 @@ def api_dashboard():
         profile_pic_url = url_for('profile_pic', user_id=user_id, _external=True)
 
         # Fetch user videos
-        # Query user_id as a string (since it's stored as a string in pending_gestures)
         pending_videos = list(pending_gestures_collection.find({"user_id": user_id}))
         approved_videos = list(approved_gestures_collection.find({"user_id": user_id}))
         rejected_videos = list(rejected_gestures_collection.find({"user_id": user_id}))
@@ -320,7 +343,18 @@ def api_dashboard():
         pending_count = len(pending_videos)
         rejected_count = len(rejected_videos)
         total_submissions = approved_count + pending_count + rejected_count
-        avg_rating = 0  # Add logic if ratings are available
+
+        # Calculate average rating from approved gestures
+        avg_rating = 0
+        if approved_videos:
+            total_rating = 0
+            for video in approved_videos:
+                if "review_data" in video and "scale" in video["review_data"]:
+                    scale = int(video["review_data"]["scale"])
+                    # Convert scale (out of 8) to 5-star rating
+                    rating = (scale / 10) * 5
+                    total_rating += rating
+            avg_rating = total_rating / approved_count
 
         # Convert ObjectId fields to strings for JSON serialization
         for video in pending_videos + approved_videos + rejected_videos:
@@ -345,7 +379,7 @@ def api_dashboard():
             "approved_count": approved_count,
             "pending_count": pending_count,
             "rejected_count": rejected_count,
-            "avg_rating": avg_rating,
+            "avg_rating": round(avg_rating, 1),
             "pending_videos": pending_videos,
             "approved_videos": approved_videos,
             "rejected_videos": rejected_videos,
@@ -354,6 +388,21 @@ def api_dashboard():
     except Exception as e:
         print(f"🔴 API Error: {traceback.format_exc()}")  # Debug log
         return jsonify({"error": "Internal Server Error"}), 500
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @app.route('/add_gesture', methods=['GET', 'POST'])
@@ -719,12 +768,12 @@ for editor in editors:
     editor["password"] = hashed_password
 
     # Insert the editor into the collection
-    editors_collection.insert_one(editor)
+    video_generators_collection.insert_one(editor)
 
 print("Editors added successfully!")
+
+
 '''
-
-
 
 
 @app.route('/editor')
@@ -1224,82 +1273,118 @@ def sigml_generator_dashboard():
 
 
 
+from werkzeug.utils import secure_filename
+
+# Add this function to validate video types
+def is_valid_video_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'mp4', 'avi', 'mov', 'mkv'}
 
 @app.route('/process_gesture/<gesture_id>', methods=['GET', 'POST'])
 @sigml_generator_login_required
 def process_gesture(gesture_id):
-    print(f"Fetching gesture with ID: {gesture_id}")  # Debug: Print gesture ID
+    print(f"Fetching gesture with ID: {gesture_id}")
     gesture = sigml_required_gestures_collection.find_one({"_id": ObjectId(gesture_id)})
-    print(f"Gesture found: {gesture}")  # Debug: Print the fetched gesture
+    print(f"Gesture found: {gesture}")
 
     if not gesture:
         flash("Gesture not found!", "danger")
         return redirect(url_for('sigml_generator_dashboard'))
 
     if request.method == 'POST':
-        print("POST request received")  # Debug: Confirm POST request
+        print("POST request received")
         sigml_file = request.files.get('sigml_file')
-        print(f"SiGML file received: {sigml_file}")  # Debug: Print the uploaded file
+        video_file = request.files.get('video_file')  # Gesture video file
+        avatar_video_file = request.files.get('avatar_video_file')  # Avatar video file
+
+        print(f"SiGML file received: {sigml_file}")
+        print(f"Video file received: {video_file}")
+        print(f"Avatar video file received: {avatar_video_file}")
 
         if sigml_file:
-            print(f"File name: {sigml_file.filename}")  # Debug: Print the file name
-            if is_valid_sigml_file(sigml_file.filename):  # Updated function name
-                print("SiGML file is valid")  # Debug: Confirm file validity
+            print(f"File name: {sigml_file.filename}")
+            if is_valid_sigml_file(sigml_file.filename):
+                print("SiGML file is valid")
                 try:
-                    # Save the SiGML file to GridFS
+                    # ✅ Save SiGML to GridFS
                     sigml_file_id = fs.put(
                         sigml_file,
                         filename=secure_filename(sigml_file.filename),
                         content_type=sigml_file.content_type
                     )
-                    print(f"SiGML file saved to GridFS with ID: {sigml_file_id}")  # Debug: Print GridFS file ID
+                    print(f"SiGML file saved to GridFS with ID: {sigml_file_id}")
 
-                    # Get the SiGML Generator's ID from the session
+                    # ✅ Save the gesture video to GridFS (if valid)
+                    video_file_id = None
+                    if video_file and is_valid_video_file(video_file.filename):
+                        video_file_id = fs.put(
+                            video_file,
+                            filename=secure_filename(video_file.filename),
+                            content_type=video_file.content_type
+                        )
+                        print(f"Gesture video file saved to GridFS with ID: {video_file_id}")
+                    else:
+                        print("Invalid or no gesture video uploaded")
+
+                    # ✅ Save the avatar video to GridFS (if valid)
+                    avatar_video_id = None
+                    if avatar_video_file and is_valid_video_file(avatar_video_file.filename):
+                        avatar_video_id = fs.put(
+                            avatar_video_file,
+                            filename=secure_filename(avatar_video_file.filename),
+                            content_type=avatar_video_file.content_type
+                        )
+                        print(f"Avatar video file saved to GridFS with ID: {avatar_video_id}")
+                    else:
+                        print("Invalid or no avatar video uploaded")
+
                     sigml_generator_id = session.get('sigml_generator_id')
-                    print(f"SiGML Generator ID: {sigml_generator_id}")  # Debug: Print SiGML Generator ID
+                    print(f"SiGML Generator ID: {sigml_generator_id}")
 
-                    # Create a new document for the updated gesture
+                    # ✅ Updated gesture object with both gesture and avatar videos
                     updated_gesture = {
                         "gesture_id": gesture_id,
                         "name": gesture.get("name"),
                         "dialect": gesture.get("dialect"),
-                        "video_file_id": gesture.get("video_file_id"),
+                        "video_file_id": gesture.get("video_file_id"),  # Keep existing gesture video
+                        "avatar_video_id": avatar_video_id,  # New avatar video ID
                         "category": gesture.get("review_data", {}).get("category"),
                         "contributor_id": gesture.get("user_id"),
                         "editor_id": gesture.get("approved_by"),
                         "sigml_file_id": sigml_file_id,
-                        "sigml_generated_by": sigml_generator_id,  # Add SiGML Generator ID
+                        "sigml_generated_by": sigml_generator_id,
                         "created_at": datetime.now(),
                         "status": "updated"
                     }
-                    print(f"Updated gesture document: {updated_gesture}")  # Debug: Print the document
+                    print(f"Updated gesture document: {updated_gesture}")
 
-                    # Insert the updated gesture into the sigml_updated_gestures_collection
                     sigml_updated_gestures_collection.insert_one(updated_gesture)
-                    print("Gesture inserted into sigml_updated_gestures_collection")  # Debug: Confirm insertion
+                    print("Gesture inserted into sigml_updated_gestures_collection")
 
-                    # Delete the gesture from the sigml_required_gestures collection
                     sigml_required_gestures_collection.delete_one({"_id": ObjectId(gesture_id)})
-                    print("Gesture deleted from sigml_required_gestures collection")  # Debug: Confirm deletion
+                    print("Gesture deleted from sigml_required_gestures collection")
 
-                    flash("SiGML file uploaded and gesture updated successfully!", "success")
+                    flash("SiGML, Gesture Video, and Avatar Video uploaded successfully!", "success")
                     return redirect(url_for('sigml_generator_dashboard'))
                 except Exception as e:
-                    print(f"Error during processing: {e}")  # Debug: Print any exceptions
+                    print(f"Error during processing: {e}")
                     flash("An error occurred while processing the gesture. Please try again.", "danger")
             else:
-                print("Invalid SiGML file")  # Debug: Confirm invalid file
+                print("Invalid SiGML file")
                 flash("Invalid file. Please upload a valid SiGML file.", "danger")
         else:
-            print("No file uploaded")  # Debug: Confirm no file uploaded
+            print("No file uploaded")
             flash("No file uploaded. Please upload a valid SiGML file.", "danger")
 
-    # Add video URL to the gesture for rendering
     if "video_file_id" in gesture:
         gesture["video_url"] = url_for('stream_video', video_id=gesture["video_file_id"], _external=True)
-        print(f"Video URL: {gesture['video_url']}")  # Debug: Print the video URL
+        print(f"Gesture Video URL: {gesture['video_url']}")
+
+    if "avatar_video_id" in gesture:
+        gesture["avatar_video_url"] = url_for('stream_video', video_id=gesture["avatar_video_id"], _external=True)
+        print(f"Avatar Video URL: {gesture['avatar_video_url']}")
 
     return render_template('process_gesture.html', gesture=gesture)
+
 
 
 @app.route('/start_generating')
@@ -1363,17 +1448,32 @@ def view_gesture(gesture_id):
 
     # Fetch additional details (contributor, editor, etc.)
     contributor = users_collection.find_one({"_id": ObjectId(gesture["contributor_id"])})
+
     gesture["contributor_name"] = contributor.get("username", "Unknown Contributor") if contributor else "Unknown Contributor"
 
     if "editor_id" in gesture:
         editor = editors_collection.find_one({"_id": ObjectId(gesture["editor_id"])})
+
         gesture["editor_name"] = editor.get("username", "Unknown Editor") if editor else "Unknown Editor"
     else:
         gesture["editor_name"] = "Not Available"
 
-    # Add video URL to the gesture for rendering
+    # Fetch video file URL for gesture and avatar videos
+    gesture_video_url = None
+    avatar_video_url = None
+
     if "video_file_id" in gesture:
-        gesture["video_url"] = url_for('stream_video', video_id=gesture["video_file_id"], _external=True)
+        # Fetch the video URL for the original gesture video
+        gesture_video_url = url_for('stream_video', video_id=gesture["video_file_id"], _external=True)
+        #print("hi")
+
+    if "avatar_video_id" in gesture:
+        # Fetch the video URL for the avatar video
+        avatar_video_url = url_for('stream_video', video_id=gesture["avatar_video_id"], _external=True)
+
+    # Add URLs to the gesture object
+    gesture["gesture_video_url"] = gesture_video_url
+    gesture["avatar_video_url"] = avatar_video_url
 
     # Fetch and decode the SiGML file
     sigml_text = ""
@@ -1385,7 +1485,10 @@ def view_gesture(gesture_id):
             print(f"Error fetching SiGML file: {e}")
             flash("Failed to load SiGML file.", "danger")
 
+    print(gesture)
+
     return render_template('view_gesture.html', gesture=gesture, sigml_text=sigml_text)
+
 
 
 
@@ -1419,37 +1522,193 @@ def sigml_generator_logout():
 
 
 
+from flask import Flask, render_template, request, jsonify, send_file
+import os
+import subprocess
+from datetime import datetime
 
 
-###########################################################################3
+# Directory to store generated SiGML files
+SIGML_DIR = "sigml"
 
+# Ensure the SiGML directory exists
+os.makedirs(SIGML_DIR, exist_ok=True)
 
-
-
-# Home route to display the form
-@app.route('/index')
-def index():
-    return render_template('index.html')
-
-# API to generate SiGML
-@app.route('/generate', methods=['POST'])
-def generate():
+# Generate SiGML file from HamNoSys input
+def generate_sigml(word, hamnosys):
     try:
+        sigml_path = os.path.join(SIGML_DIR, f"{word}.sigml")
+        
+        # Call the HamNoSys2SiGML script using subprocess
+        command = ["python", "HamNoSys2SiGML.py", hamnosys]
+        result = subprocess.run(command, capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            raise Exception(f"Error generating SiGML: {result.stderr}")
+
+        # Remove the first line if it starts with "<?xml"
+        sigml_content = result.stdout
+        if sigml_content.startswith("<?xml"):
+            sigml_content = "\n".join(sigml_content.split("\n")[1:])
+
+        # Save the processed output to the SiGML file
+        with open(sigml_path, "w", encoding="utf-8") as f:
+            f.write(sigml_content)
+
+        return sigml_path, sigml_content
+    except Exception as e:
+        print(f"Error generating SiGML: {e}")
+        return None, str(e)
+
+# Playground Page
+@app.route('/hamnosys2sigml', methods=['GET'])
+@sigml_generator_login_required
+def hamnosys2sigml():
+    """
+    Renders the HamNoSys2SiGML Tool page where users can input HamNoSys notation and generate SiGML.
+    """
+    return render_template('hamnosys2sigml.html')
+
+# SiGML Generation API
+@app.route('/hamnosys2sigml/generate', methods=['POST'])
+@sigml_generator_login_required
+def generate_sigml_api():
+    """
+    Accepts HamNoSys input, generates SiGML, and returns the result for display and download.
+    """
+    try:
+        # Get input from the form
         word = request.form.get("word")
         hamnosys = request.form.get("hamnosys")
 
+        # Validate input
         if not word or not hamnosys:
             return jsonify({"error": "Both word and HamNoSys are required"}), 400
 
+        # Generate SiGML
         sigml_path, sigml_content = generate_sigml(word, hamnosys)
         if not sigml_path:
             return jsonify({"error": "Failed to generate SiGML"}), 500
 
-        print("Generated SiGML Content:", sigml_content)
-        return render_template("result.html", word=word, sigml_content=sigml_content)
+        # Create a downloadable file with the word's name
+        download_filename = f"{word}.sigml"  # Save as wordname.sigml
+        download_path = os.path.join(SIGML_DIR, download_filename)
+
+        # Save the SiGML file for download
+        with open(download_path, "w", encoding="utf-8") as f:
+            f.write(sigml_content)
+
+        # Return the result for display and download
+        return jsonify({
+            "success": True,
+            "word": word,
+            "sigml_content": sigml_content,
+            "download_url": f"/hamnosys2sigml/download/{download_filename}"
+        })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# SiGML File Download API
+@app.route('/hamnosys2sigml/download/<filename>', methods=['GET'])
+@sigml_generator_login_required
+def download_sigml(filename):
+    """
+    Serves the generated SiGML file for download.
+    """
+    try:
+        download_path = os.path.join(SIGML_DIR, filename)
+        return send_file(download_path, as_attachment=True, download_name=filename)  # Set download name
+    except Exception as e:
+        return jsonify({"error": str(e)}), 404
+
+
+
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+############################################################################################################
+
+
+from functools import wraps
+
+def video_generator_login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'video_generator_id' not in session:
+            flash("You need to log in as a Video Generator to access this page!", "warning")
+            return redirect(url_for('video_generator_login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+
+
+
+@app.route('/video_generator/login', methods=['GET', 'POST'])
+def video_generator_login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        if not email or not password:
+            flash("All fields are required!", "danger")
+            return redirect(url_for('video_generator_login'))
+
+        # Find the Video Generator in the video_generators collection
+        video_generator = video_generators_collection.find_one({"email": email})
+
+        # Check if the video generator exists and the password is correct
+        if video_generator and check_password_hash(video_generator["password"], password):
+            session.permanent = True
+            session['video_generator_id'] = str(video_generator["_id"])  # Store generator ID in session
+            flash("Login successful!", "success")
+            return redirect(url_for('video_generator_dashboard'))
+        else:
+            flash("Invalid email or password!", "danger")
+            return redirect(url_for('video_generator_login'))
+
+    return render_template('video_generator_login.html')
+
+
+
+
+
+
+
+@app.route('/video_generator/dashboard')
+@video_generator_login_required
+def video_generator_dashboard():
+    # Your logic for the dashboard page
+    return render_template('video_generator_dashboard.html')
+
+
+@app.route('/about')
+def about():
+    return render_template('public_home.html')
+
 
 
 

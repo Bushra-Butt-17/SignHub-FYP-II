@@ -62,14 +62,14 @@
         }
 
         .navbar.scrolled {
-            background: linear-gradient(90deg, rgba(255, 20, 147, 0.9), rgba(255, 105, 180, 0.9));
+            background: linear-gradient(90deg, rgba(255, 20, 147, 0.9), rgba(255, 105, 180, 0.9)); /* Pink gradient */
             box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
         }
 
         .logo {
             font-size: 1.8rem;
             font-weight: 700;
-            color: #ff1493;
+            color: #ff1493; /* Pink */
             background: linear-gradient(90deg, #ff1493, #ff69b4);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -86,6 +86,7 @@
         .nav-links {
             display: flex;
             gap: 25px;
+            align-items: center;
         }
 
         .nav-link {
@@ -103,12 +104,12 @@
             left: 0;
             width: 0;
             height: 2px;
-            background: linear-gradient(90deg, #ff1493, #ff69b4);
+            background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
             transition: width 0.3s;
         }
 
         .nav-link:hover {
-            color: #ff1493;
+            color: #ff1493; /* Pink */
             transform: translateY(-3px);
         }
 
@@ -116,37 +117,69 @@
             width: 100%;
         }
 
-        /* Nav Actions */
-        .nav-actions {
-            display: flex;
-            gap: 15px;
+        /* Hamburger Menu for Mobile */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
         }
 
-        .nav-actions .generate-btn, .nav-actions .logout-btn {
-            text-decoration: none;
-            color: white;
-            font-size: 1.2rem;
-            background: linear-gradient(90deg, #006400, #228B22);
-            padding: 8px 15px;
-            border-radius: 8px;
-            transition: transform 0.3s, box-shadow 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            transition: 0.3s;
         }
 
-        .nav-actions .logout-btn {
-            background: linear-gradient(90deg, #ff0000, #8b0000);
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
         }
 
-        .nav-actions .generate-btn:hover, .nav-actions .logout-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(0, 128, 0, 0.3);
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
         }
 
-        .nav-actions .logout-btn:hover {
-            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
         }
+
+        /* Responsive Navbar */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                gap: 15px;
+                position: absolute;
+                top: 60px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.9);
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+        }
+        /* Logout Button Style */
+.logout-btn {
+    background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: white;
+    transition: background 0.3s, transform 0.3s;
+}
+
+.logout-btn:hover {
+    background: linear-gradient(90deg, #000000, #ff1493); /* Reverse gradient */
+    transform: scale(1.05);
+}
 
         /* Profile Container */
         .profile-container {
@@ -340,19 +373,12 @@
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">SignHub</div>
-        <div class="nav-links">
-            <a href="{{ url_for('sigml_generator_dashboard') }}" class="nav-link">Home</a>
-            <a href="{{ url_for('sigml_generator_profile') }}" class="nav-link">Profile</a>
-            <a href="{{ url_for('processed_gestures') }}" class="nav-link">Processed Gestures</a>
-        </div>
-        <div class="nav-actions">
-            <a href="{{ url_for('sigml_generator_logout') }}" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </nav>
+    <!-- Navbar -->
+<!-- Navbar -->
+<!-- Navbar -->
+{% include 'sigml_generator_navbar.html' %}
+
+
     <div class="profile-container">
         <div class="profile-card">
             <div class="profile-header">

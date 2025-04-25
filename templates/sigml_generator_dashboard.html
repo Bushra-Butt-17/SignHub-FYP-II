@@ -344,19 +344,9 @@
     </script>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">SignHub</div>
-        <div class="nav-links">
-            <a href="{{ url_for('sigml_generator_dashboard') }}" class="nav-link">Home</a>
-            <a href="{{ url_for('sigml_generator_profile') }}" class="nav-link">Profile</a>
-            <a href="{{ url_for('processed_gestures') }}" class="nav-link">Processed Gestures</a>
-        </div>
-        <div class="nav-actions">
-            <a href="{{ url_for('sigml_generator_logout') }}" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </nav>
+    <!-- Navbar -->
+    {% include 'sigml_generator_navbar.html' %}
+
     <div class="dashboard-container">
         <h1>Welcome, {{ generator_name }}!</h1>
 

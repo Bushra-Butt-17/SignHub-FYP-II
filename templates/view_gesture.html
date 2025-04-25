@@ -17,7 +17,7 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1a1a1a, #000); /* Black gradient */
+            background: linear-gradient(135deg, #1a1a1a, #000);
             color: white;
             display: flex;
             flex-direction: column;
@@ -52,14 +52,14 @@
         }
 
         .navbar.scrolled {
-            background: linear-gradient(90deg, rgba(255, 20, 147, 0.9), rgba(255, 105, 180, 0.9)); /* Pink gradient */
+            background: linear-gradient(90deg, rgba(255, 20, 147, 0.9), rgba(255, 105, 180, 0.9));
             box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
         }
 
         .logo {
             font-size: 1.8rem;
             font-weight: 700;
-            color: #ff1493; /* Pink */
+            color: #ff1493;
             background: linear-gradient(90deg, #ff1493, #ff69b4);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -93,12 +93,12 @@
             left: 0;
             width: 0;
             height: 2px;
-            background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
+            background: linear-gradient(90deg, #ff1493, #ff69b4);
             transition: width 0.3s;
         }
 
         .nav-link:hover {
-            color: #ff1493; /* Pink */
+            color: #ff1493;
             transform: translateY(-3px);
         }
 
@@ -133,12 +133,12 @@
         /* Main Container */
         .view-container {
             margin-top: 80px;
-            max-width: 800px;
+            max-width: 1200px;
             width: 100%;
             padding: 40px;
-            background: rgba(255, 255, 255, 0.1); /* Glassmorphism effect */
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(255, 20, 147, 0.4); /* Pink shadow */
+            box-shadow: 0 10px 30px rgba(255, 20, 147, 0.4);
             backdrop-filter: blur(10px);
             text-align: center;
             position: relative;
@@ -152,7 +152,7 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: linear-gradient(45deg, #ff1493, #000, #ff1493, #000); /* Pink gradient */
+            background: linear-gradient(45deg, #ff1493, #000, #ff1493, #000);
             opacity: 0.2;
             z-index: -1;
             animation: rotate 10s linear infinite;
@@ -167,7 +167,7 @@
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 20px;
-            background: linear-gradient(90deg, #ff1493, #fff); /* Pink gradient text */
+            background: linear-gradient(90deg, #ff1493, #fff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             animation: slideIn 1s ease-in-out;
@@ -184,19 +184,62 @@
         }
 
         .gesture-details strong {
-            color: #ff1493; /* Pink */
+            color: #ff1493;
+        }
+
+        /* Video Comparison Section */
+        .video-comparison {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .video-container {
+            flex: 1;
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.6);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .video-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 25px rgba(255, 20, 147, 0.8);
+        }
+
+        .video-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff1493, #ff69b4);
+        }
+
+        .video-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            z-index: 1;
         }
 
         video {
             width: 100%;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 0 15px rgba(255, 20, 147, 0.5); /* Pink shadow */
+            display: block;
+            border-radius: 15px;
         }
 
         /* SiGML Section */
         .sigml-section {
-            margin-top: 20px;
+            margin-top: 40px;
         }
 
         .sigml-text {
@@ -207,19 +250,19 @@
             white-space: pre-wrap;
             overflow-x: auto;
             position: relative;
-            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4); /* Pink shadow */
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
         }
 
         .sigml-text pre {
             margin: 0;
-            color: #ff69b4; /* Pink */
+            color: #ff69b4;
         }
 
         .copy-btn {
             position: absolute;
             top: 10px;
             right: 10px;
-            background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
+            background: linear-gradient(90deg, #ff1493, #ff69b4);
             color: white;
             border: none;
             padding: 5px 10px;
@@ -229,21 +272,42 @@
         }
 
         .copy-btn:hover {
-            box-shadow: 0 0 10px rgba(255, 20, 147, 0.7); /* Pink glow */
+            box-shadow: 0 0 10px rgba(255, 20, 147, 0.7);
         }
 
         .btn {
-            background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
+            background: linear-gradient(90deg, #ff1493, #ff69b4);
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 12px 24px;
             border-radius: 8px;
             text-decoration: none;
             transition: 0.3s;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn:hover {
-            box-shadow: 0 0 15px rgba(255, 20, 147, 0.7); /* Pink glow */
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.7);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .video-comparison {
+                flex-direction: column;
+            }
+            
+            .view-container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
         }
     </style>
     <script>
@@ -263,24 +327,40 @@
                     alert('SiGML copied to clipboard!');
                 });
             });
+
+            // Sync video playback
+            let videos = $('video');
+            
+            videos.on('play', function() {
+                videos.each(function() {
+                    if (this != event.target) {
+                        this.play();
+                    }
+                });
+            });
+            
+            videos.on('pause', function() {
+                videos.each(function() {
+                    if (this != event.target) {
+                        this.pause();
+                    }
+                });
+            });
+            
+            videos.on('seeked', function() {
+                let currentTime = event.target.currentTime;
+                videos.each(function() {
+                    if (this != event.target) {
+                        this.currentTime = currentTime;
+                    }
+                });
+            });
         });
     </script>
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar">
-        <div class="logo">SignHub</div>
-        <div class="nav-links">
-            <a href="{{ url_for('sigml_generator_dashboard') }}" class="nav-link">Home</a>
-            <a href="{{ url_for('sigml_generator_profile') }}" class="nav-link">Profile</a>
-            <a href="{{ url_for('processed_gestures') }}" class="nav-link">Processed Gestures</a>
-        </div>
-        <div class="nav-actions">
-            <a href="{{ url_for('sigml_generator_logout') }}" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </nav>
+    {% include 'sigml_generator_navbar.html' %}
 
     <!-- Main Content -->
     <div class="view-container">
@@ -293,13 +373,28 @@
             <p><strong>Processed On:</strong> {{ gesture.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
         </div>
 
-        <!-- Display the gesture video -->
-        {% if gesture.video_url %}
-            <video controls>
-                <source src="{{ gesture.video_url }}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        {% endif %}
+        <!-- Video Comparison Section -->
+        <div class="video-comparison">
+            {% if gesture.gesture_video_url %}
+            <div class="video-container">
+                <span class="video-label">Original Gesture</span>
+                <video controls>
+                    <source src="{{ gesture.gesture_video_url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            {% endif %}
+            
+            {% if gesture.avatar_video_url %}
+            <div class="video-container">
+                <span class="video-label">Avatar Rendering</span>
+                <video controls>
+                    <source src="{{ gesture.avatar_video_url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            {% endif %}
+        </div>
 
         <!-- Display the SiGML text -->
         {% if sigml_text %}
