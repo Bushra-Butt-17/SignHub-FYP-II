@@ -125,6 +125,25 @@
     box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
 }
 
+.final-btn {
+    text-decoration: none;
+    color: white;
+    font-size: 1.2rem;
+    background: linear-gradient(90deg, #ffd700, #ff8c00);
+    padding: 8px 15px;
+    border-radius: 8px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.final-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4); /* yellow shadow */
+}
+
+
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #1a1a1a, #000);
@@ -355,15 +374,18 @@
         <div class="nav-links">
             <a href="{{ url_for('editor_dashboard') }}" class="nav-link">Home</a>
             <a href="{{ url_for('editor_profile') }}" class="nav-link">Profile</a>
-            <a href="{{ url_for('editor_profile') }}" class="nav-link">Settings</a>
-        </div>
+            <a href="{{ url_for('final_review_dashboard') }}" class="nav-link">Verified</a>        </div>
         <div class="nav-actions">
+            <a href="{{ url_for('final_review_dashboard') }}" class="final-btn">
+                <i class="fa fa-bolt" aria-hidden="true"></i> Finalize
+            </a>
             <a href="{{ url_for('review_gestures') }}" class="review-btn">
                 <i class="fas fa-check-circle"></i> Review
             </a>
             <a href="{{ url_for('editor_logout') }}" class="logout-btn">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
+            
         </div>
     </nav>
     <div class="profile-container">
