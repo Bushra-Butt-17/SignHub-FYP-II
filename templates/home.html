@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignHub - Gesture Video Repository</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0a0a0a;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(255, 44, 44, 0.3);
+        }
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 44, 44, 0.8);
+        }
+        .nav-link {
+            color: white !important;
+            font-weight: 500;
+            margin: 0 15px;
+            transition: color 0.3s ease-in-out;
+        }
+        .nav-link:hover {
+            color: #ffcccb !important;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(255, 44, 44, 0.8), rgba(0, 0, 0, 0.8));
+            color: white;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('https://source.unsplash.com/1600x900/?technology,hand') center/cover no-repeat;
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1.5s ease-in-out;
+        }
+
+        .hero-section h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #ff2c2c, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s infinite alternate;
+        }
+
+        .hero-section p {
+            font-size: 1.5rem;
+            color: #ddd;
+            margin-top: 15px;
+            text-shadow: 1px 1px 5px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-glow {
+            background: linear-gradient(45deg, #ff2c2c, #ff6b6b);
+            color: white;
+            padding: 12px 25px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 5px;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 0 15px rgba(255, 44, 44, 0.6);
+            animation: pulse 2s infinite;
+        }
+
+        .btn-glow:hover {
+            box-shadow: 0 0 25px rgba(255, 44, 44, 1);
+            transform: scale(1.05);
+        }
+
+        /* Features Section */
+        .features-container {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(255, 44, 44, 0.1));
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .features-container h2 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ff2c2c;
+            text-transform: uppercase;
+            margin-bottom: 50px;
+            animation: fadeInUp 1s ease-in-out;
+            background: linear-gradient(45deg, #ff2c2c, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 50px;
+            text-align: center;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            animation: fadeIn 1.5s ease-in-out;
+            min-height: 250px; /* Uniform Size */
+        }
+
+        .feature-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255, 44, 44, 0.3), rgba(0, 0, 0, 0.3));
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .feature-box:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            font-size: 3.5rem;
+            color: #ff2c2c;
+            margin-bottom: 20px;
+            animation: bounce 1.5s infinite alternate;
+        }
+
+        .feature-box h3 {
+            font-size: 1.8rem;
+            color: white;
+            font-weight: 600;
+            transition: color 0.3s ease-in-out;
+        }
+
+        .feature-box:hover h3 {
+            color: #ffcccb;
+        }
+
+        .feature-box p {
+            font-size: 1.1rem;
+            color: #ccc;
+            transition: color 0.3s ease-in-out;
+        }
+
+        .feature-box:hover p {
+            color: #fff;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
+        }
+
+        @keyframes glow {
+            0% { text-shadow: 0 0 10px rgba(255, 44, 44, 0.8); }
+            100% { text-shadow: 0 0 20px rgba(255, 44, 44, 1); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(255, 44, 44, 0.1));
+            text-align: center;
+            padding: 20px;
+            font-size: 1rem;
+            color: #bbb;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <a class="navbar-brand" href="#">SignHub</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>Discover Sign Language</h1>
+            <p>Contribute, Learn, and Explore the World of Sign Language</p>
+            <a href='{{ url_for("signup") }}' class="btn btn-glow mt-3">Get Started</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-container">
+        <div class="container">
+            <h2>Why Choose SignHub?</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="feature-box">
+                        <div class="feature-icon"><i class="fas fa-video"></i></div>
+                        <h3>Upload Videos</h3>
+                        <p>Contribute sign language videos to our growing repository.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-box">
+                        <div class="feature-icon"><i class="fas fa-search"></i></div>
+                        <h3>Explore Library</h3>
+                        <p>Find and learn from a diverse collection of sign language videos.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-box">
+                        <div class="feature-icon"><i class="fas fa-users"></i></div>
+                        <h3>Join Community</h3>
+                        <p>Connect with others and make an impact together.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">© 2025 SignHub | All Rights Reserved</footer>
+
+</body>
+</html>
