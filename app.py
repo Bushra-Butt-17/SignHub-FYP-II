@@ -1232,7 +1232,7 @@ def review_single_gesture(gesture_id):
 
 from datetime import datetime
 from werkzeug.security import generate_password_hash
-
+'''
 # Insert one initial SiGML Generator record
 initial_generator = {
     "username": "Ahsan Salman Yousaf",
@@ -1245,7 +1245,7 @@ initial_generator = {
 sigml_generators_collection.insert_one(initial_generator)  # Use insert_one for a single record
 print("1 initial SiGML Generator record inserted.")
 
-
+'''
 
 
 @app.route('/sigml_generator/login', methods=['GET', 'POST'])
@@ -1798,6 +1798,358 @@ def download_sigml(filename):
 
 ############################################################################################################
 
+
+
+
+
+
+@app.route("/welcome")
+def welcome():
+    return render_template("welcome.html")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from flask import Flask, request, render_template, redirect, url_for
+from flask_pymongo import PyMongo
+import gridfs
+from datetime import datetime
+from flask_wtf import FlaskForm
+from wtforms import StringField, FileField, SelectField
+from wtforms.validators import DataRequired
+from pymongo import MongoClient
+import os
+
+
+dictionary_collection = db["dictionary"]
+
+
+# List of categories
+categories = [
+    ('ABC - One-Handed', 'ABC - One-Handed'),
+    ('ABC - Two-Handed', 'ABC - Two-Handed'),
+    ('Adjectives', 'Adjectives'),
+    ('Adverbs', 'Adverbs'),
+    ('Airport', 'Airport'),
+    ('Alphabet - Urdu', 'Alphabet - Urdu'),
+    ('Appliances', 'Appliances'),
+    ('Around The House', 'Around The House'),
+    ('Arts', 'Arts'),
+    ('Automobile', 'Automobile'),
+    ('Banking', 'Banking'),
+    ('Bathroom', 'Bathroom'),
+    ('Beach', 'Beach'),
+    ('Beauty', 'Beauty'),
+    ('Bedroom', 'Bedroom'),
+    ('Birds', 'Birds'),
+    ('Body Anatomy', 'Body Anatomy'),
+    ('Brand Names', 'Brand Names'),
+    ('Buildings & Places', 'Buildings & Places'),
+    ('Burger King', 'Burger King'),
+    ('Calendar & Time', 'Calendar & Time'),
+    ('Carpentry', 'Carpentry'),
+    ('Classroom', 'Classroom'),
+    ('Cleaning Products', 'Cleaning Products'),
+    ('Clothes & Accessories', 'Clothes & Accessories'),
+    ('Colors', 'Colors'),
+    ('Computer', 'Computer'),
+    ('Construction', 'Construction'),
+    ('Countries & Continents', 'Countries & Continents'),
+    ('Death & Funerals', 'Death & Funerals'),
+    ('Drinks', 'Drinks'),
+    ('Education', 'Education'),
+    ('Family & Marriage', 'Family & Marriage'),
+    ('Famous People', 'Famous People'),
+    ('Farming & Agriculture', 'Farming & Agriculture'),
+    ('Flowers, Plants & Trees', 'Flowers, Plants & Trees'),
+    ('Food - General', 'Food - General'),
+    ('Food Dishes', 'Food Dishes'),
+    ('Fruits', 'Fruits'),
+    ('Geography', 'Geography'),
+    ('Government', 'Government'),
+    ('Grammar', 'Grammar'),
+    ('Health & Medical Care', 'Health & Medical Care'),
+    ('Holidays & Celebrations', 'Holidays & Celebrations'),
+    ('Hospitality', 'Hospitality'),
+    ('Hygiene', 'Hygiene'),
+    ('Insects, Spiders & Reptiles', 'Insects, Spiders & Reptiles'),
+    ('Islamic Signs', 'Islamic Signs'),
+    ('Jewelry', 'Jewelry'),
+    ('KFC', 'KFC'),
+    ('Kitchen', 'Kitchen'),
+    ('Law & Order', 'Law & Order'),
+    ('Life Skills Training', 'Life Skills Training'),
+    ('Living Room', 'Living Room'),
+    ('Mammals', 'Mammals'),
+    ('Marine Life', 'Marine Life'),
+    ('Mathematics', 'Mathematics'),
+    ('Media', 'Media'),
+    ('Military', 'Military'),
+    ('Music & Dance', 'Music & Dance'),
+    ('Nouns - General', 'Nouns - General'),
+    ('Numbers', 'Numbers'),
+    ('Office', 'Office'),
+    ('Pakistan Places', 'Pakistan Places'),
+    ('Prepositions', 'Prepositions'),
+    ('Professions', 'Professions'),
+    ('Pronouns', 'Pronouns'),
+    ('Science', 'Science'),
+    ('Sentences', 'Sentences'),
+    ('Sewing', 'Sewing'),
+    ('Space', 'Space'),
+    ('Spices', 'Spices'),
+    ('Sports & Games', 'Sports & Games'),
+    ('Textile', 'Textile'),
+    ('Transport', 'Transport'),
+    ('Vegetables', 'Vegetables'),
+    ('Verbs', 'Verbs'),
+    ('Vocational - General', 'Vocational - General'),
+    ('Weather', 'Weather')
+]
+
+# Form to submit gestures
+class GestureForm(FlaskForm):
+    contributor_name = StringField('Contributor Name', validators=[DataRequired()])
+    name= StringField('Contributor Name', validators=[DataRequired()])
+    avatar_video = FileField('Avatar Video', validators=[DataRequired()])
+    category = SelectField('Category', choices=categories, validators=[DataRequired()])
+
+
+@app.route('/submit', methods=['GET', 'POST'])
+def submit_gesture():
+    form = GestureForm()
+
+    if form.validate_on_submit():
+        # Get form data
+        contributor_name = form.contributor_name.data
+        name=form.name.data
+        category = form.category.data
+        avatar_video = form.avatar_video.data
+        created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        # Store the avatar video in GridFS
+        video_filename = avatar_video.filename
+        video_data = avatar_video.read()
+        video_id = fs.put(video_data, filename=video_filename)
+
+        # Save gesture details (without the video file) to the dictionary collection
+        gesture_data = {
+            'contributor_name': contributor_name,
+            'name':name,
+            'avatar_video_id': video_id,  # Store the GridFS file ID for reference
+            'category': category,
+            'created_at': created_at
+        }
+
+        # Insert the gesture data into the dictionary collection
+        dictionary_collection.insert_one(gesture_data)
+
+        # Redirect after success
+        
+
+    return render_template('submit_gesture.html', form=form)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Add these imports at the top of your app.py
+import logging
+from flask import jsonify, request
+from bson.json_util import dumps
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# Add these endpoints to your Flask app:
+
+@app.route('/api/gestures/all', methods=['GET'])
+def get_all_gestures():
+    """Endpoint to get all gestures"""
+    try:
+        # Get all gestures from the database
+        gestures = list(dictionary_collection.find(
+            {},
+            {"_id": 0, "contributor_name": 1, "name": 1, "category": 1, "created_at": 1, "image_url": 1, "video_url": 1}
+        ))
+        return jsonify({
+            'success': True,
+            'gestures': gestures
+        })
+    except Exception as e:
+        logger.error(f"Error fetching all gestures: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Fix your existing categories endpoint:
+@app.route('/api/categories', methods=['GET'])
+def get_categories():
+    """Endpoint to get all categories"""
+    logger.debug("Fetching all categories")
+    try:
+        # Get unique categories from the database
+        db_categories = dictionary_collection.distinct("category")
+        return jsonify({
+            'success': True,
+            'categories': db_categories
+        })
+    except Exception as e:
+        logger.error(f"Error fetching categories: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+
+
+
+
+
+
+
+@app.route('/api/gestures/category/<category>', methods=['GET'])
+def get_gestures_by_category(category):
+    """Endpoint to get gestures by category"""
+    logger.debug(f"Fetching gestures for category: {category}")
+    try:
+        gestures = list(dictionary_collection.find(
+            {"category": category},
+            {"_id": 0, "contributor_name": 1, "name": 1, "category": 1, "created_at": 1}
+        ))
+        print(f"Gestures for Category '{category}': {gestures}")  # Debugging line
+        return jsonify({'success': True, 'gestures': gestures})
+    except Exception as e:
+        logger.error(f"Error fetching gestures for category {category}: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/gestures/search', methods=['GET'])
+def search_gestures():
+    """Endpoint to search gestures by name"""
+    search_term = request.args.get('q', '')
+    logger.debug(f"Searching gestures with term: {search_term}")
+    try:
+        gestures = list(dictionary_collection.find(
+            {"name": {"$regex": search_term, "$options": "i"}},
+            {"_id": 0, "contributor_name": 1, "name": 1, "category": 1, "created_at": 1}
+        ).limit(20))
+        print(f"Search Results for '{search_term}': {gestures}")  # Debugging line
+        return jsonify({'success': True, 'gestures': gestures})
+    except Exception as e:
+        logger.error(f"Error searching gestures: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Frontend Routes
+@app.route('/browse')
+def browse_gestures():
+    """Frontend page for browsing gestures"""
+    return render_template('browse_gestures.html')
+
+
+
+
+
+from flask import render_template, request
+from urllib.parse import unquote
+
+@app.route('/gesture')
+def gesture_details():
+    """Route to show gesture details page"""
+    gesture_name = request.args.get('name')
+    if not gesture_name:
+        return render_template('gesture_details.html', error="No gesture specified")
+    
+    try:
+        # Get gesture details from database
+        gesture = dictionary_collection.find_one(
+            {"name": unquote(gesture_name)},
+            {"_id": 0}
+        )
+        
+        if not gesture:
+            return render_template('gesture_details.html', error="Gesture not found")
+            
+        # Add video URL if video_file_id exists
+        if "avatar_video_id" in gesture:
+            gesture["video_url"] = url_for('stream_video', 
+                                         video_id=gesture["avatar_video_id"], 
+                                         _external=True)
+        
+        return render_template('gesture_details.html', gesture=gesture)
+        
+    except Exception as e:
+        return render_template('gesture_details.html', error=f"Error loading gesture: {str(e)}")
+
+
+
+
+# Add custom filter to format dates
+@app.template_filter('format_date')
+def format_date_filter(value, format="%b %d, %Y"):
+    if isinstance(value, str):
+        try:
+            value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+        except ValueError:
+            return value
+    if isinstance(value, datetime):
+        return value.strftime(format)
+    return value
 
 
 

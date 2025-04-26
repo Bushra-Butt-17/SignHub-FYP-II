@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gesture Details | SignHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Your existing styles remain the same */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/browse" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Back to Dictionary
+        </a>
+        
+        {% if error %}
+        <div class="error-message">
+            <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
+            <h3>Error Loading Gesture</h3>
+            <p>{{ error }}</p>
+        </div>
+        {% elif gesture %}
+        <div>
+            <div class="gesture-header">
+                <h1 class="gesture-title">{{ gesture.name or 'Unnamed Gesture' }}</h1>
+            </div>
+            
+            <div class="gesture-content">
+                <div class="gesture-media">
+                    {% if gesture.video_url %}
+                        <video class="gesture-video" controls autoplay>
+                            <source src="{{ gesture.video_url }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    {% elif gesture.image_url %}
+                        <img class="gesture-image" src="{{ gesture.image_url }}" alt="{{ gesture.name }}">
+                    {% else %}
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <i class="fas fa-hands" style="font-size: 3rem;"></i>
+                            <p>No media available</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="gesture-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Category</div>
+                        <div class="detail-value">{{ gesture.category or 'Uncategorized' }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Contributor</div>
+                        <div class="detail-value">{{ gesture.contributor_name or 'Unknown' }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Date Added</div>
+                        <div class="detail-value">
+                            {{ gesture.created_at|default('Unknown', true)|format_date }}
+                        </div>
+                    </div>
+                    
+                    
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="loading">
+            <div class="spinner"></div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
