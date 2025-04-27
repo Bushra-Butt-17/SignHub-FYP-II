@@ -226,6 +226,7 @@
             text-align: center;
             border: 1px solid rgba(0, 86, 179, 0.1);
             cursor: pointer;
+            position: relative;
         }
         
         .sign-card:hover {
@@ -234,38 +235,42 @@
             border-color: rgba(0, 86, 179, 0.3);
         }
         
-        .sign-image {
-            width: 100%;
-            height: 120px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-            overflow: hidden;
-        }
-        
-        .sign-image img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-        
-        .sign-video {
+        .sign-media {
             width: 100%;
             height: 120px;
             background-color: #f9f9f9;
             border-radius: 8px;
             margin-bottom: 15px;
             overflow: hidden;
+            position: relative;
         }
         
-        .sign-video video {
+        .sign-media video,
+        .sign-media img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+        
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--white);
+            background: rgba(0, 86, 179, 0.7);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sign-card:hover .play-icon {
+            opacity: 1;
         }
         
         .sign-name {
@@ -375,6 +380,106 @@
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
         }
+        .sign-media {
+    width: 100%;
+    height: 120px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sign-media video,
+.sign-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Changed from cover to contain */
+    background: black; /* For better video visibility */
+}
+
+.play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--white);
+    background: rgba(0, 86, 179, 0.7);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 2;
+}
+
+.sign-card:hover .play-icon {
+    opacity: 1;
+}
+
+.sign-media::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0));
+    z-index: 1;
+}
+
+.sign-media {
+    width: 100%;
+    height: 120px;
+    background-color: #000; /* Black background for video */
+    border-radius: 8px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    position: relative;
+}
+
+.sign-media video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Show full video without cropping */
+    background: #000; /* Ensure black background shows if video doesn't fill */
+}
+
+.empty-media {
+    width: 100%;
+    height: 100%;
+    background: #000; /* Black background when no media */
+}
+
+.play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    background: rgba(0, 86, 179, 0.7);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 2;
+}
+
+.sign-card:hover .play-icon {
+    opacity: 1;
+}
+
+/* [Rest of your existing CSS remains the same] */
     </style>
 </head>
 <body>
@@ -628,66 +733,56 @@
                 loadSignsForCategory(filter);
             }
             
-            // Modify the renderSigns function to properly handle video streaming
-function renderSigns(signs) {
-    dictionaryGrid.innerHTML = '';
-    
-    if (signs.length === 0) {
-        dictionaryGrid.innerHTML = `
-            <div class="no-results">
-                <i class="fas fa-hands"></i>
-                <h3>No signs found</h3>
-                <p>Try a different search or category</p>
-            </div>
-        `;
-        resultCount.textContent = "0 results";
-        return;
-    }
-    
-    resultCount.textContent = `${signs.length} ${signs.length === 1 ? 'result' : 'results'}`;
-    
-    signs.forEach(sign => {
-        const card = document.createElement('div');
-        card.className = 'sign-card';
-        
-        // Add click handler to navigate to details page
-        card.addEventListener('click', () => {
-            window.location.href = `/gesture?name=${encodeURIComponent(sign.name)}`;
-        });
-        
-        // Determine media content
-        let mediaContent = '';
-        if (sign.video_url) {
-            mediaContent = `
-                <div class="sign-video">
-                    <video src="${sign.video_url}" muted loop></video>
-                </div>
-            `;
-        } else if (sign.image_url) {
-            mediaContent = `
-                <div class="sign-image">
-                    <img src="${sign.image_url}" alt="${sign.name}">
-                </div>
-            `;
-        } else {
-            mediaContent = `
-                <div class="sign-image">
-                    <i class="fas fa-hands" style="font-size: 3rem;"></i>
-                </div>
-            `;
-        }
-        
-        card.innerHTML = `
-            ${mediaContent}
-            <div class="sign-name">${sign.name || 'Unnamed Sign'}</div>
-            <div class="sign-category">${sign.category || 'Uncategorized'}</div>
-            ${sign.contributor_name ? `<div class="sign-contributor">By: ${sign.contributor_name}</div>` : ''}
-            ${sign.created_at ? `<div class="sign-date">Added: ${new Date(sign.created_at).toLocaleDateString()}</div>` : ''}
-        `;
-        
-        dictionaryGrid.appendChild(card);
-    });
-}
+            // Modified renderSigns function
+            function renderSigns(signs) {
+                dictionaryGrid.innerHTML = '';
+                
+                if (signs.length === 0) {
+                    dictionaryGrid.innerHTML = `
+                        <div class="no-results">
+                            <h3>No signs found</h3>
+                            <p>Try a different search or category</p>
+                        </div>
+                    `;
+                    resultCount.textContent = "0 results";
+                    return;
+                }
+                
+                resultCount.textContent = `${signs.length} ${signs.length === 1 ? 'result' : 'results'}`;
+                
+                signs.forEach(sign => {
+                    const card = document.createElement('div');
+                    card.className = 'sign-card';
+                    
+                    card.addEventListener('click', () => {
+                        window.location.href = `/gesture?name=${encodeURIComponent(sign.name)}`;
+                    });
+                    
+                    // Video element - always show video if available
+                    let mediaContent = '';
+                    if (sign.avatar_video_id) {
+                        mediaContent = `
+                            <video src="/api/video/${sign.avatar_video_id}" muted loop playsinline></video>
+                            <div class="play-icon"><i class="fas fa-play"></i></div>
+                        `;
+                    } else {
+                        // Empty media container with black background
+                        mediaContent = '<div class="empty-media"></div>';
+                    }
+                    
+                    card.innerHTML = `
+                        <div class="sign-media">
+                            ${mediaContent}
+                        </div>
+                        <div class="sign-name">${sign.name || 'Unnamed Sign'}</div>
+                        <div class="sign-category">${sign.category || 'Uncategorized'}</div>
+                        ${sign.contributor_name ? `<div class="sign-contributor">By: ${sign.contributor_name}</div>` : ''}
+                        ${sign.created_at ? `<div class="sign-date">Added: ${new Date(sign.created_at).toLocaleDateString()}</div>` : ''}
+                    `;
+                    
+                    dictionaryGrid.appendChild(card);
+                });
+            }
             
             // Filter signs based on current state
             function filterSigns() {
