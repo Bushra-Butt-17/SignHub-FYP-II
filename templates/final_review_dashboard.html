@@ -1,0 +1,405 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Final Review Dashboard | SignHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #000);
+            color: white;
+            min-height: 100vh;
+            padding: 100px 20px 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+/* Navbar Styles */
+.navbar {
+    width: 100%;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transition: background 0.3s, box-shadow 0.3s;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.navbar.scrolled {
+    background: linear-gradient(90deg, rgba(50, 205, 50, 0.9), rgba(34, 139, 34, 0.9));
+    box-shadow: 0 4px 15px rgba(50, 205, 50, 0.3);
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #32cd32;
+    background: linear-gradient(90deg, #32cd32, #228b22);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: transform 0.3s;
+}
+
+.navbar.scrolled .logo {
+    color: black;
+    background: linear-gradient(90deg, black, #333);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-links {
+    display: flex;
+    gap: 25px;
+}
+
+.nav-link {
+    text-decoration: none;
+    font-size: 1.2rem;
+    color: white;
+    transition: color 0.3s, transform 0.3s;
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #32cd32, #228b22);
+    transition: width 0.3s;
+}
+
+.nav-link:hover {
+    color: #32cd32;
+    transform: translateY(-3px);
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Nav Actions */
+.nav-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-actions .review-btn, 
+.nav-actions .final-btn, 
+.nav-actions .logout-btn {
+    text-decoration: none;
+    color: white;
+    font-size: 1.2rem;
+    padding: 8px 15px;
+    border-radius: 8px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-actions .review-btn {
+    background: linear-gradient(90deg, #006400, #228B22);
+}
+
+.nav-actions .final-btn {
+    background: linear-gradient(90deg, #32cd32, #228b22);
+}
+
+.nav-actions .logout-btn {
+    background: linear-gradient(90deg, #ff0000, #8b0000);
+}
+
+.nav-actions .review-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0, 100, 0, 0.3);
+}
+
+.nav-actions .final-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(50, 205, 50, 0.3);
+}
+
+.nav-actions .logout-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+}
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(50, 205, 50, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, #32cd32, #000, #32cd32, #000);
+            opacity: 0.2;
+            z-index: -1;
+            animation: rotate 10s linear infinite;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            background: linear-gradient(90deg, #32cd32, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(50, 205, 50, 0.2);
+        }
+
+        th {
+            background: linear-gradient(90deg, #32cd32, #228b22);
+            color: black;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        tr:hover {
+            background: rgba(50, 205, 50, 0.1);
+        }
+
+        .review-btn {
+            background: linear-gradient(90deg, #32cd32, #228b22);
+            color: black;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .review-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(50, 205, 50, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #32cd32;
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+         /* New Action Bar Styles */
+         .action-bar {
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto 20px;
+            padding: 15px 30px;
+            background: rgba(50, 205, 50, 0.15);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(50, 205, 50, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        .action-message {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .action-btn {
+            background: linear-gradient(90deg, #32cd32, #228b22);
+            color: black;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(50, 205, 50, 0.3);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(50, 205, 50, 0.4);
+        }
+
+        .action-btn i {
+            font-size: 1.2rem;
+        }
+
+        @keyframes slideDown {
+            from { 
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Adjust dashboard container margin */
+        .dashboard-container {
+            margin-top: 30px;
+            /* [Rest of existing .dashboard-container styles] */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">SignHub</div>
+        <div class="nav-links">
+            <a href="{{ url_for('editor_dashboard') }}" class="nav-link">Home</a>
+            <a href="{{ url_for('editor_profile') }}" class="nav-link">Profile</a>
+            <a href="{{ url_for('final_review_dashboard') }}" class="nav-link">Verified</a>        </div>
+        <div class="nav-actions">
+            <a href="{{ url_for('final_review_dashboard') }}" class="final-btn">
+                <i class="fa fa-bolt" aria-hidden="true"></i> Finalize
+            </a>
+            <a href="{{ url_for('review_gestures') }}" class="review-btn">
+                <i class="fas fa-check-circle"></i> Review
+            </a>
+            <a href="{{ url_for('editor_logout') }}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+            
+        </div>
+    </nav>
+<!-- New Action Bar -->
+<div class="action-bar">
+    <div class="action-message">
+        <i class="fas fa-exclamation-circle"></i> You have updated gestures ready for final review
+    </div>
+    <a href="{{ url_for('review_updated_gestures') }}" class="action-btn">
+        <i class="fas fa-play"></i> Start Finalizing Updated Gestures
+    </a>
+</div>
+
+    <div class="dashboard-container">
+        <h1>Finalized Gestures - Review Dashboard</h1>
+
+        {% if gestures %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Contributor</th>
+                    <th>Created At</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for gesture in gestures %}
+                <tr>
+                    <td>{{ gesture.name }}</td>
+                    <td>{{ gesture.category }}</td>
+                    <td>{{ gesture.contributor_name }}</td>
+                    <td>{{ gesture.created_at_str }}</td>
+                    <td>
+                        <a href="{{ url_for('review_single_gesture', gesture_id=gesture._id|string) }}" class="review-btn">
+                            <i class="fas fa-eye"></i> Review
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-check-circle"></i>
+            <h3>No Finalized Gestures to Display</h3>
+            <p>All gestures have been reviewed or none are currently marked as finalized.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                document.querySelector('.navbar').classList.add('scrolled');
+            } else {
+                document.querySelector('.navbar').classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>
