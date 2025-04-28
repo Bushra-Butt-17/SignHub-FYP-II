@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Gesture | SignHub</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #000);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            width: 100%;
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: background 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar.scrolled {
+            background: linear-gradient(90deg, rgba(255, 20, 147, 0.9), rgba(255, 105, 180, 0.9));
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ff1493;
+            background: linear-gradient(90deg, #ff1493, #ff69b4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s;
+        }
+
+        .navbar.scrolled .logo {
+            color: black;
+            background: linear-gradient(90deg, black, #333);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            font-size: 1.2rem;
+            color: white;
+            transition: color 0.3s, transform 0.3s;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff1493, #ff69b4);
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover {
+            color: #ff1493;
+            transform: translateY(-3px);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Nav Actions */
+        .nav-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-actions .logout-btn {
+            text-decoration: none;
+            color: white;
+            font-size: 1.2rem;
+            background: linear-gradient(90deg, #ff0000, #8b0000);
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-actions .logout-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        /* Main Container */
+        .view-container {
+            margin-top: 80px;
+            max-width: 1200px;
+            width: 100%;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 20, 147, 0.4);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .view-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, #ff1493, #000, #ff1493, #000);
+            opacity: 0.2;
+            z-index: -1;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #ff1493, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: slideIn 1s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        .gesture-details p {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .gesture-details strong {
+            color: #ff1493;
+        }
+
+        /* Video Comparison Section */
+        .video-comparison {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .video-container {
+            flex: 1;
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.6);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .video-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 25px rgba(255, 20, 147, 0.8);
+        }
+
+        .video-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff1493, #ff69b4);
+        }
+
+        .video-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            z-index: 1;
+        }
+
+        video {
+            width: 100%;
+            display: block;
+            border-radius: 15px;
+        }
+
+        /* SiGML Section */
+        .sigml-section {
+            margin-top: 40px;
+        }
+
+        .sigml-text {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
+        }
+
+        .sigml-text pre {
+            margin: 0;
+            color: #ff69b4;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(90deg, #ff1493, #ff69b4);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .copy-btn:hover {
+            box-shadow: 0 0 10px rgba(255, 20, 147, 0.7);
+        }
+
+        .btn {
+            background: linear-gradient(90deg, #ff1493, #ff69b4);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: 0.3s;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.7);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .video-comparison {
+                flex-direction: column;
+            }
+            
+            .view-container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+    <script>
+        $(document).ready(function() {
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 50) {
+                    $('.navbar').addClass('scrolled');
+                } else {
+                    $('.navbar').removeClass('scrolled');
+                }
+            });
+
+            // Copy SiGML to clipboard
+            $('.copy-btn').click(function() {
+                const sigmlText = $('.sigml-text pre').text();
+                navigator.clipboard.writeText(sigmlText).then(() => {
+                    alert('SiGML copied to clipboard!');
+                });
+            });
+
+            // Sync video playback
+            let videos = $('video');
+            
+            videos.on('play', function() {
+                videos.each(function() {
+                    if (this != event.target) {
+                        this.play();
+                    }
+                });
+            });
+            
+            videos.on('pause', function() {
+                videos.each(function() {
+                    if (this != event.target) {
+                        this.pause();
+                    }
+                });
+            });
+            
+            videos.on('seeked', function() {
+                let currentTime = event.target.currentTime;
+                videos.each(function() {
+                    if (this != event.target) {
+                        this.currentTime = currentTime;
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <!-- Navbar -->
+    {% include 'sigml_generator_navbar.html' %}
+
+    <!-- Main Content -->
+    <div class="view-container">
+        <h1>View Gesture: {{ gesture.name }}</h1>
+        <div class="gesture-details">
+            <p><strong>Dialect:</strong> {{ gesture.dialect }}</p>
+            <p><strong>Contributor:</strong> {{ gesture.contributor_name }}</p>
+            <p><strong>Editor:</strong> {{ gesture.editor_name }}</p>
+            <p><strong>Category:</strong> {{ gesture.category }}</p>
+            <p><strong>Processed On:</strong> {{ gesture.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+        </div>
+
+        <!-- Video Comparison Section -->
+        <div class="video-comparison">
+            {% if gesture.gesture_video_url %}
+            <div class="video-container">
+                <span class="video-label">Original Gesture</span>
+                <video controls>
+                    <source src="{{ gesture.gesture_video_url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            {% endif %}
+            
+            {% if gesture.avatar_video_url %}
+            <div class="video-container">
+                <span class="video-label">Avatar Rendering</span>
+                <video controls>
+                    <source src="{{ gesture.avatar_video_url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Display the SiGML text -->
+        {% if sigml_text %}
+            <div class="sigml-section">
+                <h3>SiGML Content</h3>
+                <div class="sigml-text">
+                    <button class="copy-btn">Copy SiGML</button>
+                    <pre>{{ sigml_text }}</pre>
+                </div>
+            </div>
+        {% else %}
+            <p>No SiGML file available for this gesture.</p>
+        {% endif %}
+
+        <a href="{{ url_for('processed_gestures') }}" class="btn">
+            <i class="fas fa-arrow-left"></i> Back to Processed Gestures
+        </a>
+    </div>
+</body>
+</html>
