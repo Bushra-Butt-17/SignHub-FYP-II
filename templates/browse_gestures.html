@@ -33,10 +33,10 @@
         }
         
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 40px; /* Increased right/left padding */
+}
         
         h1 {
             color: var(--secondary);
@@ -50,6 +50,8 @@
             margin-bottom: 30px;
             gap: 10px;
             position: relative;
+            margin-left: 70px;
+            margin-right: 20px;
         }
         
         .search-input {
@@ -72,6 +74,7 @@
             color: white;
             border: none;
             padding: 12px 25px;
+            margin-right: 70px;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
@@ -99,6 +102,7 @@
             display: none;
             max-height: 300px;
             overflow-y: auto;
+            margin-right: 200px;
         }
         
         .search-suggestion {
@@ -168,8 +172,9 @@
         }
         
         .main-content {
-            flex: 1;
-        }
+    flex: 1;
+    padding-right: 20px; /* Add right padding */
+}
         
         .breadcrumb {
             display: flex;
@@ -212,10 +217,11 @@
         }
         
         .dictionary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-        }
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding-right: 20px; /* Add right padding */
+}
         
         .sign-card {
             background: var(--white);
@@ -483,9 +489,15 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>PSL Dictionary</h1>
+    {% include 'header.html' %}
+
+
+
+
+    <div class="container" style="display: flex; align-items: center; gap: 20px;">
+        <h1 style="margin-top: 70px;">PSL Dictionary</h1>
         
+    </div>
         <div class="search-container">
             <input type="text" class="search-input" placeholder="Search for signs..." id="searchInput" autocomplete="off">
             <button class="search-button" id="searchButton">
@@ -983,5 +995,10 @@
             initDictionary();
         });
     </script>
+
+
+
+{% include 'footer.html' %}
+
 </body>
 </html>
