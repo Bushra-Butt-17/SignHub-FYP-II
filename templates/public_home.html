@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignHub - About Us</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
+</head>
+<body>
+    <header class="hero">
+        <div class="container">
+            <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="SignHub Logo" class="logo">
+            <h1>Welcome to SignHub</h1>
+            <p>Bridging the gap between sign language and technology.</p>
+            <a href="/signup" class="btn btn-primary">Get Started</a>
+        </div>
+    </header>
+
+    <section class="mission">
+        <div class="container">
+            <h2>Our Mission</h2>
+            <p>At SignHub, we aim to empower the deaf community by providing tools to digitize and share sign language gestures. Our platform enables contributors, editors, and SiGML generators to collaborate seamlessly.</p>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2>Features</h2>
+            <div class="feature-list">
+                <div class="feature">
+                    <h3>Contribute</h3>
+                    <p>Upload and share sign language gestures with the community.</p>
+                </div>
+                <div class="feature">
+                    <h3>Edit</h3>
+                    <p>Review and approve gestures to ensure quality and accuracy.</p>
+                </div>
+                <div class="feature">
+                    <h3>Generate SiGML</h3>
+                    <p>Convert gestures into SiGML files for digital use.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 SignHub. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
