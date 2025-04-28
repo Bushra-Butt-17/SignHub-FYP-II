@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SiGML Generator Dashboard | SignHub</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #000); /* Black gradient */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            width: 100%;
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: background 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar.scrolled {
+            background: linear-gradient(90deg, rgba(255, 20, 147, 0.9), rgba(255, 105, 180, 0.9)); /* Pink gradient */
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ff1493; /* Pink */
+            background: linear-gradient(90deg, #ff1493, #ff69b4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s;
+        }
+
+        .navbar.scrolled .logo {
+            color: black;
+            background: linear-gradient(90deg, black, #333);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            font-size: 1.2rem;
+            color: white;
+            transition: color 0.3s, transform 0.3s;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover {
+            color: #ff1493; /* Pink */
+            transform: translateY(-3px);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Nav Actions */
+        .nav-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-actions .logout-btn {
+            text-decoration: none;
+            color: white;
+            font-size: 1.2rem;
+            background: linear-gradient(90deg, #ff0000, #8b0000);
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-actions .logout-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        /* Dashboard Container */
+        .dashboard-container {
+            margin-top: 80px;
+            max-width: 1200px;
+            width: 100%;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1); /* Glassmorphism effect */
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 20, 147, 0.4); /* Pink shadow */
+            backdrop-filter: blur(10px);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, #ff1493, #000, #ff1493, #000); /* Pink gradient */
+            opacity: 0.2;
+            z-index: -1;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #ff1493, #fff); /* Pink gradient text */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: slideIn 1s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        /* Stats Section */
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 12px;
+            width: 22%;
+            min-width: 200px;
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4); /* Pink shadow */
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, #ff1493, #000, #ff1493, #000); /* Pink gradient */
+            opacity: 0.2;
+            z-index: -1;
+            animation: rotate 10s linear infinite;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 20, 147, 0.7); /* Pink glow */
+        }
+
+        .stat-card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: #ff1493; /* Pink */
+        }
+
+        .stat-card p {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* Gestures Menu Button */
+        .gestures-menu-btn {
+            margin-top: 30px;
+        }
+
+        .gestures-menu-btn a {
+            display: inline-block;
+            background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
+            color: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.5); /* Pink shadow */
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gestures-menu-btn a::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.5s ease;
+            border-radius: 50%;
+        }
+
+        .gestures-menu-btn a:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .gestures-menu-btn a:hover {
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.8); /* Pink glow */
+        }
+
+        /* Gestures Menu */
+        .gestures-menu {
+            margin-top: 20px;
+            display: none; /* Hidden by default */
+        }
+
+        .gestures-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .gestures-table th, .gestures-table td {
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: left;
+        }
+
+        .gestures-table th {
+            background: rgba(255, 20, 147, 0.5); /* Pink header */
+            color: white;
+        }
+
+        .gestures-table tr:hover {
+            background: rgba(255, 20, 147, 0.1); /* Pink hover effect */
+        }
+
+        .process-btn {
+            background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .process-btn:hover {
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.7); /* Pink glow */
+        }
+        .start-generating-btn {
+    display: inline-block;
+    background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
+    color: white;
+    padding: 15px 30px;
+    border-radius: 12px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(255, 20, 147, 0.5); /* Pink shadow */
+    margin-left: 20px; /* Add some spacing */
+}
+
+.start-generating-btn:hover {
+    box-shadow: 0 0 20px rgba(255, 20, 147, 0.8); /* Pink glow */
+    transform: translateY(-3px);
+}
+    </style>
+    <script>
+        $(document).ready(function() {
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 50) {
+                    $('.navbar').addClass('scrolled');
+                } else {
+                    $('.navbar').removeClass('scrolled');
+                }
+            });
+
+            // Toggle gestures menu
+            $('#show-gestures-btn').click(function() {
+                $('#gestures-menu').toggle();
+            });
+        });
+    </script>
+</head>
+<body>
+    <!-- Navbar -->
+    {% include 'sigml_generator_navbar.html' %}
+
+    <div class="dashboard-container">
+        <h1>Welcome, {{ generator_name }}!</h1>
+
+        <!-- Stats Section -->
+        <div class="stats">
+            <div class="stat-card">
+                <h2>Pending for Processing</h2>
+                <p>{{ total_pending_processing }}</p>
+            </div>
+            <div class="stat-card">
+                <h2>Processed Gestures</h2>
+                <p>{{ total_processed }}</p>
+            </div>
+        </div>
+
+        <!-- Gestures Menu Button -->
+        
+        <!-- Gestures Menu Button -->
+<div class="gestures-menu-btn">
+    <a id="show-gestures-btn">Show Gestures to Process</a>
+    <a href="{{ url_for('start_generating') }}" class="start-generating-btn">
+        <i class="fas fa-play"></i> Start Generating
+    </a>
+</div>
+        <!-- Gestures Menu -->
+        <div id="gestures-menu" class="gestures-menu">
+            <h2>Gestures Pending for Processing</h2>
+            <table class="gestures-table">
+                <thead>
+                    <tr>
+                        <th>Gesture Name</th>
+                        <th>Dialect</th>
+                        <th>Contributor</th>
+                        <th>Approved By</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+               
+                <tbody>
+                    {% for gesture in sigml_required_gestures %}
+                        <tr>
+                            <td>{{ gesture.name }}</td>
+                            <td>{{ gesture.dialect }}</td>
+                            <td>{{ gesture.contributor_name }}</td>
+                            <td>{{ gesture.editor_name }}</td>
+                            <td>
+                                <a href="{{ url_for('process_gesture', gesture_id=gesture._id) }}" class="process-btn">
+                                    <i class="fas fa-door-open"></i> Process
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
