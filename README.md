@@ -162,5 +162,6 @@ The application will be served on `http://0.0.0.0:5000`.
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
+![](https://github.com/user-attachments/assets/a0fd75d7-1606-41c0-895b-5f8eb79b8235)
 
 Enjoy using **SignHub**! If you have any questions or issues, feel free to reach out. 😊
