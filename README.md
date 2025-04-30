@@ -1,5 +1,6 @@
 # SignHub API Documentation 📄
 
+
 Welcome to the **SignHub API**! This API allows users to interact with a platform for managing sign language gestures, including user authentication, gesture submissions, and profile management. Below is a detailed explanation of each endpoint! 🎉
 
 ---
