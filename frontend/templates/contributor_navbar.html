@@ -1,0 +1,216 @@
+<head>
+    <style>
+      /* General Styling */
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #1a1a1a 50%, #660000 50%);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Navbar Styles */
+.navbar {
+    width: 100%;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transition: background 0.3s, box-shadow 0.3s;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.navbar.scrolled {
+    background: linear-gradient(90deg, rgba(255, 0, 0, 0.9), rgba(139, 0, 0, 0.9));
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ff0000;
+    background: linear-gradient(90deg, #ff0000, #8b0000);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: transform 0.3s;
+}
+
+.navbar.scrolled .logo {
+    color: white;
+    background: linear-gradient(90deg, white, #ccc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Hamburger Menu */
+.hamburger {
+    display: none; /* Hidden by default */
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* Combined Navigation Container */
+.nav-container {
+    display: flex;
+    align-items: center;
+    gap: 25px; /* Space between nav links and actions */
+}
+
+/* Navigation Links */
+.nav-links {
+    display: flex;
+    gap: 25px;
+}
+
+.nav-link {
+    text-decoration: none;
+    font-size: 1.2rem;
+    color: white;
+    transition: color 0.3s, transform 0.3s;
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #ff0000, #8b0000);
+    transition: width 0.3s;
+}
+
+.nav-link:hover {
+    color: #ff0000;
+    transform: translateY(-3px);
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Nav Actions (Logout and Add Gesture Buttons) */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Space between buttons */
+}
+
+.nav-btn {
+    text-decoration: none;
+    color: white;
+    font-size: 1.2rem;
+    background: linear-gradient(90deg, #ff0000, #8b0000);
+    padding: 8px 15px;
+    border-radius: 8px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-btn:hover {
+    background: linear-gradient(90deg, #8b0000, #ff0000);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+}
+
+/* Logout Button Specific Styles */
+.logout-btn {
+    background: linear-gradient(90deg, #ff0000, #8b0000);
+}
+
+.logout-btn:hover {
+    background: linear-gradient(90deg, #8b0000, #ff0000);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .hamburger {
+        display: block; /* Show hamburger menu on mobile */
+    }
+
+    .nav-container {
+        display: none; /* Hide nav container by default on mobile */
+        flex-direction: column;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        position: absolute;
+        top: 60px; /* Adjust based on navbar height */
+        left: 0;
+        padding: 15px;
+        border-radius: 0 0 10px 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .nav-container.active {
+        display: flex; /* Show when hamburger menu is clicked */
+    }
+
+    .nav-links {
+        flex-direction: column;
+        gap: 10px; /* Add spacing between links */
+    }
+
+    .nav-actions {
+        flex-direction: column;
+        gap: 10px; /* Add spacing between buttons */
+    }
+
+    .nav-btn {
+        width: 100%; /* Full width buttons on mobile */
+        justify-content: center;
+    }
+}
+    </style>
+</head>
+<nav class="navbar">
+    <div class="logo">SignHub</div>
+    <!-- Hamburger Menu Icon -->
+    <div class="hamburger" onclick="toggleMenu()">
+        <i class="fas fa-bars"></i>
+    </div>
+    <!-- Combined Navigation Links and Actions -->
+    <div class="nav-container" id="navContainer">
+        <!-- Navigation Links -->
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}" class="nav-link">Home</a>
+            <a href="{{ url_for('contributor_profile') }}" class="nav-link">Profile</a>
+            <a href="{{ url_for('contributor_reviews') }}" class="nav-link">Reviews</a>
+            <a href="{{ url_for('contributor_profile') }}" class="nav-link">Settings</a>
+        </div>
+        <!-- Nav Actions (Add Gesture and Logout Buttons) -->
+        <div class="nav-actions">
+            <a href="{{ url_for('add_gesture') }}" class="nav-btn">
+                <i class="fas fa-plus"></i> Add Gesture
+            </a>
+            <a href="{{ url_for('logout') }}" class="nav-btn logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+</nav>
+<script>
+    // Function to toggle the mobile menu
+function toggleMenu() {
+    const navContainer = document.getElementById("navContainer");
+    navContainer.classList.toggle("active");
+}
+</script>
