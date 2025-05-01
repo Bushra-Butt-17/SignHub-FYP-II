@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HamNoSys2SiGML Tool | SignHub</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Favicon link -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #000); /* Black gradient */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            width: 100%;
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: background 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar.scrolled {
+            background: linear-gradient(90deg, rgba(255, 20, 147, 0.9), rgba(255, 105, 180, 0.9)); /* Pink gradient */
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ff1493; /* Pink */
+            background: linear-gradient(90deg, #ff1493, #ff69b4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s;
+        }
+
+        .navbar.scrolled .logo {
+            color: black;
+            background: linear-gradient(90deg, black, #333);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            font-size: 1.2rem;
+            color: white;
+            transition: color 0.3s, transform 0.3s;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover {
+            color: #ff1493; /* Pink */
+            transform: translateY(-3px);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Hamburger Menu for Mobile */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            transition: 0.3s;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Responsive Navbar */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                gap: 15px;
+                position: absolute;
+                top: 60px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.9);
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+        }
+
+        /* Main Container */
+        .tool-container {
+            margin-top: 80px;
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1); /* Glassmorphism effect */
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 20, 147, 0.4); /* Pink shadow */
+            backdrop-filter: blur(10px);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, #ff1493, #000, #ff1493, #000); /* Pink gradient */
+            opacity: 0.2;
+            z-index: -1;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #ff1493, #fff); /* Pink gradient text */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            animation: slideIn 1s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 1.1rem;
+            color: #ff69b4; /* Pink */
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #ff1493; /* Pink */
+            box-shadow: 0 0 10px rgba(255, 20, 147, 0.5); /* Pink glow */
+            outline: none;
+        }
+
+        .btn {
+            background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.7); /* Pink glow */
+        }
+
+        .sigml-output {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4); /* Pink shadow */
+        }
+
+        .sigml-output pre {
+            margin: 0;
+            color: #ff69b4; /* Pink */
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .copy-btn:hover {
+            box-shadow: 0 0 10px rgba(255, 20, 147, 0.7); /* Pink glow */
+        }
+
+        #download-link {
+            display: none;
+            margin-top: 15px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Navbar Scroll Effect
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 50) {
+                    $('.navbar').addClass('scrolled');
+                } else {
+                    $('.navbar').removeClass('scrolled');
+                }
+            });
+
+            // Hamburger Menu Toggle
+            $('.menu-toggle').click(function() {
+                $(this).toggleClass('active');
+                $('.nav-links').toggleClass('active');
+            });
+
+            // Form Submission
+            $('#sigml-form').on('submit', function(e) {
+                e.preventDefault();
+                const formData = $(this).serialize();
+
+                $.ajax({
+                    url: '/hamnosys2sigml/generate',
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            $('#sigml-content').text(response.sigml_content);
+                            $('#download-link')
+                                .attr('href', response.download_url)
+                                .attr('download', response.word + '.sigml')  // Set download filename
+                                .show();
+                        } else {
+                            alert(response.error || "An error occurred.");
+                        }
+                    },
+                    error: function(xhr) {
+                        alert(xhr.responseJSON?.error || "An error occurred.");
+                    }
+                });
+            });
+
+            // Copy SiGML to Clipboard
+            $(document).on('click', '.copy-btn', function() {
+                const sigmlText = $('#sigml-content').text();
+                navigator.clipboard.writeText(sigmlText).then(() => {
+                    alert('SiGML copied to clipboard!');
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <!-- Navbar -->
+    {% include 'sigml_generator_navbar.html' %}
+
+    <!-- Main Container -->
+    <div class="tool-container">
+        <h1>HamNoSys2SiGML Tool</h1>
+        <form id="sigml-form">
+            <div class="form-group">
+                <label for="word">Word</label>
+                <input type="text" id="word" name="word" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="hamnosys">HamNoSys Notation</label>
+                <textarea id="hamnosys" name="hamnosys" rows="5" required></textarea>
+            </div>
+            <button type="submit" class="btn">
+                <i class="fas fa-magic"></i> Generate SiGML
+            </button>
+        </form>
+        <div id="result" class="mt-4">
+            <h3>Generated SiGML</h3>
+            <div class="sigml-output">
+                <pre id="sigml-content"></pre>
+                <button class="copy-btn">Copy</button>
+            </div>
+            <a id="download-link" class="btn mt-3" style="display: none;">
+                <i class="fas fa-download"></i> Download SiGML
+            </a>
+        </div>
+    </div>
+</body>
+</html>
