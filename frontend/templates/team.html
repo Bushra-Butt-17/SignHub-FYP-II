@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Team | SignHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --pak-green: #01411C;
+            --pak-light-green: #2D572C;
+            --pucit-blue: #0056b3;
+            --accent: #FFD700;
+            --white: #FFFFFF;
+            --light-bg: #F5F5F5;
+            --text-dark: #333333;
+            --text-light: #777777;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            width: 100%;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+            background-color: var(--white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--pak-green), var(--pucit-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-link {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 1rem;
+        }
+
+        .nav-link:hover {
+            color: var(--pucit-blue);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--pucit-blue);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--pak-green);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .team-header {
+            padding: 120px 10% 60px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--white) 50%, rgba(245,245,245,0.8) 100%);
+        }
+
+        .team-header h1 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--pak-green), var(--pucit-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .team-header p {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .team-section {
+            padding: 60px 10%;
+            background-color: var(--white);
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .team-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .team-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .team-card {
+            background: var(--light-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .team-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .team-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            object-fit: cover;
+            border: 5px solid var(--white);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .team-card h3 {
+            color: var(--pak-green);
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+
+        .team-card .role {
+            color: var(--pucit-blue);
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .team-card p {
+            color: var(--text-dark);
+            line-height: 1.7;
+        }
+
+        .footer {
+            background-color: var(--pak-green);
+            color: var(--white);
+            padding: 60px 10% 30px;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--white), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .footer-about p {
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .footer-links h3, .footer-contact h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .footer-links ul {
+            list-style-type: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: var(--white);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .footer-contact p {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-contact i {
+            color: var(--accent);
+            width: 20px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: var(--white);
+                flex-direction: column;
+                align-items: center;
+                gap: 0;
+                padding: 20px 0;
+                box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-link {
+                padding: 15px;
+                width: 100%;
+                text-align: center;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .team-header {
+                padding: 100px 5% 40px;
+            }
+
+            .team-header h1 {
+                font-size: 2.2rem;
+            }
+
+            .team-header p {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-text {
+                font-size: 1.3rem;
+            }
+
+            .team-header {
+                padding: 90px 5% 30px;
+            }
+
+            .team-header h1 {
+                font-size: 2rem;
+            }
+
+            .team-header p {
+                font-size: 1rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <div class="logo-text">SignHub</div>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/team" class="nav-link">Team</a>
+            <a href="/about" class="nav-link">About</a>
+            <a href="/contact" class="nav-link">Contact</a>
+        </div>
+        <button class="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <header class="team-header">
+        <h1>Our Team</h1>
+        <p>Meet the talented individuals behind SignHub, dedicated to revolutionizing sign language interpretation.</p>
+    </header>
+
+    <section class="team-section" id="team">
+        <div class="team-container">
+            <div class="team-grid">
+                <!-- Student Team Members -->
+                <div class="team-card">
+                    <img src="https://via.placeholder.com/150" alt="Student 1" class="team-photo">
+                    <h3>Student 1</h3>
+                    <p class="role">AI Model Developer</p>
+                    <p>Passionate about AI and machine learning, Student 1 leads the development of our gesture recognition models.</p>
+                </div>
+                <div class="team-card">
+                    <img src="https://via.placeholder.com/150" alt="Student 2" class="team-photo">
+                    <h3>Student 2</h3>
+                    <p class="role">Frontend Developer</p>
+                    <p>Student 2 creates the user interface, ensuring a seamless and intuitive experience for our users.</p>
+                </div>
+                <div class="team-card">
+                    <img src="https://via.placeholder.com/150" alt="Student 3" class="team-photo">
+                    <h3>Student 3</h3>
+                    <p class="role">Backend Developer</p>
+                    <p>Student 3 handles the backend integration, ensuring robust and scalable solutions.</p>
+                </div>
+                <div class="team-card">
+                    <img src="https://via.placeholder.com/150" alt="Student 4" class="team-photo">
+                    <h3>Student 4</h3>
+                    <p class="role">Data Collection Specialist</p>
+                    <p>Student 4 is dedicated to curating the HamNoSys dataset, ensuring accuracy and comprehensiveness.</p>
+                </div>
+                <div class="team-card">
+                    <img src="https://via.placeholder.com/150" alt="Student 5" class="team-photo">
+                    <h3>Student 5</h3>
+                    <p class="role">Content Curator</p>
+                    <p>Student 5 focuses on content curation and validation, enhancing the quality of our sign language data.</p>
+                </div>
+                <!-- Faculty Team Members -->
+                <div class="team-card">
+                    <img src="https://via.placeholder.com/150" alt="Faculty 1" class="team-photo">
+                    <h3>Faculty 1</h3>
+                    <p class="role">Project Advisor</p>
+                    <p>Faculty 1 provides expert guidance and mentorship, ensuring the project's success.</p>
+                </div>
+                <div class="team-card">
+                    <img src="https://via.placeholder.com/150" alt="Faculty 2" class="team-photo">
+                    <h3>Faculty 2</h3>
+                    <p class="role">Technical Advisor</p>
+                    <p>Faculty 2 offers technical expertise and support, helping to overcome complex challenges.</p>
+                </div>
+                <div class="team-card">
+                    <img src="https://via.placeholder.com/150" alt="Faculty 3" class="team-photo">
+                    <h3>Faculty 3</h3>
+                    <p class="role">Research Advisor</p>
+                    <p>Faculty 3 leads research initiatives, contributing to the project's innovative solutions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer" id="contact">
+        <div class="footer-container">
+            <div class="footer-about">
+                <div class="footer-logo">SignHub</div>
+                <p>Revolutionizing sign language interpretation through cutting-edge AI technology developed at PUCIT to empower inclusive communication for everyone.</p>
+                <div class="team-badge" style="background: rgba(255,255,255,0.1); color: var(--white);">
+                    <i class="fas fa-university"></i>
+                    <span>PUCIT</span> Final Year Project
+                </div>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/team">Team</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h3>Contact Us</h3>
+                <p><i class="fas fa-map-marker-alt"></i> Punjab University College of IT, Lahore</p>
+                <p><i class="fas fa-envelope"></i> info@signhub.pucit.edu.pk</p>
+                <p><i class="fas fa-phone"></i> +92 42 123 4567</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 SignHub | PUCIT. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Scroll animations for team section
+        const teamSection = document.querySelector('.team-section');
+
+        function checkVisibility() {
+            const sectionTop = teamSection.getBoundingClientRect().top;
+            const windowHeight = window.innerHeight;
+            if (sectionTop < windowHeight * 0.75) {
+                teamSection.classList.add('visible');
+            }
+        }
+
+        // Initial check
+        checkVisibility();
+
+        // Add scroll event listener
+        window.addEventListener('scroll', checkVisibility);
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                navLinks.classList.remove('active');
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

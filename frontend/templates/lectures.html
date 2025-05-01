@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Language Lectures | SignHub</title>
+    <!-- Favicon link -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3182CE;
+            --primary-dark: #2C5282;
+            --primary-light: #4299E1;
+            --secondary: #38B2AC;
+            --accent: #ECC94B;
+            --white: #FFFFFF;
+            --light-bg: #F7FAFC;
+            --dark-text: #2D3748;
+            --light-text: #718096;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .navbar {
+            width: 100%;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+            background-color: var(--white);
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .navbar.scrolled {
+            padding: 0.75rem 5%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: var(--transition);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--dark-text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+            font-size: 1rem;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* Hero Section */
+        .lectures-header {
+            padding: 8rem 5% 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--light-bg) 0%, var(--white) 100%);
+        }
+
+        .lectures-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 45%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            z-index: 0;
+            clip-path: polygon(20% 0%, 100% 0, 100% 100%, 0% 100%);
+        }
+
+        .header-content {
+            flex: 1;
+            max-width: 600px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .lectures-header h1 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            margin-bottom: 1.5rem;
+            color: var(--dark-text);
+            line-height: 1.2;
+            font-weight: 700;
+        }
+
+        .lectures-header p {
+            font-size: 1.2rem;
+            color: var(--light-text);
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+
+        .header-image {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+            max-width: 500px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .header-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow-hover);
+            transform: perspective(1000px) rotateY(-10deg);
+            transition: var(--transition);
+        }
+
+        .header-image:hover img {
+            transform: perspective(1000px) rotateY(-5deg) scale(1.02);
+        }
+
+        /* Lectures Section */
+        .lectures-section {
+            padding: 6rem 5%;
+            background-color: var(--white);
+            position: relative;
+        }
+
+        .lectures-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.25rem;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .section-title p {
+            color: var(--light-text);
+            max-width: 700px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+        }
+
+        .lectures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .lecture-card {
+            position: relative;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            aspect-ratio: 16/9;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            color: var(--white);
+            background-size: cover;
+            background-position: center;
+            transform: translateY(0);
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .lecture-card:nth-child(1) {
+            animation-delay: 0.2s;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+
+        .lecture-card:nth-child(2) {
+            animation-delay: 0.4s;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+        }
+
+        .lecture-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            transition: var(--transition);
+            z-index: 1;
+        }
+
+        .lecture-card:hover {
+            transform: translateY(-0.5rem);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .lecture-card:hover::before {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .lecture-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            z-index: 2;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .lecture-card h3 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            z-index: 2;
+            font-weight: 600;
+        }
+
+        .lecture-card p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            z-index: 2;
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.75rem;
+            background-color: var(--accent);
+            color: var(--dark-text);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: var(--transition);
+            z-index: 2;
+            border: 2px solid transparent;
+        }
+
+        .btn:hover {
+            background-color: transparent;
+            color: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: var(--white);
+            padding: 4rem 5% 2rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-about {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer-logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, var(--white), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .footer-about p {
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+            opacity: 0.9;
+        }
+
+        .team-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: auto;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            width: fit-content;
+        }
+
+        .footer-links h3, .footer-contact h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: var(--white);
+            text-decoration: none;
+            transition: var(--transition);
+            opacity: 0.9;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+            opacity: 1;
+        }
+
+        .footer-contact p {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .footer-contact i {
+            color: var(--accent);
+            width: 1.25rem;
+            text-align: center;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        /* Video Modal */
+        .video-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .video-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .video-container {
+            position: relative;
+            width: 90%;
+            max-width: 1000px;
+            aspect-ratio: 16/9;
+            background: var(--dark-text);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .video-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .close-video {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--accent);
+            color: var(--dark-text);
+            border: none;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: var(--transition);
+            z-index: 2001;
+        }
+
+        .close-video:hover {
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        .video-title {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            color: var(--white);
+            font-size: 1.1rem;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            z-index: 2001;
+            max-width: 80%;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .lectures-header::before {
+                width: 50%;
+                clip-path: polygon(15% 0%, 100% 0, 100% 100%, 0% 100%);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem 5%;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                justify-content: center;
+                gap: 2rem;
+                transition: var(--transition);
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .lectures-header {
+                flex-direction: column;
+                padding: 6rem 5% 3rem;
+                text-align: center;
+                min-height: auto;
+            }
+
+            .lectures-header::before {
+                width: 100%;
+                height: 40%;
+                top: auto;
+                bottom: 0;
+                clip-path: polygon(0 30%, 100% 0, 100% 100%, 0% 100%);
+            }
+
+            .header-content {
+                margin-bottom: 2rem;
+            }
+
+            .header-image {
+                max-width: 100%;
+                margin-bottom: 2rem;
+            }
+
+            .lectures-section {
+                padding: 4rem 5%;
+            }
+
+            .section-title h2 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-text {
+                font-size: 1.3rem;
+            }
+
+            .lectures-header h1 {
+                font-size: 2rem;
+            }
+
+            .lectures-header p {
+                font-size: 1rem;
+            }
+
+            .lecture-card {
+                padding: 1.5rem;
+            }
+
+            .lecture-card h3 {
+                font-size: 1.5rem;
+            }
+
+            .footer-container {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <div class="logo-text">SignHub</div>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('welcome') }}" class="nav-link">Home</a>
+            <a href="{{ url_for('lecture_gestures') }}" class="nav-link">Lectures</a>
+            <a href="{{ url_for('browse_gestures') }}" class="nav-link">Dictionary</a>
+            <a href="{{ url_for('welcome') }}#about" class="nav-link">About</a>
+            <a href="{{ url_for('welcome') }}#team" class="nav-link">Team</a>
+            <a href="{{ url_for('welcome') }}#work" class="nav-link">Our Work</a>
+            <a href="{{ url_for('welcome') }}#contact" class="nav-link">Contact</a>
+        </div>
+        <button class="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <header class="lectures-header">
+        <div class="header-content">
+            <h1>Sign Language Lectures</h1>
+            <p>Explore our comprehensive collection of sign language lectures, covering both Computer Science and English language topics. Our expert instructors guide you through interactive lessons designed to help you master sign language communication.</p>
+        </div>
+        <div class="header-image">
+            <img src="https://github.com/user-attachments/assets/a0fd75d7-1606-41c0-895b-5f8eb79b8235" alt="Sign Language Learning">
+        </div>
+    </header>
+
+    <section class="lectures-section" id="lectures">
+        <div class="lectures-container">
+            <div class="section-title">
+                <h2>Featured Lecture Series</h2>
+                <p>Choose from our carefully curated collection of sign language lectures, designed to help you master both technical and everyday communication.</p>
+            </div>
+            
+            <div class="lectures-grid">
+                <div class="lecture-card" data-video-id="PLHJUUorMCl8gsItVkBxrY5pLMKBprNK4M">
+                    <i class="fas fa-laptop-code lecture-icon"></i>
+                    <h3>Computer Lectures</h3>
+                    <p>Master computer-related sign language through our comprehensive video series.</p>
+                    <span class="btn">
+                        <i class="fas fa-play"></i> Watch Lectures
+                    </span>
+                </div>
+                
+                <div class="lecture-card" data-video-id="YOUR_ENGLISH_PLAYLIST_ID">
+                    <i class="fas fa-language lecture-icon"></i>
+                    <h3>English Lectures</h3>
+                    <p>Learn English vocabulary and phrases in sign language with our expert instructors.</p>
+                    <span class="btn">
+                        <i class="fas fa-play"></i> Watch Lectures
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Modal -->
+    <div class="video-modal" id="videoModal">
+        <div class="video-container">
+            <button class="close-video" id="closeVideo">
+                <i class="fas fa-times"></i>
+            </button>
+            <iframe class="video-iframe" id="videoIframe" src="" allowfullscreen></iframe>
+            <div class="video-title" id="videoTitle"></div>
+        </div>
+    </div>
+
+    <footer class="footer" id="contact">
+        <div class="footer-container">
+            <div class="footer-about">
+                <div class="footer-logo">SignHub</div>
+                <p>Revolutionizing sign language interpretation through cutting-edge AI technology developed at PUCIT to empower inclusive communication for everyone.</p>
+                <div class="team-badge">
+                    <i class="fas fa-university"></i>
+                    <span>PUCIT</span> Final Year Project
+                </div>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/team">Team</a></li>
+                    <li><a href="/lectures">Lectures</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h3>Contact Us</h3>
+                <p><i class="fas fa-map-marker-alt"></i> Punjab University College of IT, Lahore</p>
+                <p><i class="fas fa-envelope"></i> info@signhub.pucit.edu.pk</p>
+                <p><i class="fas fa-phone"></i> +92 42 123 4567</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 SignHub | PUCIT. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+        const navbar = document.querySelector('.navbar');
+
+        menuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            menuBtn.innerHTML = navLinks.classList.contains('active') ? 
+                '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            });
+        });
+
+        // Video Player Functionality
+        const videoModal = document.getElementById('videoModal');
+        const videoIframe = document.getElementById('videoIframe');
+        const videoTitle = document.getElementById('videoTitle');
+        const closeVideo = document.getElementById('closeVideo');
+        const lectureCards = document.querySelectorAll('.lecture-card');
+
+        lectureCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const videoId = card.dataset.videoId;
+                const title = card.querySelector('h3').textContent;
+                videoIframe.src = `https://www.youtube.com/embed/videoseries?list=${videoId}`;
+                videoTitle.textContent = title;
+                videoModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+
+        closeVideo.addEventListener('click', () => {
+            videoModal.classList.remove('active');
+            videoIframe.src = '';
+            document.body.style.overflow = 'auto';
+        });
+
+        videoModal.addEventListener('click', (e) => {
+            if (e.target === videoModal) {
+                closeVideo.click();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && videoModal.classList.contains('active')) {
+                closeVideo.click();
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Animate elements when they come into view
+        const animateOnScroll = () => {
+            const elements = document.querySelectorAll('.lecture-card');
+            
+            elements.forEach(element => {
+                const elementPosition = element.getBoundingClientRect().top;
+                const screenPosition = window.innerHeight / 1.2;
+                
+                if (elementPosition < screenPosition) {
+                    element.style.animation = `fadeInUp 0.6s ease-out forwards`;
+                }
+            });
+        };
+
+        // Initial check
+        animateOnScroll();
+
+        // Add scroll event listener
+        window.addEventListener('scroll', animateOnScroll);
+    </script>
+</body>
+</html>

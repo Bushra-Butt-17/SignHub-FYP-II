@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Users - SignHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Modern Color Schemes */
+            --scheme-1: {
+                --primary: #1B1B2F;
+                --secondary: #162447;
+                --accent: #1F4068;
+                --highlight: #E94560;
+            }
+            --scheme-2: {
+                --primary: #0A192F;
+                --secondary: #112240;
+                --accent: #233554;
+                --highlight: #64FFDA;
+            }
+            --scheme-3: {
+                --primary: #2C1810;
+                --secondary: #3D2314;
+                --accent: #8B4513;
+                --highlight: #D4AF37;
+            }
+
+            /* Active Color Scheme (default to scheme-1) */
+            --primary: #1B1B2F;
+            --secondary: #162447;
+            --accent: #1F4068;
+            --highlight: #E94560;
+
+            /* Gradients */
+            --primary-gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            --card-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            --hover-gradient: linear-gradient(135deg, var(--accent) 0%, var(--highlight) 100%);
+        }
+
+        body {
+            background: var(--primary-gradient);
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background 0.5s ease;
+            padding-top: 100px;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            padding: 15px 0;
+        }
+
+        .navbar.scrolled {
+            background: rgba(27, 27, 47, 0.95);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            padding: 10px 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--highlight) !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .navbar-brand i {
+            margin-right: 10px;
+            color: var(--highlight);
+        }
+
+        .nav-stats {
+            display: flex;
+            gap: 20px;
+            margin-right: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .stat-item i {
+            color: var(--highlight);
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: var(--highlight);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-right: 20px;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            background: var(--highlight);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn i {
+            font-size: 1rem;
+        }
+
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-logout:hover {
+            background: var(--highlight);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .page-title {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: fadeInDown 1s ease-out;
+            position: relative;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: var(--highlight);
+            border-radius: 2px;
+            animation: expandWidth 1s ease-out forwards;
+        }
+
+        .users-container {
+            background: var(--card-gradient);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .table {
+            color: white;
+            margin-bottom: 0;
+        }
+
+        .table th {
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+        }
+
+        .table td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            vertical-align: middle;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .role-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .role-editor {
+            background: rgba(233, 69, 96, 0.2);
+            color: #E94560;
+        }
+
+        .role-sigml {
+            background: rgba(100, 255, 218, 0.2);
+            color: #64FFDA;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .alert {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease-out;
+            backdrop-filter: blur(10px);
+        }
+
+        .color-scheme-selector {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .color-scheme-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid white;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .color-scheme-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .scheme-1 { background: linear-gradient(45deg, #1B1B2F, #162447); }
+        .scheme-2 { background: linear-gradient(45deg, #0A192F, #112240); }
+        .scheme-3 { background: linear-gradient(45deg, #2C1810, #3D2314); }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes expandWidth {
+            from { width: 0; }
+            to { width: 100px; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            .nav-stats, .nav-buttons {
+                display: none;
+            }
+            .users-container {
+                padding: 20px;
+            }
+            .table {
+                font-size: 0.9rem;
+            }
+            .table th, .table td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-user-shield"></i>Admin Dashboard
+            </a>
+            <div class="d-flex align-items-center">
+                <div class="nav-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-user-edit"></i>
+                        <span>Editors: <span class="stat-value">{{ editors }}</span></span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-code"></i>
+                        <span>SIGML: <span class="stat-value">{{ sigml }}</span></span>
+                    </div>
+                </div>
+                <div class="nav-buttons">
+                    <a href="{{ url_for('view_users') }}" class="nav-btn">
+                        <i class="fas fa-users"></i>
+                        View Users
+                    </a>
+                    <a href="{{ url_for('create_user') }}" class="nav-btn">
+                        <i class="fas fa-user-plus"></i>
+                        Create User
+                    </a>
+                </div>
+                <a href="{{ url_for('admin_logout') }}" class="btn btn-logout">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2 class="page-title">User Management</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="users-container">
+            {% if users %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Created At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        <span class="role-badge {% if user.role == 'Editor' %}role-editor{% else %}role-sigml{% endif %}">
+                                            {{ user.role }}
+                                        </span>
+                                    </td>
+                                    <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h3>No Users Found</h3>
+                    <p>Start by creating a new user</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Color Scheme Selector -->
+    <div class="color-scheme-selector">
+        <button class="color-scheme-btn scheme-1" onclick="changeColorScheme(1)"></button>
+        <button class="color-scheme-btn scheme-2" onclick="changeColorScheme(2)"></button>
+        <button class="color-scheme-btn scheme-3" onclick="changeColorScheme(3)"></button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Set default color scheme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default color scheme (scheme 1)
+            changeColorScheme(1);
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Color scheme switcher
+        function changeColorScheme(scheme) {
+            const root = document.documentElement;
+            switch(scheme) {
+                case 1:
+                    root.style.setProperty('--primary', '#1B1B2F');
+                    root.style.setProperty('--secondary', '#162447');
+                    root.style.setProperty('--accent', '#1F4068');
+                    root.style.setProperty('--highlight', '#E94560');
+                    break;
+                case 2:
+                    root.style.setProperty('--primary', '#0A192F');
+                    root.style.setProperty('--secondary', '#112240');
+                    root.style.setProperty('--accent', '#233554');
+                    root.style.setProperty('--highlight', '#64FFDA');
+                    break;
+                case 3:
+                    root.style.setProperty('--primary', '#2C1810');
+                    root.style.setProperty('--secondary', '#3D2314');
+                    root.style.setProperty('--accent', '#8B4513');
+                    root.style.setProperty('--highlight', '#D4AF37');
+                    break;
+            }
+        }
+    </script>
+</body>
+</html> 

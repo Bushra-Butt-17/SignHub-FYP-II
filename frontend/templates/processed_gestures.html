@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processed Gestures | SignHub</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Favicon link -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #000); /* Black gradient */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            width: 100%;
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: background 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar.scrolled {
+            background: linear-gradient(90deg, rgba(255, 20, 147, 0.9), rgba(255, 105, 180, 0.9)); /* Pink gradient */
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ff1493; /* Pink */
+            background: linear-gradient(90deg, #ff1493, #ff69b4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s;
+        }
+
+        .navbar.scrolled .logo {
+            color: black;
+            background: linear-gradient(90deg, black, #333);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            font-size: 1.2rem;
+            color: white;
+            transition: color 0.3s, transform 0.3s;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover {
+            color: #ff1493; /* Pink */
+            transform: translateY(-3px);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Nav Actions */
+        .nav-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-actions .logout-btn {
+            text-decoration: none;
+            color: white;
+            font-size: 1.2rem;
+            background: linear-gradient(90deg, #ff0000, #8b0000);
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-actions .logout-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        /* Main Container */
+        .processed-container {
+            margin-top: 80px;
+            max-width: 1200px;
+            width: 100%;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1); /* Glassmorphism effect */
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 20, 147, 0.4); /* Pink shadow */
+            backdrop-filter: blur(10px);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .processed-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, #ff1493, #000, #ff1493, #000); /* Pink gradient */
+            opacity: 0.2;
+            z-index: -1;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #ff1493, #fff); /* Pink gradient text */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: slideIn 1s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        /* Gestures Table */
+        .gestures-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .gestures-table th, .gestures-table td {
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: left;
+        }
+
+        .gestures-table th {
+            background: rgba(255, 20, 147, 0.5); /* Pink header */
+            color: white;
+        }
+
+        .gestures-table tr:hover {
+            background: rgba(255, 20, 147, 0.1); /* Pink hover effect */
+        }
+
+        .btn {
+            background: linear-gradient(90deg, #ff1493, #ff69b4); /* Pink gradient */
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.7); /* Pink glow */
+        }
+    </style>
+    <script>
+        $(document).ready(function() {
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 50) {
+                    $('.navbar').addClass('scrolled');
+                } else {
+                    $('.navbar').removeClass('scrolled');
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    {% include 'sigml_generator_navbar.html' %}
+          
+
+    <!-- Main Content -->
+    <div class="processed-container">
+        <h1>Processed Gestures</h1>
+        <table class="gestures-table">
+            <thead>
+                <tr>
+                    <th>Gesture Name</th>
+                    <th>Dialect</th>
+                    <th>Contributor</th>
+                    <th>Editor</th>
+                    <th>Category</th>
+                    <th>Processed On</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for gesture in processed_gestures %}
+                    <tr>
+                        <td>{{ gesture.name }}</td>
+                        <td>{{ gesture.dialect }}</td>
+                        <td>{{ gesture.contributor_name }}</td>
+                        <td>{{ gesture.editor_name }}</td>
+                        <td>{{ gesture.category }}</td>
+                        <td>{{ gesture.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>
+                            <a href="{{ url_for('view_gesture', gesture_id=gesture.gesture_id) }}" class="btn">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
