@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSL Dictionary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Favicon link -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0056b3;
+            --secondary: #01411C;
+            --accent: #FFD700;
+            --light: #F5F5F5;
+            --dark: #333333;
+            --white: #FFFFFF;
+            --error: #e74c3c;
+            --success: #2ecc71;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 40px; /* Increased right/left padding */
+}
+        
+        h1 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .search-container {
+            display: flex;
+            margin-bottom: 30px;
+            gap: 10px;
+            position: relative;
+            margin-left: 70px;
+            margin-right: 20px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.2);
+        }
+        
+        .search-button {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin-right: 70px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .search-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 100;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-right: 200px;
+        }
+        
+        .search-suggestion {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .search-suggestion:hover {
+            background-color: rgba(0, 86, 179, 0.1);
+        }
+        
+        .layout {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: var(--white);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+        
+        .sidebar-section h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .sidebar-list {
+            list-style: none;
+        }
+        
+        .sidebar-list li {
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .sidebar-list li:hover {
+            background-color: rgba(0, 86, 179, 0.1);
+            color: var(--primary);
+        }
+        
+        .sidebar-list li.active {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 86, 179, 0.2);
+        }
+        
+        .main-content {
+    flex: 1;
+    padding-right: 20px; /* Add right padding */
+}
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .sort-filter {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .sort-by {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sort-by select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background-color: var(--white);
+        }
+        
+        .dictionary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding-right: 20px; /* Add right padding */
+}
+        
+        .sign-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            text-align: center;
+            border: 1px solid rgba(0, 86, 179, 0.1);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .sign-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-color: rgba(0, 86, 179, 0.3);
+        }
+        
+        .sign-media {
+            width: 100%;
+            height: 120px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .sign-media video,
+        .sign-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--white);
+            background: rgba(0, 86, 179, 0.7);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sign-card:hover .play-icon {
+            opacity: 1;
+        }
+        
+        .sign-name {
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+        
+        .sign-category {
+            color: var(--primary);
+            font-size: 0.8rem;
+        }
+        
+        .sign-contributor {
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+        
+        .sign-date {
+            color: #888;
+            font-size: 0.7rem;
+            margin-top: 5px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            grid-column: 1 / -1;
+        }
+        
+        .no-results i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .no-results h3 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            grid-column: 1 / -1;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 86, 179, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            background-color: var(--success);
+        }
+        
+        .toast.error {
+            background-color: var(--error);
+        }
+        
+        @media (max-width: 768px) {
+            .layout {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: static;
+                margin-bottom: 20px;
+                max-height: none;
+            }
+            
+            .dictionary-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+        .sign-media {
+    width: 100%;
+    height: 120px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sign-media video,
+.sign-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Changed from cover to contain */
+    background: black; /* For better video visibility */
+}
+
+.play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--white);
+    background: rgba(0, 86, 179, 0.7);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 2;
+}
+
+.sign-card:hover .play-icon {
+    opacity: 1;
+}
+
+.sign-media::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0));
+    z-index: 1;
+}
+
+.sign-media {
+    width: 100%;
+    height: 120px;
+    background-color: #000; /* Black background for video */
+    border-radius: 8px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    position: relative;
+}
+
+.sign-media video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Show full video without cropping */
+    background: #000; /* Ensure black background shows if video doesn't fill */
+}
+
+.empty-media {
+    width: 100%;
+    height: 100%;
+    background: #000; /* Black background when no media */
+}
+
+.play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    background: rgba(0, 86, 179, 0.7);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 2;
+}
+
+.sign-card:hover .play-icon {
+    opacity: 1;
+}
+
+/* [Rest of your existing CSS remains the same] */
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+
+
+
+
+    <div class="container" style="display: flex; align-items: center; gap: 20px;">
+        <h1 style="margin-top: 70px;">PSL Dictionary</h1>
+        
+    </div>
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search for signs..." id="searchInput" autocomplete="off">
+            <button class="search-button" id="searchButton">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <div class="search-suggestions" id="searchSuggestions"></div>
+        </div>
+        
+        <div class="layout">
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-hands"></i> Alphabet</h3>
+                    <ul class="sidebar-list" id="alphabetList">
+                        <li class="active" data-filter="all">All Signs</li>
+                        <li data-filter="ABC - One-Handed">ABC - One-Handed</li>
+                        <li data-filter="ABC - Two-Handed">ABC - Two-Handed</li>
+                    </ul>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-tags"></i> Categories</h3>
+                    <ul class="sidebar-list" id="categoryList">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <div class="breadcrumb">
+                    <a href="#">PSL Dictionary</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span id="currentFilterDisplay">All Signs</span>
+                </div>
+                
+                <div class="sort-filter">
+                    <div class="sort-by">
+                        <span>Sort By</span>
+                        <select id="sortSelect">
+                            <option value="name-asc">Name (A-Z)</option>
+                            <option value="name-desc">Name (Z-A)</option>
+                            <option value="category">Category</option>
+                            <option value="recent">Most Recent</option>
+                        </select>
+                    </div>
+                    <div id="resultCount">0 results</div>
+                </div>
+                
+                <div class="dictionary-grid" id="dictionaryGrid">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const searchInput = document.getElementById('searchInput');
+            const searchButton = document.getElementById('searchButton');
+            const searchSuggestions = document.getElementById('searchSuggestions');
+            const sortSelect = document.getElementById('sortSelect');
+            const dictionaryGrid = document.getElementById('dictionaryGrid');
+            const alphabetList = document.getElementById('alphabetList');
+            const categoryList = document.getElementById('categoryList');
+            const currentFilterDisplay = document.getElementById('currentFilterDisplay');
+            const resultCount = document.getElementById('resultCount');
+            const toastContainer = document.getElementById('toastContainer');
+            
+            // State variables
+            let allSigns = [];
+            let allCategories = [];
+            let currentFilter = "all";
+            let currentSort = "name-asc";
+            let currentSearch = "";
+            let debounceTimer;
+            
+            // Initialize the dictionary
+            async function initDictionary() {
+                try {
+                    // Load categories from backend
+                    const categories = await fetchCategories();
+                    allCategories = categories;
+                    renderCategories(categories);
+                    
+                    // Load all signs initially
+                    await loadSignsForCategory(currentFilter);
+                    
+                    // Setup event listeners
+                    setupEventListeners();
+                } catch (error) {
+                    console.error("Error initializing dictionary:", error);
+                    showToast("Failed to load dictionary data", "error");
+                }
+            }
+            
+            // Fetch categories from backend
+            async function fetchCategories() {
+                try {
+                    showLoading(categoryList);
+                    
+                    const response = await fetch('/api/categories');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch categories');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data.success) {
+                        throw new Error(data.error || 'Failed to load categories');
+                    }
+                    
+                    return data.categories || [];
+                } catch (error) {
+                    console.error("Error fetching categories:", error);
+                    showToast("Error loading categories", "error");
+                    return [];
+                }
+            }
+            
+            // Load signs for a specific category
+            async function loadSignsForCategory(category) {
+                try {
+                    showLoading(dictionaryGrid);
+                    
+                    let response;
+                    if (category === "all") {
+                        response = await fetch('/api/gestures/all');
+                    } else {
+                        response = await fetch(`/api/gestures/category/${encodeURIComponent(category)}`);
+                    }
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch signs for category: ${category}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data.success) {
+                        throw new Error(data.error || `Failed to load signs for category: ${category}`);
+                    }
+                    
+                    allSigns = data.gestures || [];
+                    filterSigns();
+                } catch (error) {
+                    console.error(`Error loading signs for category ${category}:`, error);
+                    showToast(`Error loading signs for ${category}`, "error");
+                    dictionaryGrid.innerHTML = `
+                        <div class="no-results">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Error Loading Signs</h3>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Search gestures by name
+            async function searchGestures(searchTerm) {
+                try {
+                    showLoading(dictionaryGrid);
+                    
+                    const response = await fetch(`/api/gestures/search?q=${encodeURIComponent(searchTerm)}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to search signs');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data.success) {
+                        throw new Error(data.error || 'Failed to search signs');
+                    }
+                    
+                    allSigns = data.gestures || [];
+                    filterSigns();
+                } catch (error) {
+                    console.error("Error searching signs:", error);
+                    showToast("Error searching signs", "error");
+                    dictionaryGrid.innerHTML = `
+                        <div class="no-results">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Search Error</h3>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Render categories to sidebar
+            function renderCategories(categories) {
+                categoryList.innerHTML = '';
+                
+                if (categories.length === 0) {
+                    categoryList.innerHTML = `
+                        <div class="no-results">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>No categories found</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                categories.forEach(category => {
+                    const li = document.createElement('li');
+                    li.textContent = category;
+                    li.dataset.filter = category;
+                    li.addEventListener('click', () => {
+                        setActiveFilter(category, li);
+                    });
+                    categoryList.appendChild(li);
+                });
+            }
+            
+            // Set active filter
+            function setActiveFilter(filter, element) {
+                currentFilter = filter;
+                currentSearch = ""; // Clear search when changing category
+                searchInput.value = "";
+                currentFilterDisplay.textContent = filter;
+                
+                // Update active states
+                document.querySelectorAll('.sidebar-list li').forEach(li => {
+                    li.classList.remove('active');
+                });
+                
+                if (element) {
+                    element.classList.add('active');
+                } else {
+                    // Find and activate the matching filter element
+                    const allFilters = document.querySelectorAll('.sidebar-list li');
+                    for (const filterElement of allFilters) {
+                        if (filterElement.dataset.filter === filter) {
+                            filterElement.classList.add('active');
+                            break;
+                        }
+                    }
+                }
+                
+                // Load signs for the new category
+                loadSignsForCategory(filter);
+            }
+            
+            // Modified renderSigns function
+            function renderSigns(signs) {
+                dictionaryGrid.innerHTML = '';
+                
+                if (signs.length === 0) {
+                    dictionaryGrid.innerHTML = `
+                        <div class="no-results">
+                            <h3>No signs found</h3>
+                            <p>Try a different search or category</p>
+                        </div>
+                    `;
+                    resultCount.textContent = "0 results";
+                    return;
+                }
+                
+                resultCount.textContent = `${signs.length} ${signs.length === 1 ? 'result' : 'results'}`;
+                
+                signs.forEach(sign => {
+                    const card = document.createElement('div');
+                    card.className = 'sign-card';
+                    
+                    card.addEventListener('click', () => {
+                        window.location.href = `/gesture?name=${encodeURIComponent(sign.name)}`;
+                    });
+                    
+                    // Video element - always show video if available
+                    let mediaContent = '';
+                    if (sign.avatar_video_id) {
+                        mediaContent = `
+                            <video src="/api/video/${sign.avatar_video_id}" muted loop playsinline></video>
+                            <div class="play-icon"><i class="fas fa-play"></i></div>
+                        `;
+                    } else {
+                        // Empty media container with black background
+                        mediaContent = '<div class="empty-media"></div>';
+                    }
+                    
+                    card.innerHTML = `
+                        <div class="sign-media">
+                            ${mediaContent}
+                        </div>
+                        <div class="sign-name">${sign.name || 'Unnamed Sign'}</div>
+                        <div class="sign-category">${sign.category || 'Uncategorized'}</div>
+                        ${sign.contributor_name ? `<div class="sign-contributor">By: ${sign.contributor_name}</div>` : ''}
+                        ${sign.created_at ? `<div class="sign-date">Added: ${new Date(sign.created_at).toLocaleDateString()}</div>` : ''}
+                    `;
+                    
+                    dictionaryGrid.appendChild(card);
+                });
+            }
+            
+            // Filter signs based on current state
+            function filterSigns() {
+                let filtered = [...allSigns];
+                
+                // Apply search filter if there's a search term
+                if (currentSearch) {
+                    const searchTerm = currentSearch.toLowerCase();
+                    filtered = filtered.filter(sign => 
+                        sign.name.toLowerCase().includes(searchTerm) || 
+                        (sign.category && sign.category.toLowerCase().includes(searchTerm))
+                    );
+                }
+                
+                // Apply sorting
+                filtered.sort((a, b) => {
+                    switch(currentSort) {
+                        case "name-asc":
+                            return a.name.localeCompare(b.name);
+                        case "name-desc":
+                            return b.name.localeCompare(a.name);
+                        case "category":
+                            return (a.category || '').localeCompare(b.category || '') || a.name.localeCompare(b.name);
+                        case "recent":
+                            return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+                        default:
+                            return 0;
+                    }
+                });
+                
+                renderSigns(filtered);
+            }
+            
+            // Show search suggestions
+            function showSearchSuggestions(query) {
+                if (!query) {
+                    searchSuggestions.style.display = 'none';
+                    return;
+                }
+                
+                const queryLower = query.toLowerCase();
+                const suggestions = [];
+                
+                // Find matching signs
+                allSigns.forEach(sign => {
+                    if (sign.name.toLowerCase().includes(queryLower)) {
+                        suggestions.push({
+                            type: 'sign',
+                            name: sign.name,
+                            category: sign.category
+                        });
+                    }
+                });
+                
+                // Find matching categories
+                allCategories.forEach(category => {
+                    if (category.toLowerCase().includes(queryLower)) {
+                        suggestions.push({
+                            type: 'category',
+                            name: category
+                        });
+                    }
+                });
+                
+                // Limit to 10 suggestions
+                const limitedSuggestions = suggestions.slice(0, 10);
+                
+                // Render suggestions
+                if (limitedSuggestions.length > 0) {
+                    searchSuggestions.innerHTML = '';
+                    limitedSuggestions.forEach(suggestion => {
+                        const div = document.createElement('div');
+                        div.className = 'search-suggestion';
+                        
+                        if (suggestion.type === 'sign') {
+                            div.innerHTML = `
+                                <i class="fas fa-hands"></i>
+                                <strong>${suggestion.name}</strong>
+                                <span>${suggestion.category ? `(${suggestion.category})` : ''}</span>
+                            `;
+                            div.addEventListener('click', () => {
+                                searchInput.value = suggestion.name;
+                                currentSearch = suggestion.name;
+                                filterSigns();
+                                searchSuggestions.style.display = 'none';
+                            });
+                        } else {
+                            div.innerHTML = `
+                                <i class="fas fa-tag"></i>
+                                <strong>${suggestion.name}</strong>
+                                <span>(Category)</span>
+                            `;
+                            div.addEventListener('click', () => {
+                                searchInput.value = '';
+                                currentSearch = '';
+                                setActiveFilter(suggestion.name, null);
+                                searchSuggestions.style.display = 'none';
+                            });
+                        }
+                        
+                        searchSuggestions.appendChild(div);
+                    });
+                    
+                    searchSuggestions.style.display = 'block';
+                } else {
+                    searchSuggestions.style.display = 'none';
+                }
+            }
+            
+            // Show loading state
+            function showLoading(container) {
+                container.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                `;
+            }
+            
+            // Show toast notification
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                    ${message}
+                `;
+                toastContainer.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.classList.add('show');
+                }, 10);
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 300);
+                }, 3000);
+            }
+            
+            // Setup event listeners
+            function setupEventListeners() {
+                // Search functionality
+                searchButton.addEventListener('click', () => {
+                    currentSearch = searchInput.value.trim();
+                    if (currentSearch) {
+                        searchGestures(currentSearch);
+                    } else {
+                        loadSignsForCategory(currentFilter);
+                    }
+                    searchSuggestions.style.display = 'none';
+                });
+                
+                searchInput.addEventListener('input', () => {
+                    currentSearch = searchInput.value.trim();
+                    
+                    // Debounce the search suggestions
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        showSearchSuggestions(currentSearch);
+                    }, 300);
+                });
+                
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        currentSearch = searchInput.value.trim();
+                        if (currentSearch) {
+                            searchGestures(currentSearch);
+                        } else {
+                            loadSignsForCategory(currentFilter);
+                        }
+                        searchSuggestions.style.display = 'none';
+                    }
+                });
+                
+                // Hide suggestions when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                        searchSuggestions.style.display = 'none';
+                    }
+                });
+                
+                // Sort functionality
+                sortSelect.addEventListener('change', () => {
+                    currentSort = sortSelect.value;
+                    filterSigns();
+                });
+                
+                // Alphabet filter
+                alphabetList.querySelectorAll('li').forEach(item => {
+                    item.addEventListener('click', () => {
+                        setActiveFilter(item.dataset.filter, item);
+                    });
+                });
+            }
+            
+            // Initialize the dictionary
+            initDictionary();
+        });
+    </script>
+
+
+
+{% include 'footer.html' %}
+
+</body>
+</html>
