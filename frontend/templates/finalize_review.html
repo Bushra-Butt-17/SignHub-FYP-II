@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Finalize Gesture Review</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Favicon link -->
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome (for icons if needed) -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+    <style>
+        video {
+            max-height: 300px;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+        }
+        .sigml-box {
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="max-w-5xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-xl">
+        <h1 class="text-3xl font-bold text-center text-red-600 mb-8">Finalize Reviewed Gesture</h1>
+
+        <!-- Metadata -->
+        <div class="mb-6 space-y-1 text-sm">
+            <p><strong>Name:</strong> {{ gesture.name }}</p>
+            <p><strong>Dialect:</strong> {{ gesture.dialect }}</p>
+            <p><strong>Category:</strong> {{ gesture.category }}</p>
+            <p><strong>Contributor:</strong> {{ gesture.contributor_name }}</p>
+            <p><strong>Editor:</strong> {{ gesture.editor_name }}</p>
+            <p><strong>Reviewed On:</strong> {{ gesture.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+        </div>
+
+        <!-- Videos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {% if gesture.gesture_video_url %}
+            <div>
+                <span class="block text-gray-700 font-semibold mb-2">Original Gesture</span>
+                <video id="video-gesture" controls preload="metadata" class="w-full">
+                    <source src="{{ gesture.gesture_video_url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            {% endif %}
+
+            {% if gesture.avatar_video_url %}
+            <div>
+                <span class="block text-gray-700 font-semibold mb-2">Avatar Rendering</span>
+                <video id="video-avatar" controls preload="metadata" class="w-full">
+                    <source src="{{ gesture.avatar_video_url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- SiGML Content -->
+        {% if sigml_text %}
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-xl font-semibold text-gray-700">SiGML Content</h3>
+                <button id="copy-btn" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
+                    Copy
+                </button>
+            </div>
+            <div class="sigml-box" id="sigml-text">{{ sigml_text }}</div>
+        </div>
+        {% endif %}
+
+        <!-- Finalization Form -->
+        <form method="POST" action="{{ url_for('submit_final_decision', gesture_id=gesture._id['$oid']) }}" class="space-y-4">
+            <div>
+                <label for="decision" class="block font-semibold mb-2">Final Decision</label>
+                <select name="decision" id="decision" required class="w-full p-2 border border-gray-300 rounded-lg">
+                    <option value="">-- Select an option --</option>
+                    <option value="finalize">✅ Finalize</option>
+                    <option value="reject">❌ Reject</option>
+                    <option value="revision">✏️ Send for Revision</option>
+                </select>
+            </div>
+            <div class="flex justify-between items-center">
+                <a href="{{ url_for('finalize_next_gesture') }}" class="text-red-600 hover:underline">Skip / Next</a>
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-bold">
+                    Submit Final Decision
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- JS: Video Sync + Clipboard -->
+    <script>
+        const video1 = document.getElementById('video-gesture');
+        const video2 = document.getElementById('video-avatar');
+
+        function syncVideo(source, targets) {
+            source.addEventListener('play', () => targets.forEach(v => v.play()));
+            source.addEventListener('pause', () => targets.forEach(v => v.pause()));
+            source.addEventListener('seeked', () => {
+                const time = source.currentTime;
+                targets.forEach(v => { v.currentTime = time; });
+            });
+        }
+
+        if (video1 && video2) {
+            syncVideo(video1, [video2]);
+            syncVideo(video2, [video1]);
+        }
+
+        document.getElementById('copy-btn')?.addEventListener('click', () => {
+            const text = document.getElementById('sigml-text').innerText;
+            navigator.clipboard.writeText(text).then(() => alert('SiGML copied!'));
+        });
+    </script>
+
+</body>
+</html>
