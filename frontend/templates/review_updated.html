@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Updated Gestures | SignHub</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- Favicon link -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            width: 100%;
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: background 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar.scrolled {
+            background: linear-gradient(90deg, rgba(50, 205, 50, 0.9), rgba(34, 139, 34, 0.9));
+            box-shadow: 0 4px 15px rgba(50, 205, 50, 0.3);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #32cd32;
+            background: linear-gradient(90deg, #32cd32, #228b22);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s;
+        }
+
+        .navbar.scrolled .logo {
+            color: black;
+            background: linear-gradient(90deg, black, #333);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            font-size: 1.2rem;
+            color: white;
+            transition: color 0.3s, transform 0.3s;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #32cd32, #228b22);
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover {
+            color: #32cd32;
+            transform: translateY(-3px);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-actions .logout-btn {
+            text-decoration: none;
+            color: white;
+            font-size: 1.2rem;
+            background: linear-gradient(90deg, #ff0000, #8b0000);
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-actions .logout-btn:hover {
+            background: linear-gradient(90deg, #8b0000, #ff0000);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #000);
+            color: white;
+            min-height: 100vh;
+            padding: 100px 20px 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .review-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .review-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, #32cd32, #000, #32cd32, #000);
+            opacity: 0.2;
+            z-index: -1;
+            animation: rotate 10s linear infinite;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #32cd32, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin: 25px 0 15px;
+            color: #32cd32;
+            position: relative;
+            display: inline-block;
+        }
+
+        h3::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #32cd32, transparent);
+        }
+
+        .video-comparison {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .video-container {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(50, 205, 50, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .video-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(50, 205, 50, 0.4);
+        }
+
+        video {
+            width: 100%;
+            border-radius: 10px;
+            display: block;
+        }
+
+        form {
+            margin-top: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(50, 205, 50, 0.3);
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 8px;
+            color: #32cd32;
+            font-weight: 500;
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #32cd32;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 20px;
+            transition: box-shadow 0.3s;
+        }
+
+        select:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(50, 205, 50, 0.5);
+        }
+
+        button[type="submit"] {
+            background: linear-gradient(90deg, #32cd32, #228b22);
+            color: black;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button[type="submit"]::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.5s ease;
+            border-radius: 50%;
+        }
+
+        button[type="submit"]:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        button[type="submit"]:hover {
+            box-shadow: 0 0 20px rgba(50, 205, 50, 0.5);
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .video-comparison {
+                flex-direction: column;
+            }
+            
+            .review-container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">SignHub</div>
+        <div class="nav-links">
+            <a href="{{ url_for('editor_dashboard') }}" class="nav-link">Home</a>
+            <a href="{{ url_for('editor_profile') }}" class="nav-link">Profile</a>
+            <a href="{{ url_for('final_review_dashboard') }}" class="nav-link">Verified</a>        </div>
+        <div class="nav-actions">
+            <a href="{{ url_for('final_review_dashboard') }}" class="final-btn">
+                <i class="fa fa-bolt" aria-hidden="true"></i> Finalize
+            </a>
+            <a href="{{ url_for('review_gestures') }}" class="review-btn">
+                <i class="fas fa-check-circle"></i> Review
+            </a>
+            <a href="{{ url_for('editor_logout') }}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+            
+        </div>
+    </nav>
+
+    <div class="review-container">
+        <h1>Review Gesture: {{ gesture['name'] }}</h1>
+        <h3>Contributor: {{ gesture['contributor_name'] }}</h3>
+
+        <!-- Video Comparison Section -->
+        <div class="video-comparison">
+            {% if gesture.gesture_video_url %}
+            <div class="video-container">
+                <span class="video-label">Original Gesture</span>
+                <video controls>
+                    <source src="{{ gesture.gesture_video_url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            {% endif %}
+            
+            {% if gesture.avatar_video_url %}
+            <div class="video-container">
+                <span class="video-label">Avatar Rendering</span>
+                <video controls>
+                    <source src="{{ gesture.avatar_video_url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Review Form -->
+        <form method="POST">
+            <input type="hidden" name="gesture_id" value="{{ gesture['_id'] }}">
+            
+            <label for="category">Category:</label>
+            <select name="category" id="category" required>
+                <option value="Words" {% if gesture['category'] == 'Words' %}selected{% endif %}>Words</option>
+                <option value="Sentences" {% if gesture['category'] == 'Sentences' %}selected{% endif %}>Sentences</option>
+                <option value="Phrases" {% if gesture['category'] == 'Phrases' %}selected{% endif %}>Phrases</option>
+            </select>
+
+            <label for="decision">Decision:</label>
+            <select name="decision" id="decision" required>
+                <option value="accept">Accept</option>
+                <option value="revise">Revise</option>
+            </select>
+
+            <div id="comment-section" style="display:none;">
+                <label for="comment">Revision Comments:</label>
+                <textarea name="comment" id="comment" rows="4" placeholder="Please provide specific feedback for revision..."></textarea>
+            </div>
+
+            <button type="submit">Submit Review</button>
+        </form>
+    </div>
+
+    <script>
+        // Show comment section if "revise" is selected
+        const decisionSelect = document.getElementById('decision');
+        const commentSection = document.getElementById('comment-section');
+        
+        decisionSelect.addEventListener('change', () => {
+            commentSection.style.display = decisionSelect.value === 'revise' ? 'block' : 'none';
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                document.querySelector('.navbar').classList.add('scrolled');
+            } else {
+                document.querySelector('.navbar').classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>
