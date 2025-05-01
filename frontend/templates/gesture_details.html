@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ gesture.name }} | PSL Dictionary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Favicon link -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --pak-green: #01411C;
+            --pak-light-green: #2D572C;
+            --pucit-blue: #0056b3;
+            --accent: #FFD700;
+            --white: #FFFFFF;
+            --light-bg: #F5F5F5;
+            --text-dark: #333333;
+            --text-light: #777777;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .breadcrumb {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .breadcrumb a {
+            color: var(--pucit-blue);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .breadcrumb a:hover {
+            color: var(--pak-green);
+        }
+        
+        .breadcrumb-separator {
+            margin: 0 0.5rem;
+            color: var(--text-light);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--pak-green);
+            margin: 0;
+        }
+
+        .auto-play-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 86, 179, 0.1);
+            border-radius: 2rem;
+            cursor: pointer;
+            user-select: none;
+            transition: var(--transition);
+            border: none;
+            color: var(--pucit-blue);
+        }
+
+        .auto-play-toggle:hover {
+            background: rgba(0, 86, 179, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .toggle-icon {
+            font-size: 1rem;
+        }
+
+        .toggle-text {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .gesture-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .gesture-container {
+                grid-template-columns: 1.5fr 1fr;
+            }
+        }
+
+        .gesture-media-container {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .gesture-media-container:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .video-container {
+            width: 100%;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            background: black;
+            position: relative;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+        }
+
+        .gesture-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Changed from cover to contain */
+        }
+
+        .gesture-image {
+            width: 100%;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            object-fit: contain;
+        }
+
+        .gesture-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .action-button {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background: var(--light-bg);
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-dark);
+        }
+
+        .action-button:hover {
+            background: #e0e0e0;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .action-button i {
+            color: var(--pucit-blue);
+        }
+
+        .gesture-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .gesture-meta {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            background: rgba(1, 65, 28, 0.1);
+            color: var(--pak-green);
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .contributor {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .contributor i {
+            color: var(--pucit-blue);
+        }
+
+        .recommended-section {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--pak-green);
+        }
+
+        .section-title i {
+            color: var(--accent);
+        }
+
+        .recommended-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .recommended-card {
+            background: var(--light-bg);
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        .recommended-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--pucit-blue);
+        }
+
+        .recommended-media {
+            width: 100%;
+            height: 80px;
+            background: var(--white);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .recommended-media::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0));
+        }
+
+        .recommended-media i {
+            font-size: 1.5rem;
+            color: var(--text-light);
+        }
+
+        .recommended-media img,
+        .recommended-media video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .recommended-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .error-message {
+            text-align: center;
+            color: #dc3545;
+            padding: 2rem;
+            background: #f8d7da;
+            border-radius: 0.5rem;
+            margin: 2rem 0;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem 0;
+        }
+
+        .spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 0.35rem solid rgba(0, 86, 179, 0.1);
+            border-top-color: var(--pucit-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .gesture-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    {% include 'header.html' %}
+
+
+    <div class="container" style="margin-top: 80px;">
+        <div class="breadcrumb">
+            <a href="/browse"><i class="fas fa-arrow-left"></i> Back to Dictionary</a>
+            <span class="breadcrumb-separator"></span>
+            <span>{{ gesture.category or 'Sign' }}</span>
+        </div>
+
+        {% if error %}
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Error Loading Gesture</h3>
+                <p>{{ error }}</p>
+            </div>
+
+        {% elif gesture %}
+            <div class="page-header">
+                <h1 class="page-title">{{ gesture.name or 'Unnamed Gesture' }}</h1>
+                <button class="auto-play-toggle" id="autoPlayToggle">
+                    <i class="fas fa-play-circle toggle-icon" id="toggleIcon"></i>
+                    <span class="toggle-text" id="toggleText">Auto Play</span>
+                </button>
+            </div>
+
+            <div class="gesture-container">
+                <div class="gesture-media-container">
+                    {% if gesture.video_url %}
+                        <div class="video-container">
+                            <video class="gesture-video" id="gestureVideo" controls autoplay muted loop>
+                                <source src="{{ gesture.video_url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    {% elif gesture.image_url %}
+                        <img class="gesture-image" src="{{ gesture.image_url }}" alt="{{ gesture.name }}">
+                    {% else %}
+                        <div style="text-align: center; padding: 2rem; color: var(--text-light); background: var(--light-bg); border-radius: 0.5rem;">
+                            <i class="fas fa-hands" style="font-size: 3rem;"></i>
+                            <p>No media available</p>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="gesture-actions">
+                        <button class="action-button">
+                            <i class="fas fa-share-alt"></i>
+                            <span>Share</span>
+                        </button>
+                        <button class="action-button">
+                            <i class="fas fa-download"></i>
+                            <span>Download</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="gesture-sidebar">
+                    <div class="gesture-meta">
+                        <div class="category-badge">
+                            {{ gesture.category or 'General' }}
+                        </div>
+                        <div class="contributor">
+                            <i class="fas fa-user-circle"></i>
+                            <span>Shared by {{ gesture.contributor_name or 'Community' }}</span>
+                        </div>
+                    </div>
+
+                    {% if recommended_gestures %}
+                    <div class="recommended-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-hands-helping"></i>
+                            You May Also Like
+                        </h3>
+                        <div class="recommended-grid">
+                            {% for rec in recommended_gestures %}
+                            <div class="recommended-card" onclick="window.location.href='/gesture?name={{ rec.name | urlencode }}'">
+                                <div class="recommended-media">
+                                    {% if rec.video_url %}
+                                        <video src="{{ rec.video_url }}" muted loop></video>
+                                    {% elif rec.image_url %}
+                                        <img src="{{ rec.image_url }}" alt="{{ rec.name }}">
+                                    {% else %}
+                                        <i class="fas fa-hands"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="recommended-name">{{ rec.name }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        {% else %}
+            <div class="loading">
+                <div class="spinner"></div>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto play toggle functionality
+            const autoPlayToggle = document.getElementById('autoPlayToggle');
+            const toggleIcon = document.getElementById('toggleIcon');
+            const toggleText = document.getElementById('toggleText');
+            const gestureVideo = document.getElementById('gestureVideo');
+            
+            let autoPlayEnabled = false;
+            
+            if (autoPlayToggle && gestureVideo) {
+                autoPlayToggle.addEventListener('click', function() {
+                    autoPlayEnabled = !autoPlayEnabled;
+                    
+                    if (autoPlayEnabled) {
+                        toggleIcon.classList.remove('fa-play-circle');
+                        toggleIcon.classList.add('fa-pause-circle');
+                        toggleText.textContent = 'Playing';
+                        gestureVideo.play();
+                    } else {
+                        toggleIcon.classList.remove('fa-pause-circle');
+                        toggleIcon.classList.add('fa-play-circle');
+                        toggleText.textContent = 'Auto Play';
+                        gestureVideo.pause();
+                    }
+                });
+            }
+            
+            // Share button functionality
+            const shareButton = document.querySelector('.action-button:nth-child(1)');
+            if (shareButton) {
+                shareButton.addEventListener('click', function() {
+                    if (navigator.share) {
+                        navigator.share({
+                            title: 'PSL Sign: {{ gesture.name }}',
+                            text: 'Check out this Pakistan Sign Language sign',
+                            url: window.location.href
+                        }).catch(console.error);
+                    } else {
+                        // Fallback for browsers without Web Share API
+                        const input = document.createElement('input');
+                        input.value = window.location.href;
+                        document.body.appendChild(input);
+                        input.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(input);
+                        alert('Link copied to clipboard!');
+                    }
+                });
+            }
+            
+            // Download button functionality
+            const downloadButton = document.querySelector('.action-button:nth-child(2)');
+            if (downloadButton && gesture.video_url) {
+                downloadButton.addEventListener('click', function() {
+                    const link = document.createElement('a');
+                    link.href = '{{ gesture.video_url }}';
+                    link.download = 'psl-sign-{{ gesture.name }}.mp4';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            }
+        });
+    </script>
+
+
+{% include 'footer.html' %}
+
+</body>
+</html>
