@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to SignHub | PUCIT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Link to the gallery-specific styles -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}">
+    <!-- Favicon link -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    
+    <style>
+        :root {
+            --pak-green: #01411C;
+            --pak-light-green: #2D572C;
+            --pucit-blue: #0056b3;
+            --accent: #FFD700;
+            --white: #FFFFFF;
+            --light-bg: #F5F5F5;
+            --text-dark: #333333;
+            --text-light: #777777;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Existing styles remain unchanged */
+        .navbar {
+            width: 100%;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+            background-color: var(--white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--pak-green), var(--pucit-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-link {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 1rem;
+        }
+
+        .nav-link:hover {
+            color: var(--pucit-blue);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--pucit-blue);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--pak-green);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 80px 10% 0;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--white) 50%, rgba(245,245,245,0.8) 100%);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to bottom left, var(--pak-light-green), var(--pucit-blue));
+            z-index: 0;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 30% 100%);
+        }
+
+        .hero-content {
+            max-width: 600px;
+            z-index: 1;
+        }
+
+        .welcome-text {
+            font-size: 1.1rem;
+            color: var(--pucit-blue);
+            margin-bottom: 15px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--pak-green), var(--pucit-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .tagline {
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
+            margin-bottom: 30px;
+            color: var(--text-dark);
+            font-weight: 400;
+        }
+
+        .highlight {
+            color: var(--pucit-blue);
+            font-weight: 600;
+        }
+
+        .intro-text {
+            margin-bottom: 40px;
+            color: var(--text-light);
+            font-size: 1rem;
+            max-width: 500px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 28px;
+            background: linear-gradient(to right, var(--pak-green), var(--pucit-blue));
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(1, 65, 28, 0.3);
+            border: 2px solid transparent;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(1, 65, 28, 0.4);
+            background: transparent;
+            color: var(--pak-green);
+            border-color: var(--pak-green);
+        }
+
+        .team-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 30px;
+            background: var(--white);
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            font-size: 0.9rem;
+            color: var(--pak-green);
+            font-weight: 500;
+        }
+
+        .team-badge span {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* About Section Styles */
+        .about-section {
+            padding: 80px 10%;
+            background-color: var(--white);
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .about-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .about-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .about-card {
+            background: var(--light-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .about-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .about-icon {
+            font-size: 2.5rem;
+            color: var(--pucit-blue);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .about-card:hover .about-icon {
+            transform: scale(1.1);
+        }
+
+        .about-card h3 {
+            color: var(--pak-green);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .about-card p {
+            color: var(--text-dark);
+            line-height: 1.7;
+        }
+
+        /* Animation for cards */
+        .about-card {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .about-section.visible .about-card {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Delay for card animations */
+        .about-card:nth-child(1) { transition-delay: 0.2s; }
+        .about-card:nth-child(2) { transition-delay: 0.4s; }
+        .about-card:nth-child(3) { transition-delay: 0.6s; }
+
+        /* Gradient divider */
+        .section-divider {
+            height: 100px;
+            width: 100%;
+            background: linear-gradient(to bottom, var(--white), var(--light-bg));
+        }
+
+        /* New Team Section Styles */
+        .team-section {
+            padding: 80px 10%;
+            background-color: var(--light-bg);
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .team-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .team-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .team-intro {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .team-intro h2 {
+            color: var(--pak-green);
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .team-intro p {
+            color: var(--text-dark);
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .team-group {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .team-group:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .team-group h3 {
+            color: var(--pucit-blue);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .team-group h3 i {
+            color: var(--accent);
+        }
+
+        .team-group p {
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .team-members {
+            list-style-type: none;
+        }
+
+        .team-members li {
+            margin-bottom: 10px;
+            color: var(--text-dark);
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .team-members li:before {
+            content: "•";
+            color: var(--pucit-blue);
+            position: absolute;
+            left: 0;
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        /* Work Section Styles */
+        .work-section {
+            padding: 80px 10%;
+            background-color: var(--white);
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .work-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .work-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .work-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .work-card {
+            background: var(--light-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .work-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .work-card h3 {
+            color: var(--pak-green);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .work-card p {
+            color: var(--text-dark);
+            line-height: 1.7;
+        }
+
+        /* Footer Styles */
+        .footer {
+            background-color: var(--pak-green);
+            color: var(--white);
+            padding: 60px 10% 30px;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--white), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .footer-about p {
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .footer-links h3, .footer-contact h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .footer-links ul {
+            list-style-type: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: var(--white);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .footer-contact p {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-contact i {
+            color: var(--accent);
+            width: 20px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 992px) {
+            .hero::before {
+                width: 60%;
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 40% 100%);
+                opacity: 0.8;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: var(--white);
+                flex-direction: column;
+                align-items: center;
+                gap: 0;
+                padding: 20px 0;
+                box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-link {
+                padding: 15px;
+                width: 100%;
+                text-align: center;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero {
+                padding: 100px 5% 50px;
+                text-align: center;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .hero::before {
+                width: 100%;
+                height: 40%;
+                top: auto;
+                bottom: 0;
+                clip-path: polygon(0 40%, 100% 0, 100% 100%, 0% 100%);
+                opacity: 0.6;
+            }
+
+            .hero-content {
+                align-items: center;
+                text-align: center;
+            }
+
+            .intro-text {
+                max-width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .btn {
+                margin: 0 auto;
+            }
+
+            .team-intro {
+                text-align: left;
+            }
+
+            .team-intro p {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-text {
+                font-size: 1.3rem;
+            }
+
+            .hero {
+                padding: 90px 5% 40px;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .tagline {
+                font-size: 1.3rem;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <div class="logo-text">SignHub</div>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('welcome') }}" class="nav-link">Home</a>
+            <a href="{{ url_for('lecture_gestures') }}" class="nav-link">Lectures</a>
+            <a href="{{ url_for('browse_gestures') }}" class="nav-link">Dictionary</a>
+            <a href="{{ url_for('welcome') }}#about" class="nav-link">About</a>
+            <a href="{{ url_for('welcome') }}#team" class="nav-link">Team</a>
+            <a href="{{ url_for('welcome') }}#work" class="nav-link">Our Work</a>
+            <a href="{{ url_for('welcome') }}#contact" class="nav-link">Contact</a>
+
+        </div>
+        <button class="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    
+
+    <section class="hero">
+        <div class="hero-content">
+            <p class="welcome-text">Welcome to</p>
+            <h1>SignHub</h1>
+            <p class="tagline">Bridging communication gaps through <span class="highlight">AI-powered gestures</span></p>
+            <p class="intro-text">
+                Developed by PUCIT students, SignHub revolutionizes sign language interpretation using 
+                cutting-edge technology. Our solution provides accurate, real-time gesture recognition 
+                to empower inclusive communication for everyone.
+            </p>
+            <a href="{{url_for('browse_gestures')}}" class="btn">
+                <i class="fas fa-play"></i> Explore Dictionary
+            </a>
+            <a href="{{url_for('home')}}" class="btn">
+                <i class="fas fa-play"></i> Become a Contributor
+            </a>
+            
+            <div class="team-badge">
+                <i class="fas fa-university"></i>
+                <span>PUCIT</span> Final Year Project
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <section class="about-section" id="about">
+        <div class="about-content">
+            <h2>About SignHub</h2>
+            <p class="intro-text">We're revolutionizing sign language interpretation through cutting-edge AI technology developed at PUCIT.</p>
+            
+            <div class="about-grid">
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <h3>Our Mission</h3>
+                    <p>To eliminate communication barriers and empower the deaf community through innovative technology that bridges the gap between sign language and spoken communication.</p>
+                </div>
+                
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3>Our Technology</h3>
+                    <p>Using advanced gesture recognition and SiGML avatars, we provide real-time translation with over 1500 words in our comprehensive HamNoSys dataset.</p>
+                </div>
+                
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Our Team</h3>
+                    <p>A dedicated group of PUCIT students and faculty combining expertise in AI, machine learning, and sign language interpretation to create impactful solutions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+
+
+    <section class="team-section" id="team">
+        <div class="team-container">
+            <div class="team-intro">
+                <h2>Our Team</h2>
+                <p>Our team consists of 5 students and 3 esteemed faculty members, bringing a blend of expertise in AI, data science, and machine learning to build this impactful platform.</p>
+            </div>
+            
+            <div class="team-grid">
+                <div class="team-group">
+                    <h3><i class="fas fa-code"></i> Development Team</h3>
+                    <p>Three of our members focus on developing the core features of the platform, including AI models, frontend, and backend integration, ensuring a seamless user experience and robust technical architecture.</p>
+                    <ul class="team-members">
+                        <li>AI Model Development</li>
+                        <li>Frontend Development</li>
+                        <li>Backend Integration</li>
+                        <li>User Experience Design</li>
+                    </ul>
+                </div>
+                
+                <div class="team-group">
+                    <h3><i class="fas fa-database"></i> Data Collection Team</h3>
+                    <p>Two of our members are dedicated to creating and curating the HamNoSys dataset and SiGML data, with over 1500 words to support accurate sign language gesture recognition and translation.</p>
+                    <ul class="team-members">
+                        <li>HamNoSys Dataset Creation</li>
+                        <li>SiGML Data Collection</li>
+                        <li>Gesture Validation</li>
+                        <li>Content Curation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="work-section" id="work">
+        <div class="work-container">
+            <h2>Our Work</h2>
+            <p class="intro-text">Our platform is built on the following key resources:</p>
+            
+            <div class="work-grid">
+                <div class="work-card">
+                    <h3>HamNoSys Dataset</h3>
+                    <p>A comprehensive dataset of over 1500 words in HamNoSys format, which powers our gesture recognition system.</p>
+                </div>
+                
+                <div class="work-card">
+                    <h3>SiGML Dataset</h3>
+                    <p>A collection of SiGML data used to animate avatars for sign language translations.</p>
+                </div>
+                
+                <div class="work-card">
+                    <h3>Interactive Lessons</h3>
+                    <p>We've created lessons based on English and Computers, using SiGML avatars to enhance learning through real-time sign language gestures.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section><div class="gallery-container">
+        {% for image in images %}
+            <div class="gallery-slide {% if loop.index == 1 %}active{% endif %}" 
+                 style="background-image: url('{{ url_for('static', filename='images/' + image) }}');">
+            </div>
+        {% endfor %}
+
+        <div class="gallery-nav">
+            <button class="nav-arrow prev-arrow">&#10094;</button>
+            <button class="nav-arrow next-arrow">&#10095;</button>
+        </div>
+
+        <div class="gallery-indicators">
+            {% for image in images %}
+                <div class="indicator {% if loop.index == 1 %}active{% endif %}" data-index="{{ loop.index0 }}"></div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.gallery-slide');
+            const prevBtn = document.querySelector('.prev-arrow');
+            const nextBtn = document.querySelector('.next-arrow');
+            const indicators = document.querySelectorAll('.indicator');
+            let currentSlide = 0;
+            let slideInterval;
+
+            function initGallery() {
+                if (slides.length > 0) {
+                    updateIndicators();
+                    startSlideShow();
+                }
+            }
+
+            function goToSlide(n) {
+                slides[currentSlide].classList.remove('active');
+                indicators[currentSlide].classList.remove('active');
+                currentSlide = (n + slides.length) % slides.length;
+                slides[currentSlide].classList.add('active');
+                indicators[currentSlide].classList.add('active');
+            }
+
+            function nextSlide() {
+                goToSlide(currentSlide + 1);
+            }
+
+            function prevSlide() {
+                goToSlide(currentSlide - 1);
+            }
+
+            function updateIndicators() {
+                indicators.forEach((indicator, index) => {
+                    indicator.classList.toggle('active', index === currentSlide);
+                });
+            }
+
+            function startSlideShow() {
+                if (slides.length > 1) {
+                    slideInterval = setInterval(nextSlide, 5000);
+                }
+            }
+
+            function resetSlideShow() {
+                clearInterval(slideInterval);
+                startSlideShow();
+            }
+
+            if (prevBtn && nextBtn) {
+                prevBtn.addEventListener('click', () => {
+                    prevSlide();
+                    resetSlideShow();
+                });
+
+                nextBtn.addEventListener('click', () => {
+                    nextSlide();
+                    resetSlideShow();
+                });
+            }
+
+            indicators.forEach(indicator => {
+                indicator.addEventListener('click', () => {
+                    goToSlide(parseInt(indicator.getAttribute('data-index')));
+                    resetSlideShow();
+                });
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') {
+                    nextSlide();
+                    resetSlideShow();
+                } else if (e.key === 'ArrowLeft') {
+                    prevSlide();
+                    resetSlideShow();
+                }
+            });
+
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            const galleryContainer = document.querySelector('.gallery-container');
+            if (galleryContainer) {
+                galleryContainer.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, false);
+
+                galleryContainer.addEventListener('touchend', (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipe();
+                }, false);
+            }
+
+            function handleSwipe() {
+                if (touchEndX < touchStartX - 50) {
+                    nextSlide();
+                    resetSlideShow();
+                }
+                if (touchEndX > touchStartX + 50) {
+                    prevSlide();
+                    resetSlideShow();
+                }
+            }
+
+            initGallery();
+        });
+    </script></section>
+
+    <footer class="footer" id="contact">
+        <div class="footer-container">
+            <div class="footer-about">
+                <div class="footer-logo">SignHub</div>
+                <p>Revolutionizing sign language interpretation through cutting-edge AI technology developed at PUCIT to empower inclusive communication for everyone.</p>
+                <div class="team-badge" style="background: rgba(255,255,255,0.1); color: var(--white);">
+                    <i class="fas fa-university"></i>
+                    <span>PUCIT</span> Final Year Project
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#team">Our Team</a></li>
+                    <li><a href="#work">Our Work</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-contact">
+                <h3>Contact Us</h3>
+                <p><i class="fas fa-map-marker-alt"></i> Punjab University College of IT, Lahore</p>
+                <p><i class="fas fa-envelope"></i> info@signhub.pucit.edu.pk</p>
+                <p><i class="fas fa-phone"></i> +92 42 123 4567</p>
+                <a href="{{url_for('home')}}" class="btn" style="margin-top: 20px; background: var(--accent); color: var(--pak-green);">
+                    <i class="fas fa-user-plus"></i> Sign Up Today
+                </a>
+            </div>
+        </div>
+        
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 SignHub | PUCIT. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Hero section animations
+        document.addEventListener('DOMContentLoaded', () => {
+            const elements = document.querySelectorAll('.hero-content > *');
+            elements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.animation = `fadeIn 0.5s ease forwards ${index * 0.2 + 0.3}s`;
+            });
+        });
+
+        // Scroll animations for sections
+        const sections = document.querySelectorAll('.about-section, .team-section, .work-section');
+
+        function checkVisibility() {
+            sections.forEach(section => {
+                const sectionTop = section.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (sectionTop < windowHeight * 0.75) {
+                    section.classList.add('visible');
+                }
+            });
+        }
+
+        // Initial check
+        checkVisibility();
+
+        // Add scroll event listener
+        window.addEventListener('scroll', checkVisibility);
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                // Close mobile menu if open
+                navLinks.classList.remove('active');
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
